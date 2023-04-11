@@ -56,7 +56,7 @@ public class FooUowController : ControllerBase
         return await _unitOfWork.Foos.GetAsync();
     }
 
-    [HttpPut]
+    [HttpPut("{id:int}")]
     public async Task<ActionResult<List<Foo>>> Put(FooDto fooDto, int id)
     {
         var itemToUpdate = await _unitOfWork.Foos.GetByIdAsync(id);
@@ -73,7 +73,7 @@ public class FooUowController : ControllerBase
         return await _unitOfWork.Foos.GetAsync();
     }
 
-    [HttpDelete]
+    [HttpDelete("{id:int}")]
     public async Task<ActionResult<List<Foo>>> DeleteItem(int id)
     {
         var itemToDelete = await _unitOfWork.Foos.GetByIdAsync(id);
