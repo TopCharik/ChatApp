@@ -478,3 +478,6 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+
+# SQL Server local files
+SqlServer_localVolumes/
