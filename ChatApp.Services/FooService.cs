@@ -35,7 +35,7 @@ namespace ChatApp.Services;
     public async Task<List<Foo>> AddAsync(Foo foo)
     {
         _unitOfWork.Foos.Add(foo);
-        await _unitOfWork.CompleteAsync();
+        await _unitOfWork.SaveChangesAsync();
       
         return await _unitOfWork.Foos.GetAsync();
     }
@@ -43,7 +43,7 @@ namespace ChatApp.Services;
     public async Task<List<Foo>> UpdateAsync(Foo foo)
     {
         _unitOfWork.Foos.Update(foo);
-        await _unitOfWork.CompleteAsync();
+        await _unitOfWork.SaveChangesAsync();
 
         return await _unitOfWork.Foos.GetAsync();
     }
@@ -53,7 +53,7 @@ namespace ChatApp.Services;
     public async Task<List<Foo>> DeleteAsync(Foo foo)
     {
         _unitOfWork.Foos.Delete(foo);
-        await _unitOfWork.CompleteAsync();
+        await _unitOfWork.SaveChangesAsync();
 
         return await _unitOfWork.Foos.GetAsync();
     }

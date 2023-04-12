@@ -18,7 +18,7 @@ public class UnitOfWork : IUnitOfWork
         Foos = new FooRepository(_context);
     }
 
-    public async Task<int> CompleteAsync()
+    public async Task<int> SaveChangesAsync()
     {
         return await _context.SaveChangesAsync();
     }

@@ -6,5 +6,5 @@ public interface IUnitOfWork : IDisposable
 {
     public IFooRepository Foos { get; }
 
-    Task<int> CompleteAsync();
+    Task<int> SaveChangesAsync();
 }

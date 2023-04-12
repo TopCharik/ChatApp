@@ -6,11 +6,11 @@ namespace ChatApp.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class FooServiceController : ControllerBase
+public class FooController : ControllerBase
 {
-    private IFooService _fooService;
+    private readonly IFooService _fooService;
 
-    public FooServiceController(IFooService fooService)
+    public FooController(IFooService fooService)
     {
         _fooService = fooService;
     }
