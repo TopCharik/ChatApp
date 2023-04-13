@@ -2,8 +2,8 @@ using ChatApp.Core.Entities;
 
 namespace ChatApp.Core.Interfaces;
 
-public interface IGenericRepository<T> where T : BaseEntity
-{
+public interface IBaseRepository<T> where T : BaseEntity
+{ 
     Task<List<T>> GetAsync();
     Task<int> CountAsync();
     Task<T?> GetByIdAsync(int id);

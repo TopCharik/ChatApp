@@ -73,7 +73,6 @@ public class FooController : ControllerBase
         {
             return NotFound();
         }
-        
         return await _fooService.DeleteAsync(itemToDelete);
     }
 }

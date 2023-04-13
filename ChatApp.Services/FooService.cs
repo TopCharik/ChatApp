@@ -14,7 +14,8 @@ namespace ChatApp.Services;
 
     public async Task<List<Foo>> GetAsync()
     {
-        return await _unitOfWork.Foos.GetAsync();
+        var repo = _unitOfWork.GetRepository<Foo>();
+        return await repo.GetAsync();
     }
     
     public async Task<List<Foo>> GetFilteredAsync(string filter)

@@ -1,4 +1,8 @@
+using System.Text;
+using ChatApp.API;
+using ChatApp.API.Extensions;
 using ChatApp.Core.Entities.FooAggregate;
+using ChatApp.Core.Entities.Identity;
 using ChatApp.Core.Interfaces;
 using ChatApp.DAL;
 using ChatApp.DAL.AppContext;
@@ -11,17 +15,21 @@ var config = builder.Configuration;
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerService();
 
 builder.Services.AddDbContext<AppDbContext>(opt => opt
     .UseSqlServer(config.GetConnectionString("LocalDbConnection"))
 );
 
+
+
+builder.Services.AddJwtAuthentication(config);
+builder.Services.AddSingleton<IJwtConfiguration, JwtConfiguration>();
+
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IFooService, FooService>();
 
 var app = builder.Build();
-
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -30,6 +38,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ChatApp.DAL.Repositories;
 
-public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
+public class BaseRepository<T> : IBaseRepository<T> where T : BaseEntity
 {
     protected readonly DbSet<T> _dbSet;
 
-    public GenericRepository(AppDbContext context)
+    public BaseRepository(AppDbContext context)
     {
         _dbSet = context.Set<T>();
     }
