@@ -7,4 +7,4 @@ public class FooDto
     [Required]
     [MaxLength(100)]
     public string Message { get; set; }
-}
+}   

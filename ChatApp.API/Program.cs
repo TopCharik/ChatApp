@@ -1,4 +1,3 @@
-using System.Text;
 using ChatApp.API;
 using ChatApp.API.Extensions;
 using ChatApp.Core.Entities.FooAggregate;
@@ -7,6 +6,7 @@ using ChatApp.Core.Interfaces;
 using ChatApp.DAL;
 using ChatApp.DAL.AppContext;
 using ChatApp.Services;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,10 +21,13 @@ builder.Services.AddDbContext<AppDbContext>(opt => opt
     .UseSqlServer(config.GetConnectionString("LocalDbConnection"))
 );
 
-
+builder.Services.AddIdentityCore<AppUser>()
+    .AddEntityFrameworkStores<AppDbContext>()
+    .AddSignInManager<SignInManager<AppUser>>();
 
 builder.Services.AddJwtAuthentication(config);
-builder.Services.AddSingleton<IJwtConfiguration, JwtConfiguration>();
+builder.Services.AddScoped<IJwtConfiguration, JwtConfiguration>();
+builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IFooService, FooService>();

@@ -1,5 +1,6 @@
 using ChatApp.API.DTOs;
 using ChatApp.Core.Entities.FooAggregate;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ChatApp.API.Controllers;
@@ -16,6 +17,7 @@ public class FooController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize]
     public async Task<List<Foo>> Get()
     {
         return await _fooService.GetAsync();
