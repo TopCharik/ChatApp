@@ -1,5 +1,4 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
+using ChatApp.API.DTOs;
 using ChatApp.Core.Entities.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -11,31 +10,102 @@ namespace ChatApp.API.Controllers;
 [Route("api/[controller]")]
 public class AccountController : ControllerBase
 {
-    private readonly IJwtConfiguration _jwtConfiguration;
+    private readonly UserManager<AppUser> _userManager;
+    private readonly SignInManager<AppUser> _signInManager;
+    private readonly IJwtTokenService _jwtTokenService;
 
-    public AccountController(IJwtConfiguration jwtConfiguration)
+    public AccountController(
+        UserManager<AppUser> userManager,
+        SignInManager<AppUser> signInManager,
+        IJwtTokenService jwtTokenService
+    )
     {
-        _jwtConfiguration = jwtConfiguration;
+        _userManager = userManager;
+        _signInManager = signInManager;
+        _jwtTokenService = jwtTokenService;
     }
 
-    [HttpGet]
-    public ActionResult<string> Login()
+    [HttpPost]
+    [Route("login")]
+    public async Task<ActionResult<UserDto>> Login(LoginDto loginDto)
     {
-        var claims = new List<Claim>
+        var user = await _userManager.FindByNameAsync(loginDto.UserName);
+
+        if (user == null)
         {
-            new Claim(JwtRegisteredClaimNames.Sub, "TopCharik"),
-            new Claim(JwtRegisteredClaimNames.Email, "test@example.com"),
+            return BadRequest("Wrong password or/and user name.");
+        }
+
+        var result = await _signInManager.CheckPasswordSignInAsync(user, loginDto.Password, false);
+
+        if (!result.Succeeded)
+        {
+            return BadRequest("Wrong password or/and user name.");
+        }
+
+        return new UserDto
+        {
+            Email = user.Email,
+            UserName = user.UserName,
+            Token = _jwtTokenService.CreateToken(user),
+        };
+    }
+
+    [HttpPost]
+    [Route("register")]
+    public async Task<ActionResult<UserDto>> Register(UserRegisterDto registerDto)
+    {
+        var user = new AppUser
+        {
+            Email = registerDto.Email,
+            UserName = registerDto.UserName,
         };
 
+        var result = await _userManager.CreateAsync(user, registerDto.Password);
+        if (!result.Succeeded)
+        {
+            return BadRequest(result.Errors);
+        }
 
-        var token = new JwtSecurityToken(
-            issuer: _jwtConfiguration.Issuer,
-            claims: claims,
-            expires: DateTime.Now.AddMinutes(30),
-            signingCredentials: _jwtConfiguration.SigningCredentials
-            );
+        return new UserDto
+        {
+            Email = user.Email,
+            UserName = user.UserName,
+            Token = _jwtTokenService.CreateToken(user),
+        };
+    }
 
-        var value = new JwtSecurityTokenHandler().WriteToken(token);
-        return value;
+    [HttpPost]
+    [Route("change-password")]
+    public async Task<ActionResult<UserDto>> Register(ChangePasswordDto changePasswordDto)
+    {
+        var user = await _userManager.FindByNameAsync(changePasswordDto.UserName);
+        if (user == null || user.Email != changePasswordDto.Email)
+        {
+            return BadRequest("Wrong email or/and user name.");
+        }
+
+        
+
+        var result = await _userManager.RemovePasswordAsync(user);
+
+        if (!result.Succeeded)
+        {
+            return BadRequest(result.Errors);
+        }
+
+        result = await _userManager.AddPasswordAsync(user, changePasswordDto.Password);
+
+        if (!result.Succeeded)
+        {
+            return BadRequest(result.Errors);
+        }
+
+        return new UserDto
+        {
+            Email = user.Email,
+            UserName = user.UserName,
+            Token = _jwtTokenService.CreateToken(user),
+        };
     }
 }
