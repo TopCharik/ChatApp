@@ -1,32 +1,39 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Text;
 using ChatApp.Core.Entities.Identity;
+using Microsoft.IdentityModel.Tokens;
 
 namespace ChatApp.API;
 
 public class JwtTokenService : IJwtTokenService
 {
-    private readonly IJwtConfiguration _jwtConfiguration;
+    private readonly string _key;
+    private readonly string _issuer;
 
-    public JwtTokenService(IJwtConfiguration jwtConfiguration)
+    public JwtTokenService(IConfiguration configuration)
     {
-        _jwtConfiguration = jwtConfiguration;
+        _issuer = configuration["Token:Issuer"]  ?? throw new ArgumentException("Jwt Issuer is required");
+        _key = configuration["Token:Key"] ?? throw new ArgumentException("Jwt Key is required");
     }
 
     public string CreateToken(AppUser user)
     {
+        var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_key));
+        var signingCredentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha512);
+        
         var claims = new List<Claim>
         {
-            new Claim("UserName", user.UserName),
+            new Claim("username", user.UserName),
             new Claim(JwtRegisteredClaimNames.Email, user.Email),
         };
 
 
         var token = new JwtSecurityToken(
-            issuer: _jwtConfiguration.Issuer,
+            issuer: _issuer,
             claims: claims,
-            expires: DateTime.Now.AddMinutes(30),
-            signingCredentials: _jwtConfiguration.SigningCredentials
+            expires: DateTime.Now.AddSeconds(30),
+            signingCredentials: signingCredentials
         );
 
         return new JwtSecurityTokenHandler().WriteToken(token);

@@ -17,7 +17,6 @@ public class FooController : ControllerBase
     }
 
     [HttpGet]
-    [Authorize]
     public async Task<List<Foo>> Get()
     {
         return await _fooService.GetAsync();

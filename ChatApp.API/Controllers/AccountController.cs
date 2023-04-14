@@ -33,14 +33,14 @@ public class AccountController : ControllerBase
 
         if (user == null)
         {
-            return BadRequest("Wrong password or/and user name.");
+            return Unauthorized("Wrong password or/and user name.");
         }
 
         var result = await _signInManager.CheckPasswordSignInAsync(user, loginDto.Password, false);
 
         if (!result.Succeeded)
         {
-            return BadRequest("Wrong password or/and user name.");
+            return Unauthorized("Wrong password or/and user name.");
         }
 
         return new UserDto

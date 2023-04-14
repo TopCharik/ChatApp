@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
 using ChatApp.Core.Entities.FooAggregate;
 using ChatApp.Core.Interfaces;
 using ChatApp.DAL;
@@ -19,6 +17,8 @@ builder.Services.AddDbContext<AppDbContext>(opt => opt
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IFooService, FooService>();
+
+builder.Services.AddHttpClient();
 
 
 var app = builder.Build();

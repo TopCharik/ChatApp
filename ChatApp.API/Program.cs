@@ -26,7 +26,6 @@ builder.Services.AddIdentityCore<AppUser>()
     .AddSignInManager<SignInManager<AppUser>>();
 
 builder.Services.AddJwtAuthentication(config);
-builder.Services.AddScoped<IJwtConfiguration, JwtConfiguration>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
