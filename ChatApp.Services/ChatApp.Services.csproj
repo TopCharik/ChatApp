@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ChatApp.Core\ChatApp.Core.csproj" />
     <ProjectReference Include="..\ChatApp.DAL.App\ChatApp.DAL.App.csproj" />
     <ProjectReference Include="..\ChatApp.DAL.Identity\ChatApp.DAL.Identity.csproj" />
   </ItemGroup>
