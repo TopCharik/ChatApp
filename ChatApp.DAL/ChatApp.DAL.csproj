@@ -16,4 +16,8 @@
     <ProjectReference Include="..\ChatApp.Core\ChatApp.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="AppContext\Configurations\" />
+  </ItemGroup>
+
 </Project>

@@ -1,5 +1,4 @@
 using ChatApp.Core.Entities;
-using ChatApp.Core.Entities.FooAggregate;
 using ChatApp.Core.Interfaces;
 using ChatApp.DAL.AppContext;
 using ChatApp.DAL.Repositories;
@@ -10,17 +9,8 @@ public class UnitOfWork : IUnitOfWork
 {
     private readonly AppDbContext _context;
     private readonly Dictionary<Type, object> _repositories;
-    private IFooRepository? _fooRepository;
     private bool _isDisposed;
-
-    public IFooRepository Foos
-    {
-        get
-        {
-            _fooRepository ??= new FooRepository(_context);
-            return _fooRepository;
-        }
-    }
+    
 
     public UnitOfWork(AppDbContext context)
     {
