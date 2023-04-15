@@ -479,6 +479,8 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-# SQL Server local files
+# Custom
 SqlServer_localVolumes/
 sql_scripts/
+appsettings.Development.json
+.env
