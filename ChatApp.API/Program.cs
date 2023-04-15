@@ -1,9 +1,9 @@
 using ChatApp.API;
 using ChatApp.API.Extensions;
-using ChatApp.Core.Entities.Identity;
 using ChatApp.Core.Interfaces;
 using ChatApp.DAL;
 using ChatApp.DAL.AppContext;
+using ChatApp.DAL.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -30,9 +30,13 @@ builder.Services.AddDbContext<AppDbContext>(opt => opt
     .UseSqlServer(config.GetConnectionString("LocalDbConnection"))
 );
 
-builder.Services.AddIdentityCore<AppUser>()
-    .AddEntityFrameworkStores<AppDbContext>()
-    .AddSignInManager<SignInManager<AppUser>>();
+builder.Services.AddDbContext<IdentityDbContext>(opt => opt
+    .UseSqlServer(config.GetConnectionString("LocalDbConnection"))
+);
+
+builder.Services.AddIdentityCore<IdentityUser>()
+    .AddEntityFrameworkStores<IdentityDbContext>()
+    .AddSignInManager<SignInManager<IdentityUser>>();
 
 builder.Services.AddJwtAuthentication(config);
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();

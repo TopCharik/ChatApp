@@ -1,8 +1,8 @@
-using ChatApp.Core.Entities.Identity;
+using Microsoft.AspNetCore.Identity;
 
 namespace ChatApp.API;
 
 public interface IJwtTokenService
 {
-    string CreateToken(AppUser user);
+    string CreateToken(IdentityUser user);
 }

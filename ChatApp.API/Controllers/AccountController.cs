@@ -1,5 +1,4 @@
 using ChatApp.API.DTOs;
-using ChatApp.Core.Entities.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,13 +9,13 @@ namespace ChatApp.API.Controllers;
 [Route("api/[controller]")]
 public class AccountController : ControllerBase
 {
-    private readonly UserManager<AppUser> _userManager;
-    private readonly SignInManager<AppUser> _signInManager;
+    private readonly UserManager<IdentityUser> _userManager;
+    private readonly SignInManager<IdentityUser> _signInManager;
     private readonly IJwtTokenService _jwtTokenService;
 
     public AccountController(
-        UserManager<AppUser> userManager,
-        SignInManager<AppUser> signInManager,
+        UserManager<IdentityUser> userManager,
+        SignInManager<IdentityUser> signInManager,
         IJwtTokenService jwtTokenService
     )
     {
@@ -55,7 +54,7 @@ public class AccountController : ControllerBase
     [Route("register")]
     public async Task<ActionResult<UserDto>> Register(UserRegisterDto registerDto)
     {
-        var user = new AppUser
+        var user = new IdentityUser
         {
             Email = registerDto.Email,
             UserName = registerDto.UserName,

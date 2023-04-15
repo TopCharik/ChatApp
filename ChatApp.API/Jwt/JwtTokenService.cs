@@ -1,7 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using ChatApp.Core.Entities.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 
 namespace ChatApp.API;
@@ -17,7 +17,7 @@ public class JwtTokenService : IJwtTokenService
         _key = configuration["Token:Key"] ?? throw new ArgumentException("Jwt Key is required");
     }
 
-    public string CreateToken(AppUser user)
+    public string CreateToken(IdentityUser user)
     {
         var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_key));
         var signingCredentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha512);
