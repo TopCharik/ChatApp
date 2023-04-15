@@ -1,9 +1,5 @@
-using ChatApp.Core.Entities.FooAggregate;
-using ChatApp.Core.Interfaces;
-using ChatApp.DAL;
-using ChatApp.DAL.AppContext;
-using ChatApp.Services;
-using Microsoft.EntityFrameworkCore;
+using ChatApp.BlazorServer;
+using ChatApp.BlazorServer.ApiProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
@@ -11,14 +7,10 @@ var config = builder.Configuration;
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 
-builder.Services.AddDbContext<AppDbContext>(opt => opt
-    .UseSqlServer(config.GetConnectionString("LocalDbConnection"))
-);
-
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-builder.Services.AddScoped<IFooService, FooService>();
 
 builder.Services.AddHttpClient();
+builder.Services.AddTransient<IJwtHttpClientFactory, LocalStorageJwtHttpClientFactory>();
+builder.Services.AddTransient<IAuthenticationApiProvider, AuthenticationApiProvider>();
 
 
 var app = builder.Build();

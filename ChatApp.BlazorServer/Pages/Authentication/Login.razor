@@ -1,37 +1,30 @@
 @page "/Login"
 @using ChatApp.API.DTOs
-@using System.Text.Json
-@inject IHttpClientFactory ClientFactory
+@using ChatApp.BlazorServer.ApiProviders
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@inject ProtectedLocalStorage ProtectedLocalStorage
+@inject IAuthenticationApiProvider AuthenticationApiProvider
+
 <h3>Login</h3>
 
-<EditForm 
+<EditForm
     Model="@_loginDto"
-    OnValidSubmit="@OnLogin"
->
+    OnValidSubmit="@OnLogin">
     <DataAnnotationsValidator/>
     <ValidationSummary/>
     <div class="form-group">
         <label for="user-name">User name</label>
-        <InputText class="form-control" id="user-name"  @bind-Value="@_loginDto.UserName"/>    
+        <InputText class="form-control" id="user-name" @bind-Value="@_loginDto.UserName"/>
     </div>
-    
-    
+
+
     <div class="form-group">
         <label for="password">Password</label>
-        <InputText type="password" class="form-control" id="password" @bind-Value="@_loginDto.Password"/>
+        <InputText type="text" class="form-control" id="password" @bind-Value="@_loginDto.Password"/>
     </div>
-    
+
     <button type="submit">Login</button>
-
-    
 </EditForm>
-
-@if (_userDto != null)
-{
-    <h2>User Name: @_userDto.UserName</h2>
-    <h2>Email: @_userDto.Email</h2>
-    <h2>Token: @_userDto.Token</h2>
-}
 
 
 @code {
@@ -40,6 +33,8 @@
 
     private async Task OnLogin()
     {
-        
+        _userDto = await AuthenticationApiProvider.Login(_loginDto);
+        await ProtectedLocalStorage.SetAsync("token", _userDto.Token);
     }
+
 }

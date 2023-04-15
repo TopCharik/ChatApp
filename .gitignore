@@ -481,3 +481,4 @@ $RECYCLE.BIN/
 
 # SQL Server local files
 SqlServer_localVolumes/
+sql_scripts/

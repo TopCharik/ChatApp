@@ -17,6 +17,17 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerService();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("BlazorClient", p =>
+    {
+        p.WithOrigins(config["BlazorClientUrl"])
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
+
 builder.Services.AddDbContext<AppDbContext>(opt => opt
     .UseSqlServer(config.GetConnectionString("LocalDbConnection"))
 );
@@ -32,6 +43,9 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IFooService, FooService>();
 
 var app = builder.Build();
+
+app.UseCors("BlazorClient");
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

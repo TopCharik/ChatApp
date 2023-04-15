@@ -1,5 +1,10 @@
 @page "/Register"
 @using ChatApp.API.DTOs
+@using ChatApp.BlazorServer.ApiProviders
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@inject IAuthenticationApiProvider AuthenticationApiProvider
+@inject ProtectedLocalStorage ProtectedLocalStorage
+
 <h3>Register</h3>
 
 <EditForm
@@ -36,5 +41,7 @@
 
     private async Task OnRegister()
     {
+        _userDto = await AuthenticationApiProvider.Register(_registerDto);
+        await ProtectedLocalStorage.SetAsync("token", _userDto.Token);
     }
 }

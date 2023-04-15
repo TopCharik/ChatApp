@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace ChatApp.API.DTOs;
 
 public class UserDto
