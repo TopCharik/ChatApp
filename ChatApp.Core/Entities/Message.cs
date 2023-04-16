@@ -14,5 +14,5 @@ public class Message : BaseEntity
 
     public Message? ReplyToNavigation { get; set; }
     
-    public ICollection<Message> InverseReplyToNavigation { get; } = new List<Message>();
+    public ICollection<Message> InverseReplyToNavigation { get; }
 }

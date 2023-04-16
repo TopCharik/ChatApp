@@ -6,7 +6,7 @@ public class Avatar : BaseEntity
 
     public int? ChatInfoId { get; set; }
 
-    public string PictureUrl { get; set; } = null!;
+    public string PictureUrl { get; set; }
 
     public DateTime DateSet { get; set; }
 

@@ -2,7 +2,7 @@ namespace ChatApp.Core.Entities;
 
 public class Participation : BaseEntity
 {
-    public string AspNetUserId { get; set; } = null!;
+    public string AspNetUserId { get; set; }
 
     public int ConversationId { get; set; }
     
@@ -28,9 +28,9 @@ public class Participation : BaseEntity
 
     public bool CanDeleteConversation { get; set; }
 
-    public AppUser AppUser { get; set; } = null!;
+    public AppUser AppUser { get; set; }
 
-    public Conversation Conversation { get; set; } = null!;
+    public Conversation Conversation { get; set; }
 
-    public ICollection<Message> Messages { get; } = new List<Message>();
+    public ICollection<Message> Messages { get; }
 }

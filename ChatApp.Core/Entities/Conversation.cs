@@ -6,5 +6,5 @@ public class Conversation : BaseEntity
 
     public ChatInfo? ChatInfo { get; set; }
 
-    public ICollection<Participation> Participations { get; } = new List<Participation>();
+    public ICollection<Participation> Participations { get; }
 }
