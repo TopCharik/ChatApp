@@ -7,12 +7,12 @@ public class Message : BaseEntity
     public string MessageText { get; set; }
 
     public DateTime DateSent { get; set; }
-
+    
     public int ParticipationId { get; set; }
-
-    public ICollection<Message> InverseReplyToNavigation { get; } = new List<Message>();
 
     public Participation Participation { get; set; }
 
     public Message? ReplyToNavigation { get; set; }
+    
+    public ICollection<Message> InverseReplyToNavigation { get; } = new List<Message>();
 }

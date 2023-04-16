@@ -16,6 +16,7 @@ public class MessageConfiguration : IEntityTypeConfiguration<Message>
             .HasConstraintName("FK_Messages_Participations");
 
         builder.HasOne(d => d.ReplyToNavigation).WithMany(p => p.InverseReplyToNavigation)
-            .HasForeignKey(d => d.ReplyTo);
+            .HasForeignKey(d => d.ReplyTo)
+            .HasConstraintName("FK_Messages_Messages_ReplyTo");
     }
 }

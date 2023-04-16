@@ -1,10 +1,8 @@
 namespace ChatApp.Core.Entities;
 
-public class Conversation : BaseEntity
+public class AppUser : AspNetUser
 {
-    public int? ChatInfoId { get; set; }
-
-    public ChatInfo? ChatInfo { get; set; }
+    public ICollection<Avatar> Avatars { get; } = new List<Avatar>();
 
     public ICollection<Participation> Participations { get; } = new List<Participation>();
 }

@@ -15,8 +15,4 @@ public class AspNetUser
     public string? PhoneNumber { get; private set; }
 
     public bool PhoneNumberConfirmed { get; private set; }
-
-    public ICollection<Avatar> Avatars { get; } = new List<Avatar>();
-
-    public ICollection<Participation> Participations { get; } = new List<Participation>();
 }

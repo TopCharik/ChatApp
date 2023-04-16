@@ -1,4 +1,3 @@
-using ChatApp.Core.Entities;
 using ChatApp.Core.Interfaces;
 using ChatApp.DAL.AppContext;
 using ChatApp.DAL.Repositories;

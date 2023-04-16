@@ -13,7 +13,7 @@ public class AppDbContext : DbContext
         modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
     }
 
-    public virtual DbSet<AspNetUser> AspNetUsers { get; set; }
+    public virtual DbSet<AppUser> AppUsers { get; set; }
 
     public virtual DbSet<Avatar> Avatars { get; set; }
 

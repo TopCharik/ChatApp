@@ -6,7 +6,7 @@ namespace ChatApp.DAL.Repositories;
 
 public class BaseRepository<T> : IBaseRepository<T> where T : class
 {
-    protected AppDbContext _context;
+    private AppDbContext _context;
 
     public BaseRepository(AppDbContext context)
     {

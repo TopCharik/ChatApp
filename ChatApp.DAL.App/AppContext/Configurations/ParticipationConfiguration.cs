@@ -11,7 +11,7 @@ public class ParticipationConfiguration : IEntityTypeConfiguration<Participation
         builder.HasIndex(e => new {e.AspNetUserId, e.ConversationId}, "QK_Participations_AspNetUserId_ConversationId")
             .IsUnique();
 
-        builder.HasOne(d => d.AspNetUser).WithMany(p => p.Participations)
+        builder.HasOne(d => d.AppUser).WithMany(p => p.Participations)
             .HasForeignKey(d => d.AspNetUserId)
             .HasConstraintName("FK_Participations_AspNetUsers");
 

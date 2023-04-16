@@ -4,10 +4,12 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace ChatApp.DAL.App.AppContext.Configurations;
 
-public class AspNetUserConfiguration : IEntityTypeConfiguration<AspNetUser>
+public class AspNetUserConfiguration : IEntityTypeConfiguration<AppUser>
 {
-    public void Configure(EntityTypeBuilder<AspNetUser> builder)
+    public void Configure(EntityTypeBuilder<AppUser> builder)
     {
+        builder.ToTable("AspNetUsers");
+        
         builder.HasIndex(e => e.NormalizedEmail, "EmailIndex");
 
         builder.HasIndex(e => e.NormalizedUserName, "UserNameIndex")

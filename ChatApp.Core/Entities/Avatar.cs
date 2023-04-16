@@ -12,5 +12,5 @@ public class Avatar : BaseEntity
 
     public ChatInfo? ChatInfo { get; set; }
 
-    public AspNetUser? User { get; set; }
+    public AppUser? User { get; set; }
 }
