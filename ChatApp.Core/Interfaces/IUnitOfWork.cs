@@ -4,7 +4,7 @@ namespace ChatApp.Core.Interfaces;
 
 public interface IUnitOfWork : IDisposable
 {
-    public IBaseRepository<T> GetRepository<T>() where T : BaseEntity;
+    public IBaseRepository<T> GetBaseRepository<T>() where T : BaseEntity;
 
     Task<int> SaveChangesAsync();
 }

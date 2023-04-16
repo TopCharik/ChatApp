@@ -18,7 +18,7 @@ public class UnitOfWork : IUnitOfWork
         _repositories = new Dictionary<Type, object>();
     }
 
-    public IBaseRepository<T> GetRepository<T>() where T : BaseEntity
+    public IBaseRepository<T> GetBaseRepository<T>() where T : BaseEntity
     {
         var type = typeof(T);
 
