@@ -1,7 +1,6 @@
-using ChatApp.API;
 using ChatApp.API.Extensions;
 using ChatApp.Core.Interfaces;
-using ChatApp.DAL;
+using ChatApp.DAL.App;
 using ChatApp.DAL.AppContext;
 using ChatApp.DAL.Identity;
 using Microsoft.AspNetCore.Identity;
@@ -39,7 +38,7 @@ builder.Services.AddIdentityCore<IdentityUser>()
     .AddSignInManager<SignInManager<IdentityUser>>();
 
 builder.Services.AddJwtAuthentication(config);
-builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
+
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 

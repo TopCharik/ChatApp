@@ -1,8 +1,8 @@
-using ChatApp.Core.Entities;
+using ChatApp.DAL.AppContext;
 
 namespace ChatApp.Core.Interfaces;
 
-public interface IBaseRepository<T> where T : BaseEntity
+public interface IBaseRepository<T> where T : class
 { 
     Task<List<T>> GetAsync();
     Task<int> CountAsync();
@@ -10,4 +10,5 @@ public interface IBaseRepository<T> where T : BaseEntity
     void Add(T entity);
     void Update(T entity);
     void Delete(T entity);
+    void SetContext(AppDbContext context);
 }
