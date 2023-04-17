@@ -1,3 +1,4 @@
+using AutoMapper;
 using ChatApp.API.DTOs;
 using ChatApp.API.Jwt;
 using ChatApp.DAL.Identity;
@@ -15,16 +16,19 @@ public class AccountController : ControllerBase
     private readonly UserManager<ExtendedIdentityUser> _userManager;
     private readonly SignInManager<ExtendedIdentityUser> _signInManager;
     private readonly IJwtTokenService _jwtTokenService;
+    private readonly IMapper _mapper;
 
     public AccountController(
         UserManager<ExtendedIdentityUser> userManager,
         SignInManager<ExtendedIdentityUser> signInManager,
-        IJwtTokenService jwtTokenService
+        IJwtTokenService jwtTokenService,
+        IMapper mapper
         )
     {
         _userManager = userManager;
         _signInManager = signInManager;
         _jwtTokenService = jwtTokenService;
+        _mapper = mapper;
     }
 
     [HttpPost]
@@ -52,12 +56,14 @@ public class AccountController : ControllerBase
     [Route("register")]
     public async Task<ActionResult<string>> Register(UserRegisterDto registerDto)
     {
-        var user = new ExtendedIdentityUser
+        /*var user = new ExtendedIdentityUser
         {
             Email = registerDto.Email,
             RealName = registerDto.RealName,
             UserName = registerDto.UserName,
-        };
+        };*/
+
+        var user = _mapper.Map<ExtendedIdentityUser>(registerDto);
 
         var result = await _userManager.CreateAsync(user, registerDto.Password);
         if (!result.Succeeded)

@@ -1,4 +1,5 @@
 using ChatApp.API.Extensions;
+using ChatApp.API.Helpers;
 using ChatApp.API.Middlewares;
 using ChatApp.Core.Interfaces;
 using ChatApp.DAL.App;
@@ -42,6 +43,8 @@ builder.Services.AddJwtAuthentication(config);
 
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+builder.Services.AddAutoMapper(typeof(MappingProfiles));
 
 var app = builder.Build();
 
