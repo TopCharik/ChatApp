@@ -6,7 +6,7 @@
     <Name>ChatApp.Database</Name>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectVersion>4.1</ProjectVersion>
-    <ProjectGuid>{281316e9-c386-4ea0-8c3d-c16b0c622861}</ProjectGuid>
+    <ProjectGuid>{40a0717a-bf2a-4924-9462-ff6f3e1f21b8}</ProjectGuid>
     <DSP>Microsoft.Data.Tools.Schema.Sql.Sql160DatabaseSchemaProvider</DSP>
     <OutputType>Database</OutputType>
     <RootPath>
@@ -67,11 +67,10 @@
     <Build Include="dbo\Tables\AspNetUserLogins.sql" />
     <Build Include="dbo\Tables\AspNetUserRoles.sql" />
     <Build Include="dbo\Tables\AspNetUserTokens.sql" />
-    <Build Include="dbo\Tables\ChatInfo.sql" />
-    <Build Include="dbo\Tables\Conversation.sql" />
-    <Build Include="dbo\Tables\Foos.sql" />
+    <Build Include="dbo\Tables\ChatInfos.sql" />
+    <Build Include="dbo\Tables\Avatars.sql" />
+    <Build Include="dbo\Tables\Conversations.sql" />
+    <Build Include="dbo\Tables\Participations.sql" />
     <Build Include="dbo\Tables\Messages.sql" />
-    <Build Include="dbo\Tables\Participants.sql" />
-    <Build Include="dbo\Tables\Pictures.sql" />
   </ItemGroup>
 </Project>

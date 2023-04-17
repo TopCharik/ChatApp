@@ -2,14 +2,14 @@
 (
     Id         int identity
         constraint PK_AspNetUserClaims
-            primary key,
+        primary key,
     UserId     nvarchar(450) not null
         constraint FK_AspNetUserClaims_AspNetUsers_UserId
-            references dbo.AspNetUsers
-            on delete cascade,
-    ClaimType  nvarchar(max),
-    ClaimValue nvarchar(max)
+        references dbo.AspNetUsers
+        on delete cascade,
+    ClaimType  nvarchar( max),
+    ClaimValue nvarchar( max)
 )
-GO
+    GO
 create index IX_AspNetUserClaims_UserId
     on dbo.AspNetUserClaims (UserId)
