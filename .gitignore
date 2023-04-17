@@ -482,5 +482,4 @@ $RECYCLE.BIN/
 # Custom
 SqlServer_localVolumes/
 sql_scripts/
-appsettings.Development.json
 .env
