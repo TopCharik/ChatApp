@@ -1,14 +1,14 @@
-using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
+using Blazored.LocalStorage;
 
 namespace ChatApp.BlazorServer;
 
 public class LocalStorageJwtHttpClientFactory : IJwtHttpClientFactory
 {
-    private readonly ProtectedLocalStorage _localStorage;
+    private readonly ILocalStorageService _localStorage;
     private readonly IHttpClientFactory _httpClientFactory;
 
     public LocalStorageJwtHttpClientFactory(
-        ProtectedLocalStorage localStorage,
+        ILocalStorageService localStorage,
         IHttpClientFactory httpClientFactory
     )
     {
@@ -20,17 +20,13 @@ public class LocalStorageJwtHttpClientFactory : IJwtHttpClientFactory
     {
         var httpClient = _httpClientFactory.CreateClient();
 
-        try
+        var token = await _localStorage.GetItemAsync<string>("token");
+        if (!string.IsNullOrEmpty(token))
         {
-            var result = await _localStorage.GetAsync<string>("token");
-            if (result.Success)
-            {
-                httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {result.Value}");
-            }
+            httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
         }
-        catch (InvalidOperationException e) { }
 
-        
+
         return httpClient;
     }
 }

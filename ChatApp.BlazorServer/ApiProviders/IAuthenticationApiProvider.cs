@@ -5,7 +5,7 @@ namespace ChatApp.BlazorServer.ApiProviders;
 
 public interface IAuthenticationApiProvider
 {
-    public Task<UserDto> Login(LoginDto loginDto);
-    public Task<UserDto> Register(UserRegisterDto userRegisterDto);
-    public Task<UserDto> ChangePassword(ChangePasswordDto changePasswordDto);
+    public Task<HttpResponseMessage> Login(LoginDto loginDto);
+    public Task<HttpResponseMessage> Register(UserRegisterDto userRegisterDto);
+    public Task<HttpResponseMessage> ChangePassword(ChangePasswordDto changePasswordDto);
 }

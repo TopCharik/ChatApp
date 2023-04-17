@@ -11,31 +11,31 @@ public class AuthenticationApiProvider : IAuthenticationApiProvider
     {
         _jwtHttpClientFactory = jwtHttpClientFactory;
     }
-
-    public async Task<UserDto> Login(LoginDto loginDto)
+    
+    public async Task<HttpResponseMessage> Login(LoginDto loginDto)
     {
         var httpClient = await _jwtHttpClientFactory.CreateJwtClientAsync();
         var response = 
             await httpClient.PostAsJsonAsync("http://localhost:5000/api/Account/login", loginDto);
 
-        return await response.Content.ReadFromJsonAsync<UserDto>();
+        return response;
     }
 
-    public async Task<UserDto> Register(UserRegisterDto userRegisterDto)
+    public async Task<HttpResponseMessage> Register(UserRegisterDto userRegisterDto)
     {
         var httpClient = await _jwtHttpClientFactory.CreateJwtClientAsync();
         var response = 
             await httpClient.PostAsJsonAsync("http://localhost:5000/api/Account/register", userRegisterDto);
         
-        return await response.Content.ReadFromJsonAsync<UserDto>();
+        return response;
     }
 
-    public async Task<UserDto> ChangePassword(ChangePasswordDto changePasswordDto)
+    public async Task<HttpResponseMessage> ChangePassword(ChangePasswordDto changePasswordDto)
     {
         var httpClient = await _jwtHttpClientFactory.CreateJwtClientAsync();
         var response =
             await httpClient.PostAsJsonAsync("http://localhost:5000/api/Account/change-password", changePasswordDto);
 
-        return await response.Content.ReadFromJsonAsync<UserDto>();
+        return response;
     }
 }

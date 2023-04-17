@@ -1,9 +1,10 @@
 @page "/Login"
 @using ChatApp.API.DTOs
 @using ChatApp.BlazorServer.ApiProviders
-@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
-@inject ProtectedLocalStorage ProtectedLocalStorage
+@inject ILocalStorageService LocalStorageService
 @inject IAuthenticationApiProvider AuthenticationApiProvider
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <h3>Login</h3>
 
@@ -20,21 +21,40 @@
 
     <div class="form-group">
         <label for="password">Password</label>
-        <InputText type="text" class="form-control" id="password" @bind-Value="@_loginDto.Password"/>
+        <InputText type="password" class="form-control" id="password" @bind-Value="@_loginDto.Password"/>
     </div>
 
-    <button type="submit">Login</button>
+    <button type="submit" class="btn btn-primary mt-3">Login</button>
+    
+    @if (!string.IsNullOrEmpty(_errorMessage))
+    {
+        <p class="text-danger">
+            @_errorMessage
+        </p>
+    }
+    
 </EditForm>
 
 
 @code {
     private LoginDto _loginDto = new();
     private UserDto? _userDto;
+    private string? _errorMessage;
 
     private async Task OnLogin()
     {
-        _userDto = await AuthenticationApiProvider.Login(_loginDto);
-        await ProtectedLocalStorage.SetAsync("token", _userDto.Token);
+        var response = await AuthenticationApiProvider.Login(_loginDto);
+        if (response.IsSuccessStatusCode)
+        {
+            _userDto = await response.Content.ReadFromJsonAsync<UserDto>();
+            await LocalStorageService.SetItemAsync("token", _userDto.Token);
+            await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            NavigationManager.NavigateTo("/");
+        }
+        if (response.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            _errorMessage = await response.Content.ReadAsStringAsync();
+            _loginDto.Password = string.Empty;
+        }
     }
-
 }

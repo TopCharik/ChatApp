@@ -9,8 +9,8 @@ public class SecretController : ControllerBase
 {
     [HttpGet]
     [Authorize]
-    public async Task<ActionResult> GetSecret()
+    public ActionResult GetSecret()
     {
-        return Ok("Secret message");
+        return Ok($"Secret message for {HttpContext.User.Identity.Name} from api");
     }
 }

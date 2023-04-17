@@ -26,11 +26,11 @@ builder.Services.AddCors(options =>
 
 
 builder.Services.AddDbContext<AppDbContext>(opt => opt
-    .UseSqlServer(config.GetConnectionString("LocalDbConnection"))
+    .UseSqlServer(config["ConnectionStrings:LocalDbConnection"])
 );
 
 builder.Services.AddDbContext<IdentityDbContext>(opt => opt
-    .UseSqlServer(config.GetConnectionString("LocalDbConnection"))
+    .UseSqlServer(config["ConnectionStrings:LocalDbConnection"])
 );
 
 builder.Services.AddIdentityCore<IdentityUser>()

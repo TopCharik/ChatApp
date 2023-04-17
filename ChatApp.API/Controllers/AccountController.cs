@@ -1,4 +1,5 @@
 using ChatApp.API.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,7 +18,7 @@ public class AccountController : ControllerBase
         UserManager<IdentityUser> userManager,
         SignInManager<IdentityUser> signInManager,
         IJwtTokenService jwtTokenService
-    )
+        )
     {
         _userManager = userManager;
         _signInManager = signInManager;
@@ -75,25 +76,17 @@ public class AccountController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize]
     [Route("change-password")]
     public async Task<ActionResult<UserDto>> Register(ChangePasswordDto changePasswordDto)
     {
-        var user = await _userManager.FindByNameAsync(changePasswordDto.UserName);
-        if (user == null || user.Email != changePasswordDto.Email)
+        var user = await _userManager.FindByNameAsync(HttpContext.User.Identity?.Name);
+        if (user == null)
         {
-            return BadRequest("Wrong email or/and user name.");
+            return BadRequest();
         }
 
-        
-
-        var result = await _userManager.RemovePasswordAsync(user);
-
-        if (!result.Succeeded)
-        {
-            return BadRequest(result.Errors);
-        }
-
-        result = await _userManager.AddPasswordAsync(user, changePasswordDto.Password);
+        var result = await _userManager.ChangePasswordAsync(user, changePasswordDto.OldPassword, changePasswordDto.NewPassword);
 
         if (!result.Succeeded)
         {

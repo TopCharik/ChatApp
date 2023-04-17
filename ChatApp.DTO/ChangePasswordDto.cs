@@ -5,10 +5,7 @@ namespace ChatApp.API.Controllers;
 public class ChangePasswordDto
 {
     [Required]
-    [EmailAddress]
-    public string Email { get; set; }
+    public string OldPassword { get; set; }
     [Required]
-    public string UserName { get; set; }
-    [Required]
-    public string Password { get; set; }
+    public string NewPassword { get; set; }
 }

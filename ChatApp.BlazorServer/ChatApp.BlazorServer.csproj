@@ -12,6 +12,11 @@
 
   <ItemGroup>
     <Folder Include="Data" />
+    <Folder Include="Helpers\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Blazored.LocalStorage" Version="4.3.0" />
   </ItemGroup>
 
 </Project>

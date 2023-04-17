@@ -1,9 +1,10 @@
 @page "/Register"
 @using ChatApp.API.DTOs
 @using ChatApp.BlazorServer.ApiProviders
-@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
 @inject IAuthenticationApiProvider AuthenticationApiProvider
-@inject ProtectedLocalStorage ProtectedLocalStorage
+@inject ILocalStorageService LocalStorage
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavigationManager
 
 <h3>Register</h3>
 
@@ -12,25 +13,35 @@
     OnValidSubmit="@OnRegister">
     <DataAnnotationsValidator/>
     <ValidationSummary/>
-
-    <div class="form-group">
-        <label for="email">Email:</label>
-        <InputText class="form-control" id="email" @bind-Value="@_registerDto.Email"/>
-    </div>
-
-    <div class="form-group">
+    
+    <div class="form-group mt-3">
         <label for="user-name">User name:</label>
         <InputText class="form-control" id="user-name" @bind-Value="@_registerDto.UserName"/>
     </div>
 
-
-    <div class="form-group">
+    <div class="form-group mt-3">
+        <label for="email">Email:</label>
+        <InputText class="form-control" id="email" @bind-Value="@_registerDto.Email"/>
+    </div>
+    
+    <div class="form-group mt-3">
         <label for="password">Password:</label>
         <InputText type="password" class="form-control" id="password" @bind-Value="@_registerDto.Password"/>
     </div>
-
-    <button type="submit">Register</button>
-
+    
+    @if (_identityErrors != null)
+    {
+        <ul class="text-danger mt-5">
+            @foreach (var error in _identityErrors)
+            {
+                <li>
+                    @error.Description
+                </li>
+            }
+        </ul>
+    }
+    
+    <button type="submit" class="btn btn-primary mt-2">Register</button>
 
 </EditForm>
 
@@ -38,10 +49,22 @@
 @code {
     private UserRegisterDto _registerDto = new();
     private UserDto? _userDto;
+    private List<IdentityError>? _identityErrors;
 
     private async Task OnRegister()
     {
-        _userDto = await AuthenticationApiProvider.Register(_registerDto);
-        await ProtectedLocalStorage.SetAsync("token", _userDto.Token);
+        var response = await AuthenticationApiProvider.Register(_registerDto);
+
+        if (response.IsSuccessStatusCode)
+        {
+            _userDto = await response.Content.ReadFromJsonAsync<UserDto>();
+            await LocalStorage.SetItemAsync("token", _userDto.Token);
+            await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            NavigationManager.NavigateTo("/");
+        }
+        if (response.StatusCode == HttpStatusCode.BadRequest)
+        {
+            _identityErrors = await response.Content.ReadFromJsonAsync<List<IdentityError>>();
+        }
     }
 }

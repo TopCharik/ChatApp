@@ -1,5 +1,8 @@
+using Blazored.LocalStorage;
 using ChatApp.BlazorServer;
 using ChatApp.BlazorServer.ApiProviders;
+using ChatApp.BlazorServer.Authorization;
+using Microsoft.AspNetCore.Components.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
@@ -11,6 +14,8 @@ builder.Services.AddServerSideBlazor();
 builder.Services.AddHttpClient();
 builder.Services.AddTransient<IJwtHttpClientFactory, LocalStorageJwtHttpClientFactory>();
 builder.Services.AddTransient<IAuthenticationApiProvider, AuthenticationApiProvider>();
+builder.Services.AddScoped<AuthenticationStateProvider, JwtAuthenticationStateProvider>();
+builder.Services.AddBlazoredLocalStorage();
 
 
 var app = builder.Build();

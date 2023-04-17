@@ -1,6 +1,18 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿@inject ILocalStorageService LocalStorageService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="">ChatApp.BlazorServer</a>
+        <AuthorizeView>
+            <Authorized>
+                <a class="navbar-brand" href="">
+                    @context.User.Identity.Name
+                </a>
+            </Authorized>
+            <NotAuthorized>
+                <a class="navbar-brand" href="">ChatApp.BlazorServer</a>
+            </NotAuthorized>
+        </AuthorizeView>
         <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -15,30 +27,36 @@
             </NavLink>
         </div>
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="oi oi-plus" aria-hidden="true"></span> Counter
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="login">
-                <span class="oi oi-list-rich" aria-hidden="true"></span> Login
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="register">
-                <span class="oi oi-list-rich" aria-hidden="true"></span> Register
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="change-password">
-                <span class="oi oi-list-rich" aria-hidden="true"></span> Change Password
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
             <NavLink class="nav-link" href="secret">
                 <span class="oi oi-list-rich" aria-hidden="true"></span> Secret
             </NavLink>
         </div>
+        <AuthorizeView>
+            <Authorized>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="change-password">
+                        <span class="oi oi-list-rich" aria-hidden="true"></span> Change Password
+                    </NavLink>
+                </div>
+                <div class="nav-item nav-item-danger px-3">
+                    <a class="nav-link" @onclick="LogOut">
+                        <span class="" aria-hidden="true"></span> Logout
+                    </a>
+                </div>
+            </Authorized>
+            <NotAuthorized>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="login">
+                        <span class="oi oi-list-rich" aria-hidden="true"></span> Login
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="register">
+                        <span class="oi oi-list-rich" aria-hidden="true"></span> Register
+                    </NavLink>
+                </div>
+            </NotAuthorized>
+        </AuthorizeView>
     </nav>
 </div>
 
@@ -50,6 +68,12 @@
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
+    }
+
+    private async Task LogOut()
+    {
+        await LocalStorageService.RemoveItemAsync("token");
+        await AuthenticationStateProvider.GetAuthenticationStateAsync();
     }
 
 }
