@@ -1,5 +1,6 @@
 using ChatApp.API.Controllers;
 using ChatApp.API.DTOs;
+using ChatApp.BlazorServer.Services.Authentication;
 
 namespace ChatApp.BlazorServer.ApiProviders;
 

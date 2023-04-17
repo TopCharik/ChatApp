@@ -1,4 +1,4 @@
-namespace ChatApp.BlazorServer;
+namespace ChatApp.BlazorServer.Services.Authentication;
 
 public interface IJwtHttpClientFactory
 {

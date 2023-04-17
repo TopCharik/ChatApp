@@ -4,7 +4,7 @@ using System.Text;
 using ChatApp.DAL.Identity;
 using Microsoft.IdentityModel.Tokens;
 
-namespace ChatApp.API;
+namespace ChatApp.API.Jwt;
 
 public class JwtTokenService : IJwtTokenService
 {

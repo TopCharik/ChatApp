@@ -1,6 +1,6 @@
 using ChatApp.DAL.Identity;
 
-namespace ChatApp.API;
+namespace ChatApp.API.Jwt;
 
 public interface IJwtTokenService
 {

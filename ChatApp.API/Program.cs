@@ -1,4 +1,5 @@
 using ChatApp.API.Extensions;
+using ChatApp.API.Middlewares;
 using ChatApp.Core.Interfaces;
 using ChatApp.DAL.App;
 using ChatApp.DAL.AppContext;
@@ -43,6 +44,8 @@ builder.Services.AddJwtAuthentication(config);
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 var app = builder.Build();
+
+app.UseMiddleware<ExceptionMiddleware>();
 
 app.UseCors("BlazorClient");
 

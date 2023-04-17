@@ -1,4 +1,5 @@
 using ChatApp.API.DTOs;
+using ChatApp.API.Jwt;
 using ChatApp.DAL.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;

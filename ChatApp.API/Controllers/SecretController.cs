@@ -11,6 +11,6 @@ public class SecretController : ControllerBase
     [Authorize]
     public ActionResult GetSecret()
     {
-        return Ok($"Secret message for {HttpContext.User.Identity.Name} from api");
+        return Ok($"Secret message for {HttpContext.User.Identity?.Name} from api");
     }
 }

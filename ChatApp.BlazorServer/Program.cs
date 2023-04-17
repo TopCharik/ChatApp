@@ -1,12 +1,10 @@
 using Blazored.LocalStorage;
-using ChatApp.BlazorServer;
 using ChatApp.BlazorServer.ApiProviders;
 using ChatApp.BlazorServer.Helpers;
 using ChatApp.BlazorServer.Services.Authentication;
 using Microsoft.AspNetCore.Components.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
-var config = builder.Configuration;
 
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();

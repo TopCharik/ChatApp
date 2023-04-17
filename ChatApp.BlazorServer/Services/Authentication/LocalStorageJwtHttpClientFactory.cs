@@ -1,7 +1,4 @@
-using Blazored.LocalStorage;
-using ChatApp.BlazorServer.Services.Authentication;
-
-namespace ChatApp.BlazorServer;
+namespace ChatApp.BlazorServer.Services.Authentication;
 
 public class LocalStorageJwtHttpClientFactory : IJwtHttpClientFactory
 {
