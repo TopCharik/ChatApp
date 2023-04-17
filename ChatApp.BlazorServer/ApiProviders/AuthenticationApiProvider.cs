@@ -7,17 +7,19 @@ namespace ChatApp.BlazorServer.ApiProviders;
 public class AuthenticationApiProvider : IAuthenticationApiProvider
 {
     private readonly IJwtHttpClientFactory _jwtHttpClientFactory;
+    private string _apiUrl;
 
-    public AuthenticationApiProvider(IJwtHttpClientFactory jwtHttpClientFactory)
+    public AuthenticationApiProvider(IJwtHttpClientFactory jwtHttpClientFactory, IConfiguration config)
     {
         _jwtHttpClientFactory = jwtHttpClientFactory;
+        _apiUrl = config["ApiUrl"];
     }
     
     public async Task<HttpResponseMessage> Login(LoginDto loginDto)
     {
         var httpClient = await _jwtHttpClientFactory.CreateJwtClientAsync();
         var response = 
-            await httpClient.PostAsJsonAsync("http://localhost:5000/api/Account/login", loginDto);
+            await httpClient.PostAsJsonAsync($"{_apiUrl}/api/Account/login", loginDto);
 
         return response;
     }
@@ -26,7 +28,7 @@ public class AuthenticationApiProvider : IAuthenticationApiProvider
     {
         var httpClient = await _jwtHttpClientFactory.CreateJwtClientAsync();
         var response = 
-            await httpClient.PostAsJsonAsync("http://localhost:5000/api/Account/register", userRegisterDto);
+            await httpClient.PostAsJsonAsync($"{_apiUrl}/api/Account/register", userRegisterDto);
         
         return response;
     }
@@ -35,7 +37,7 @@ public class AuthenticationApiProvider : IAuthenticationApiProvider
     {
         var httpClient = await _jwtHttpClientFactory.CreateJwtClientAsync();
         var response =
-            await httpClient.PostAsJsonAsync("http://localhost:5000/api/Account/change-password", changePasswordDto);
+            await httpClient.PostAsJsonAsync($"{_apiUrl}/api/Account/change-password", changePasswordDto);
 
         return response;
     }
