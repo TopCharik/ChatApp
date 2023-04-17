@@ -1,18 +1,19 @@
 using Blazored.LocalStorage;
+using ChatApp.BlazorServer.Services.Authentication;
 
 namespace ChatApp.BlazorServer;
 
 public class LocalStorageJwtHttpClientFactory : IJwtHttpClientFactory
 {
-    private readonly ILocalStorageService _localStorage;
+    private readonly IJwtPersistService _jwtPersistService;
     private readonly IHttpClientFactory _httpClientFactory;
 
     public LocalStorageJwtHttpClientFactory(
-        ILocalStorageService localStorage,
+        IJwtPersistService jwtPersistService,
         IHttpClientFactory httpClientFactory
     )
     {
-        _localStorage = localStorage;
+        _jwtPersistService = jwtPersistService;
         _httpClientFactory = httpClientFactory;
     }
 
@@ -20,7 +21,7 @@ public class LocalStorageJwtHttpClientFactory : IJwtHttpClientFactory
     {
         var httpClient = _httpClientFactory.CreateClient();
 
-        var token = await _localStorage.GetItemAsync<string>("token");
+        var token = await _jwtPersistService.GetJwtTokenAsync();
         if (!string.IsNullOrEmpty(token))
         {
             httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");

@@ -3,7 +3,7 @@ using System.Text.Json;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
 
-namespace ChatApp.BlazorServer.Authorization;
+namespace ChatApp.BlazorServer.Authentication;
 
 public class JwtAuthenticationStateProvider : AuthenticationStateProvider
 {
@@ -16,23 +16,18 @@ public class JwtAuthenticationStateProvider : AuthenticationStateProvider
 
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
-        var identity = new ClaimsIdentity();
-        
         var token = await _localStorage.GetItemAsync<string>("token");
 
-        if (!string.IsNullOrEmpty(token))
-        {
-            var claims = ParseClaimsFromJwt(token);
-            identity = new ClaimsIdentity(claims, "jwt");
-        }
-        
+        var identity = string.IsNullOrEmpty(token)
+            ? new ClaimsIdentity()
+            : new ClaimsIdentity(ParseClaimsFromJwt(token), "jwt");
+
         var user = new ClaimsPrincipal(identity);
         var state = new AuthenticationState(user);
 
         NotifyAuthenticationStateChanged(Task.FromResult(state));
 
         return state;
-
     }
 
     private IEnumerable<Claim> ParseClaimsFromJwt(string jwt)
@@ -40,7 +35,8 @@ public class JwtAuthenticationStateProvider : AuthenticationStateProvider
         var payload = jwt.Split('.')[1];
         var jsonBytes = ParseBase64WithoutPadding(payload);
         var keyValuePairs = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonBytes);
-        return keyValuePairs.Select(kvp => new Claim(kvp.Key, kvp.Value.ToString()));
+        return (keyValuePairs ?? new Dictionary<string, object>())
+            .Select(kvp => new Claim(kvp.Key, kvp.Value.ToString() ?? string.Empty));
     }
 
     private byte[] ParseBase64WithoutPadding(string base64)

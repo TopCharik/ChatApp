@@ -1,21 +1,20 @@
-﻿@inject ILocalStorageService LocalStorageService
-@inject AuthenticationStateProvider AuthenticationStateProvider
+﻿@inject IJwtPersistService JwtPersistService
 
 <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
         <AuthorizeView>
             <Authorized>
                 <a class="navbar-brand" href="">
-                    @context.User.Identity.Name
+                    @@@context.User.Identity?.Name
                 </a>
             </Authorized>
             <NotAuthorized>
                 <a class="navbar-brand" href="">ChatApp.BlazorServer</a>
             </NotAuthorized>
         </AuthorizeView>
-        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
-            <span class="navbar-toggler-icon"></span>
-        </button>
     </div>
 </div>
 
@@ -38,6 +37,7 @@
                         <span class="oi oi-list-rich" aria-hidden="true"></span> Change Password
                     </NavLink>
                 </div>
+                <hr class="nav-separator"/>
                 <div class="nav-item nav-item-danger px-3">
                     <a class="nav-link" @onclick="LogOut">
                         <span class="" aria-hidden="true"></span> Logout
@@ -45,6 +45,7 @@
                 </div>
             </Authorized>
             <NotAuthorized>
+                <hr class="nav-separator"/>
                 <div class="nav-item px-3">
                     <NavLink class="nav-link" href="login">
                         <span class="oi oi-list-rich" aria-hidden="true"></span> Login
@@ -61,19 +62,18 @@
 </div>
 
 @code {
-    private bool collapseNavMenu = true;
+    private bool _collapseNavMenu = true;
 
-    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+    private string? NavMenuCssClass => _collapseNavMenu ? "collapse" : null;
 
     private void ToggleNavMenu()
     {
-        collapseNavMenu = !collapseNavMenu;
+        _collapseNavMenu = !_collapseNavMenu;
     }
 
     private async Task LogOut()
     {
-        await LocalStorageService.RemoveItemAsync("token");
-        await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        await JwtPersistService.RemoveJwtTokenAsync();
     }
 
 }

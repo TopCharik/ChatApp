@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ChatApp.DAL.Identity;
 
-public class IdentityDbContext : IdentityDbContext<IdentityUser>
+public class IdentityDbContext : IdentityDbContext<ExtendedIdentityUser>
 {
     public IdentityDbContext(DbContextOptions<IdentityDbContext> options) : base(options) { }
 

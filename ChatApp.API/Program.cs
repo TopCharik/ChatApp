@@ -33,9 +33,9 @@ builder.Services.AddDbContext<IdentityDbContext>(opt => opt
     .UseSqlServer(config["ConnectionStrings:LocalDbConnection"])
 );
 
-builder.Services.AddIdentityCore<IdentityUser>()
+builder.Services.AddIdentityCore<ExtendedIdentityUser>()
     .AddEntityFrameworkStores<IdentityDbContext>()
-    .AddSignInManager<SignInManager<IdentityUser>>();
+    .AddSignInManager<SignInManager<ExtendedIdentityUser>>();
 
 builder.Services.AddJwtAuthentication(config);
 

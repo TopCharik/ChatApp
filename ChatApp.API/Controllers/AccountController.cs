@@ -1,4 +1,5 @@
 using ChatApp.API.DTOs;
+using ChatApp.DAL.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -10,13 +11,13 @@ namespace ChatApp.API.Controllers;
 [Route("api/[controller]")]
 public class AccountController : ControllerBase
 {
-    private readonly UserManager<IdentityUser> _userManager;
-    private readonly SignInManager<IdentityUser> _signInManager;
+    private readonly UserManager<ExtendedIdentityUser> _userManager;
+    private readonly SignInManager<ExtendedIdentityUser> _signInManager;
     private readonly IJwtTokenService _jwtTokenService;
 
     public AccountController(
-        UserManager<IdentityUser> userManager,
-        SignInManager<IdentityUser> signInManager,
+        UserManager<ExtendedIdentityUser> userManager,
+        SignInManager<ExtendedIdentityUser> signInManager,
         IJwtTokenService jwtTokenService
         )
     {
@@ -27,7 +28,7 @@ public class AccountController : ControllerBase
 
     [HttpPost]
     [Route("login")]
-    public async Task<ActionResult<UserDto>> Login(LoginDto loginDto)
+    public async Task<ActionResult<string>> Login(LoginDto loginDto)
     {
         var user = await _userManager.FindByNameAsync(loginDto.UserName);
 
@@ -43,21 +44,17 @@ public class AccountController : ControllerBase
             return Unauthorized("Wrong password or/and user name.");
         }
 
-        return new UserDto
-        {
-            Email = user.Email,
-            UserName = user.UserName,
-            Token = _jwtTokenService.CreateToken(user),
-        };
+        return _jwtTokenService.CreateToken(user);
     }
 
     [HttpPost]
     [Route("register")]
-    public async Task<ActionResult<UserDto>> Register(UserRegisterDto registerDto)
+    public async Task<ActionResult<string>> Register(UserRegisterDto registerDto)
     {
-        var user = new IdentityUser
+        var user = new ExtendedIdentityUser
         {
             Email = registerDto.Email,
+            RealName = registerDto.RealName,
             UserName = registerDto.UserName,
         };
 
@@ -67,20 +64,16 @@ public class AccountController : ControllerBase
             return BadRequest(result.Errors);
         }
 
-        return new UserDto
-        {
-            Email = user.Email,
-            UserName = user.UserName,
-            Token = _jwtTokenService.CreateToken(user),
-        };
+        return _jwtTokenService.CreateToken(user);
     }
 
     [HttpPost]
     [Authorize]
     [Route("change-password")]
-    public async Task<ActionResult<UserDto>> Register(ChangePasswordDto changePasswordDto)
+    public async Task<ActionResult<string>> Register(ChangePasswordDto changePasswordDto)
     {
-        var user = await _userManager.FindByNameAsync(HttpContext.User.Identity?.Name);
+        var name = HttpContext.User.Identity?.Name;
+        var user = await _userManager.FindByNameAsync(name);
         if (user == null)
         {
             return BadRequest();
@@ -93,11 +86,6 @@ public class AccountController : ControllerBase
             return BadRequest(result.Errors);
         }
 
-        return new UserDto
-        {
-            Email = user.Email,
-            UserName = user.UserName,
-            Token = _jwtTokenService.CreateToken(user),
-        };
+        return _jwtTokenService.CreateToken(user);
     }
 }

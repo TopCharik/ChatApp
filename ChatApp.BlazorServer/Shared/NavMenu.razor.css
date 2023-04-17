@@ -60,6 +60,11 @@
     color: white;
 }
 
+.nav-separator {
+    background-color: rgb(255, 255, 255);
+    height: 5px;
+}
+
 @media (min-width: 641px) {
     .navbar-toggler {
         display: none;

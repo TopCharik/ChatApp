@@ -1,8 +1,6 @@
 @page "/Login"
-@using ChatApp.API.DTOs
-@using ChatApp.BlazorServer.ApiProviders
-@inject ILocalStorageService LocalStorageService
 @inject IAuthenticationApiProvider AuthenticationApiProvider
+@inject IJwtPersistService JwtPersistService
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
@@ -38,17 +36,24 @@
 
 @code {
     private LoginDto _loginDto = new();
-    private UserDto? _userDto;
     private string? _errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        if (authState.User.Identity?.IsAuthenticated ?? false)
+        {
+            NavigationManager.NavigateTo("/");
+        }
+    }
 
     private async Task OnLogin()
     {
         var response = await AuthenticationApiProvider.Login(_loginDto);
         if (response.IsSuccessStatusCode)
         {
-            _userDto = await response.Content.ReadFromJsonAsync<UserDto>();
-            await LocalStorageService.SetItemAsync("token", _userDto.Token);
-            await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var token = await response.Content.ReadAsStringAsync();
+            await JwtPersistService.SetJwtTokenAsync(token);
             NavigationManager.NavigateTo("/");
         }
         if (response.StatusCode == HttpStatusCode.Unauthorized)
