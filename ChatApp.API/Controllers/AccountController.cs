@@ -1,7 +1,7 @@
 using AutoMapper;
-using ChatApp.API.DTOs;
-using ChatApp.API.Jwt;
+using ChatApp.API.Helpers;
 using ChatApp.DAL.Identity;
+using ChatApp.DTO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -15,19 +15,19 @@ public class AccountController : ControllerBase
 {
     private readonly UserManager<ExtendedIdentityUser> _userManager;
     private readonly SignInManager<ExtendedIdentityUser> _signInManager;
-    private readonly IJwtTokenService _jwtTokenService;
+    private readonly IJwtTokenBuilder _jwtTokenBuilder;
     private readonly IMapper _mapper;
 
     public AccountController(
         UserManager<ExtendedIdentityUser> userManager,
         SignInManager<ExtendedIdentityUser> signInManager,
-        IJwtTokenService jwtTokenService,
+        IJwtTokenBuilder jwtTokenBuilder,
         IMapper mapper
         )
     {
         _userManager = userManager;
         _signInManager = signInManager;
-        _jwtTokenService = jwtTokenService;
+        _jwtTokenBuilder = jwtTokenBuilder;
         _mapper = mapper;
     }
 
@@ -49,20 +49,13 @@ public class AccountController : ControllerBase
             return Unauthorized("Wrong password or/and user name.");
         }
 
-        return _jwtTokenService.CreateToken(user);
+        return _jwtTokenBuilder.CreateToken(user);
     }
 
     [HttpPost]
     [Route("register")]
     public async Task<ActionResult<string>> Register(UserRegisterDto registerDto)
     {
-        /*var user = new ExtendedIdentityUser
-        {
-            Email = registerDto.Email,
-            RealName = registerDto.RealName,
-            UserName = registerDto.UserName,
-        };*/
-
         var user = _mapper.Map<ExtendedIdentityUser>(registerDto);
 
         var result = await _userManager.CreateAsync(user, registerDto.Password);
@@ -71,7 +64,7 @@ public class AccountController : ControllerBase
             return BadRequest(result.Errors);
         }
 
-        return _jwtTokenService.CreateToken(user);
+        return _jwtTokenBuilder.CreateToken(user);
     }
 
     [HttpPost]
@@ -93,6 +86,6 @@ public class AccountController : ControllerBase
             return BadRequest(result.Errors);
         }
 
-        return _jwtTokenService.CreateToken(user);
+        return _jwtTokenBuilder.CreateToken(user);
     }
 }

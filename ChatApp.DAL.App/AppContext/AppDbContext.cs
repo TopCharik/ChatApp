@@ -2,7 +2,7 @@ using System.Reflection;
 using ChatApp.Core.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace ChatApp.DAL.AppContext;
+namespace ChatApp.DAL.App.AppContext;
 
 public class AppDbContext : DbContext
 {

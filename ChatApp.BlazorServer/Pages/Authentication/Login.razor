@@ -1,6 +1,7 @@
 @page "/Login"
+@using ChatApp.DTO
 @inject IAuthenticationApiProvider AuthenticationApiProvider
-@inject IJwtPersistService JwtPersistService
+@inject IJwtStorage JwtStorage
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
@@ -53,7 +54,8 @@
         if (response.IsSuccessStatusCode)
         {
             var token = await response.Content.ReadAsStringAsync();
-            await JwtPersistService.SetJwtTokenAsync(token);
+            await JwtStorage.SetJwtTokenAsync(token);
+            await AuthenticationStateProvider.GetAuthenticationStateAsync();
             NavigationManager.NavigateTo("/");
         }
         if (response.StatusCode == HttpStatusCode.Unauthorized)

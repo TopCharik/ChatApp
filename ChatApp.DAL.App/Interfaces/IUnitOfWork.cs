@@ -1,4 +1,4 @@
-namespace ChatApp.Core.Interfaces;
+namespace ChatApp.DAL.App.Interfaces;
 
 public interface IUnitOfWork : IDisposable
 {

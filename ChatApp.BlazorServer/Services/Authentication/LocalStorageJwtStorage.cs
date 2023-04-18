@@ -1,18 +1,14 @@
 using Blazored.LocalStorage;
-using Microsoft.AspNetCore.Components.Authorization;
 
 namespace ChatApp.BlazorServer.Services.Authentication;
 
-public class LocalStorageJwtPersistService : IJwtPersistService
+public class LocalStorageJwtStorage : IJwtStorage
 {
     private readonly ILocalStorageService _localStorageService;
-    private readonly AuthenticationStateProvider _authenticationStateProvider;
 
-    public LocalStorageJwtPersistService(ILocalStorageService localStorageService,
-        AuthenticationStateProvider authenticationStateProvider)
+    public LocalStorageJwtStorage(ILocalStorageService localStorageService)
     {
         _localStorageService = localStorageService;
-        _authenticationStateProvider = authenticationStateProvider;
     }
 
     public async Task<string?> GetJwtTokenAsync()
@@ -23,12 +19,10 @@ public class LocalStorageJwtPersistService : IJwtPersistService
     public async Task SetJwtTokenAsync(string token)
     {
         await _localStorageService.SetItemAsync("token", token);
-        await _authenticationStateProvider.GetAuthenticationStateAsync();
     }
 
     public async Task RemoveJwtTokenAsync()
     {
         await _localStorageService.RemoveItemAsync("token");
-        await _authenticationStateProvider.GetAuthenticationStateAsync();
     }
 }

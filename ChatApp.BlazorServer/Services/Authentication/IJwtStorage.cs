@@ -1,6 +1,6 @@
 namespace ChatApp.BlazorServer.Services.Authentication;
 
-public interface IJwtPersistService
+public interface IJwtStorage
 {
     Task<string?> GetJwtTokenAsync();
     Task SetJwtTokenAsync(string token);
