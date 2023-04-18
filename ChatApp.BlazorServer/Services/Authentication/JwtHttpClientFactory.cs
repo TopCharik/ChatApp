@@ -27,11 +27,7 @@ public class JwtHttpClientFactory : IJwtHttpClientFactory
     {
         var httpClient = _httpClientFactory.CreateClient();
         var token = await _jwtStorage.GetJwtTokenAsync();
-        
-        if (string.IsNullOrEmpty(token))
-            return httpClient;
-        
-        
+
         if (!_jwtHelper.IsTokenValid(token))
         {
             await _jwtStorage.RemoveJwtTokenAsync();
