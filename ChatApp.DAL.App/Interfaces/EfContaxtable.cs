@@ -1,8 +1,8 @@
-using ChatApp.DAL.App.AppContext;
+using Microsoft.EntityFrameworkCore;
 
 namespace ChatApp.DAL.App.Interfaces;
 
-public interface EfContaxtable
+public interface IEfContaxtable
 {
-    void SetContext(AppDbContext context);
+    void SetContext(DbContext context);
 }

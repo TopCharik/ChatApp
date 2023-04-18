@@ -37,7 +37,7 @@ public class UnitOfWork : IUnitOfWork
         return (IBaseRepository<T>) _repositories[type];
     }
     
-    public TRepository GetRepository<TRepository>() where TRepository: EfContaxtable
+    public TRepository GetRepository<TRepository>() where TRepository: IEfContaxtable
     {
         var type = typeof(TRepository);
 

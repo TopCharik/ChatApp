@@ -1,4 +1,3 @@
-using ChatApp.DAL.App.AppContext;
 using ChatApp.DAL.App.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -6,9 +5,9 @@ namespace ChatApp.DAL.App.Repositories;
 
 public class BaseRepository<T> : EfBaseRespository<T> where T : class
 {
-    protected AppDbContext _context;
+    protected DbContext _context;
 
-    public BaseRepository(AppDbContext context)
+    public BaseRepository(DbContext context)
     {
         _context = context;
     }
@@ -43,7 +42,7 @@ public class BaseRepository<T> : EfBaseRespository<T> where T : class
         _context.Set<T>().Remove(entity);
     }
 
-    public void SetContext(AppDbContext context)
+    public void SetContext(DbContext context)
     {
         _context = context;
     }
