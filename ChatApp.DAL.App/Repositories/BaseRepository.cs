@@ -1,12 +1,12 @@
-using ChatApp.Core.Interfaces;
-using ChatApp.DAL.AppContext;
+using ChatApp.DAL.App.AppContext;
+using ChatApp.DAL.App.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace ChatApp.DAL.Repositories;
+namespace ChatApp.DAL.App.Repositories;
 
 public class BaseRepository<T> : IBaseRepository<T> where T : class
 {
-    private AppDbContext _context;
+    protected AppDbContext _context;
 
     public BaseRepository(AppDbContext context)
     {

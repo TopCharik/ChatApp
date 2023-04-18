@@ -4,14 +4,14 @@ using System.Text;
 using ChatApp.DAL.Identity;
 using Microsoft.IdentityModel.Tokens;
 
-namespace ChatApp.API.Jwt;
+namespace ChatApp.API.Helpers;
 
-public class JwtTokenService : IJwtTokenService
+public class JwtTokenBuilder : IJwtTokenBuilder
 {
     private readonly string _key;
     private readonly string _issuer;
 
-    public JwtTokenService(IConfiguration configuration)
+    public JwtTokenBuilder(IConfiguration configuration)
     {
         _issuer = configuration["Token:Issuer"]  ?? throw new ArgumentException("Jwt Issuer is required");
         _key = configuration["Token:Key"] ?? throw new ArgumentException("Jwt Key is required");
@@ -33,7 +33,7 @@ public class JwtTokenService : IJwtTokenService
         var token = new JwtSecurityToken(
             issuer: _issuer,
             claims: claims,
-            expires: DateTime.Now.AddMinutes(30),
+            expires: DateTime.Now.AddSeconds(10),
             signingCredentials: signingCredentials
         );
 

@@ -1,6 +1,6 @@
-using ChatApp.DAL.AppContext;
+using ChatApp.DAL.App.AppContext;
 
-namespace ChatApp.Core.Interfaces;
+namespace ChatApp.DAL.App.Interfaces;
 
 public interface IBaseRepository<T> where T : class
 { 

@@ -1,6 +1,6 @@
-using ChatApp.Core.Interfaces;
-using ChatApp.DAL.AppContext;
-using ChatApp.DAL.Repositories;
+using ChatApp.DAL.App.AppContext;
+using ChatApp.DAL.App.Interfaces;
+using ChatApp.DAL.App.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace ChatApp.DAL.App;
@@ -9,7 +9,7 @@ public class UnitOfWork : IUnitOfWork
 {
     private readonly AppDbContext _context;
     private readonly IServiceProvider _serviceProvider;
-    private readonly Dictionary<Type, object> _repositories;
+    private readonly Dictionary<Type, object> _repositories = new();
     private bool _isDisposed;
     
 
@@ -17,7 +17,6 @@ public class UnitOfWork : IUnitOfWork
     {
         _context = context;
         _serviceProvider = serviceProvider;
-        _repositories = new Dictionary<Type, object>();
     }
 
     public IBaseRepository<T> GetBaseRepository<T>() where T : class

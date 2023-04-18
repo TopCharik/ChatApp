@@ -18,15 +18,15 @@ public class JwtAuthenticationStateProvider : AuthenticationStateProvider
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
         var token = await _jwtStorage.GetJwtTokenAsync();
+        var claims = _jwtHelper.ParseClaimsFromJwt(token);
 
-        var identity = string.IsNullOrEmpty(token)
-            ? new ClaimsIdentity()
-            : new ClaimsIdentity(_jwtHelper.ParseClaimsFromJwt(token), "jwt");
+        var identity = _jwtHelper.IsTokenValid(claims)
+            ? new ClaimsIdentity(claims, "jwt") 
+            : new ClaimsIdentity();
+            
 
-        var user = _jwtHelper.IsTokenValid(identity)
-            ? new ClaimsPrincipal(identity)
-            : new ClaimsPrincipal(new ClaimsIdentity());
         
+        var user = new ClaimsPrincipal(identity);
         var state = new AuthenticationState(user);
 
         NotifyAuthenticationStateChanged(Task.FromResult(state));

@@ -1,5 +1,5 @@
 using System.Text;
-using ChatApp.API.Jwt;
+using ChatApp.API.Helpers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 
@@ -26,7 +26,7 @@ public static class JwtExtensions
                 };
             });
         
-        services.AddScoped<IJwtTokenService, JwtTokenService>();
+        services.AddScoped<IJwtTokenBuilder, JwtTokenBuilder>();
 
         return services;
     }

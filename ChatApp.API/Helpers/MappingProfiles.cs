@@ -1,6 +1,6 @@
 using AutoMapper;
-using ChatApp.API.DTOs;
 using ChatApp.DAL.Identity;
+using ChatApp.DTO;
 
 namespace ChatApp.API.Helpers;
 

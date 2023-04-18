@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace ChatApp.API.Controllers;
+namespace ChatApp.DTO;
 
 public class ChangePasswordDto
 {

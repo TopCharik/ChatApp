@@ -1,9 +1,10 @@
 using ChatApp.API.Extensions;
 using ChatApp.API.Helpers;
 using ChatApp.API.Middlewares;
-using ChatApp.Core.Interfaces;
 using ChatApp.DAL.App;
-using ChatApp.DAL.AppContext;
+using ChatApp.DAL.App.AppContext;
+using ChatApp.DAL.App.Interfaces;
+using ChatApp.DAL.App.Repositories;
 using ChatApp.DAL.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -28,11 +29,11 @@ builder.Services.AddCors(options =>
 
 
 builder.Services.AddDbContext<AppDbContext>(opt => opt
-    .UseSqlServer(config["ConnectionStrings:LocalDbConnection"])
+    .UseSqlServer(config.GetConnectionString("LocalDbConnection"))
 );
 
 builder.Services.AddDbContext<IdentityDbContext>(opt => opt
-    .UseSqlServer(config["ConnectionStrings:LocalDbConnection"])
+    .UseSqlServer(config.GetConnectionString("LocalDbConnection"))
 );
 
 builder.Services.AddIdentityCore<ExtendedIdentityUser>()

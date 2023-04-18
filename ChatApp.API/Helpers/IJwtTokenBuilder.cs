@@ -1,8 +1,8 @@
 using ChatApp.DAL.Identity;
 
-namespace ChatApp.API.Jwt;
+namespace ChatApp.API.Helpers;
 
-public interface IJwtTokenService
+public interface IJwtTokenBuilder
 {
     string CreateToken(ExtendedIdentityUser user);
 }

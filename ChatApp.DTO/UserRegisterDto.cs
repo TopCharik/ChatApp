@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace ChatApp.API.DTOs;
+namespace ChatApp.DTO;
 
 public class UserRegisterDto
 {
