@@ -1,5 +1,4 @@
 using System.Security.Claims;
-using Blazored.LocalStorage;
 using ChatApp.BlazorServer.Helpers;
 using Microsoft.AspNetCore.Components.Authorization;
 
@@ -7,24 +6,27 @@ namespace ChatApp.BlazorServer.Services.Authentication;
 
 public class JwtAuthenticationStateProvider : AuthenticationStateProvider
 {
-    private readonly ILocalStorageService _localStorage;
-    private readonly IJwtParser _jwtParser;
+    private readonly IJwtStorage _jwtStorage;
+    private readonly IJwtHelper _jwtHelper;
 
-    public JwtAuthenticationStateProvider(ILocalStorageService localStorage, IJwtParser jwtParser)
+    public JwtAuthenticationStateProvider( IJwtHelper jwtHelper, IJwtStorage jwtStorage)
     {
-        _localStorage = localStorage;
-        _jwtParser = jwtParser;
+        _jwtHelper = jwtHelper;
+        _jwtStorage = jwtStorage;
     }
 
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
-        var token = await _localStorage.GetItemAsync<string>("token");
+        var token = await _jwtStorage.GetJwtTokenAsync();
 
         var identity = string.IsNullOrEmpty(token)
             ? new ClaimsIdentity()
-            : new ClaimsIdentity(_jwtParser.ParseClaimsFromJwt(token), "jwt");
+            : new ClaimsIdentity(_jwtHelper.ParseClaimsFromJwt(token), "jwt");
 
-        var user = new ClaimsPrincipal(identity);
+        var user = _jwtHelper.IsTokenValid(identity)
+            ? new ClaimsPrincipal(identity)
+            : new ClaimsPrincipal(new ClaimsIdentity());
+        
         var state = new AuthenticationState(user);
 
         NotifyAuthenticationStateChanged(Task.FromResult(state));
