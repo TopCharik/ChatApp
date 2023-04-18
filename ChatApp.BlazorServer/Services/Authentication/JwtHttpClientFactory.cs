@@ -13,13 +13,13 @@ public class JwtHttpClientFactory : IJwtHttpClientFactory
     public JwtHttpClientFactory(
         IJwtStorage jwtStorage,
         IHttpClientFactory httpClientFactory,
-        IJwtHelper _jwtHelper, 
+        IJwtHelper jwtHelper,
         AuthenticationStateProvider authenticationStateProvider
     )
     {
         _jwtStorage = jwtStorage;
         _httpClientFactory = httpClientFactory;
-        this._jwtHelper = _jwtHelper;
+        _jwtHelper = jwtHelper;
         _authenticationStateProvider = authenticationStateProvider;
     }
 
@@ -27,17 +27,18 @@ public class JwtHttpClientFactory : IJwtHttpClientFactory
     {
         var httpClient = _httpClientFactory.CreateClient();
         var token = await _jwtStorage.GetJwtTokenAsync();
-
         
-        if (!string.IsNullOrEmpty(token))
+        if (string.IsNullOrEmpty(token))
+            return httpClient;
+        
+        
+        if (!_jwtHelper.IsTokenValid(token))
         {
-            if (!_jwtHelper.IsTokenValid(token))
-            {
-                await _jwtStorage.RemoveJwtTokenAsync();
-                await _authenticationStateProvider.GetAuthenticationStateAsync();
-            }
-            httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
+            await _jwtStorage.RemoveJwtTokenAsync();
+            await _authenticationStateProvider.GetAuthenticationStateAsync();
         }
+
+        httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
 
 
         return httpClient;

@@ -1,5 +1,3 @@
-using ChatApp.DAL.App.AppContext;
-
 namespace ChatApp.DAL.App.Interfaces;
 
 public interface IBaseRepository<T> where T : class
@@ -10,5 +8,4 @@ public interface IBaseRepository<T> where T : class
     void Add(T entity);
     void Update(T entity);
     void Delete(T entity);
-    void SetContext(AppDbContext context);
 }
