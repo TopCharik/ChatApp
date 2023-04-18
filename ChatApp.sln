@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChatApp.API", "ChatApp.API\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChatApp.Core", "ChatApp.Core\ChatApp.Core.csproj", "{F48CB9E4-D143-4B32-B03D-B45434D90E0D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChatApp.Services", "ChatApp.Services\ChatApp.Services.csproj", "{CF55ABF8-4406-49F7-82BB-16D5BEB7D049}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChatApp.BLL", "ChatApp.BLL\ChatApp.BLL.csproj", "{CF55ABF8-4406-49F7-82BB-16D5BEB7D049}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChatApp.BlazorServer", "ChatApp.BlazorServer\ChatApp.BlazorServer.csproj", "{B82AA51D-C5D7-441C-945E-283C52E9BE7E}"
 EndProject

@@ -20,7 +20,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ChatApp.DTO\ChatApp.DTO.csproj" />
-    <ProjectReference Include="..\ChatApp.Services\ChatApp.Services.csproj" />
+    <ProjectReference Include="..\ChatApp.BLL\ChatApp.BLL.csproj" />
   </ItemGroup>
 
 </Project>
