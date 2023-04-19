@@ -12,12 +12,12 @@ public class LocalStorageJwtStorage : IJwtStorage
         _localStorageService = localStorageService;
     }
 
-    public async Task<string?> GetJwtTokenAsync()
+    public async Task<string> GetJwtTokenAsync()
     {
         return await _localStorageService.GetItemAsync<string>(TOKEN_KEY);
     }
 
-    public async Task SetJwtTokenAsync(string token)
+    public async Task SaveJwtTokenAsync(string token)
     {
         await _localStorageService.SetItemAsync(TOKEN_KEY, token);
     }

@@ -12,9 +12,11 @@ builder.Services.AddServerSideBlazor();
 
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IJwtStorage, LocalStorageJwtStorage>();
-builder.Services.AddScoped<IJwtHttpClientFactory, JwtHttpClientFactory>();
+builder.Services.AddScoped<IJwtProvider, JwtProvider>();
+builder.Services.AddScoped<IJwtHttpClient, JwtHttpClient>();
 builder.Services.AddScoped<IAuthenticationApiProvider, AuthenticationApiProvider>();
 builder.Services.AddScoped<IJwtHelper, JwtHelper>();
+builder.Services.AddScoped<IJwtHttpClient, JwtHttpClient>();
 builder.Services.AddScoped<AuthenticationStateProvider, JwtAuthenticationStateProvider>();
 builder.Services.AddBlazoredLocalStorage();
 

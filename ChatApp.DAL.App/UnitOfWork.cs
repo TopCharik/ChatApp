@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace ChatApp.DAL.App;
 
-public class UnitOfWork : IEfUnitOfWork
+public class EfUnitOfWork : IEfUnitOfWork
 {
     private readonly AppDbContext _context;
     private readonly IServiceProvider _serviceProvider;
@@ -13,7 +13,7 @@ public class UnitOfWork : IEfUnitOfWork
     private bool _isDisposed;
     
 
-    public UnitOfWork(AppDbContext context, IServiceProvider serviceProvider)
+    public EfUnitOfWork(AppDbContext context, IServiceProvider serviceProvider)
     {
         _context = context;
         _serviceProvider = serviceProvider;

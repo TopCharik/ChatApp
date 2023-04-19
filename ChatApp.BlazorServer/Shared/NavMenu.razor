@@ -5,16 +5,6 @@
         <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <AuthorizeView>
-            <Authorized>
-                <a class="navbar-brand" href="">
-                    @@@context.User.Identity?.Name
-                </a>
-            </Authorized>
-            <NotAuthorized>
-                <a class="navbar-brand" href="">ChatApp.BlazorServer</a>
-            </NotAuthorized>
-        </AuthorizeView>
     </div>
 </div>
 
