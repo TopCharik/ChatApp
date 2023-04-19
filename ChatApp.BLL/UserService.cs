@@ -10,7 +10,7 @@ public class UserService : IUserService
 {
     private readonly IUnitOfWork _unitOfWork;
 
-    public UserService(IEfUnitOfWork unitOfWork)
+    public UserService(IUnitOfWork unitOfWork)
     {
         _unitOfWork = unitOfWork;
     }

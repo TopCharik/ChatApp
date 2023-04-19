@@ -44,7 +44,8 @@ builder.Services.AddIdentityCore<ExtendedIdentityUser>()
 builder.Services.AddJwtAuthentication(config);
 
 
-builder.Services.AddScoped<IEfUnitOfWork, EfUnitOfWork>();
+
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 
