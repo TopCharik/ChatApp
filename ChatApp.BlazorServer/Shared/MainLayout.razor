@@ -3,12 +3,19 @@
 <PageTitle>ChatApp.BlazorServer</PageTitle>
 
 <div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+    <Header/>
+
+    <AuthorizeView>
+        <Authorized>
+            <div class="sidebar">
+                <NavMenu />
+            </div>
+        </Authorized>
+    </AuthorizeView>
+
 
     <main>
-        <article class="content px-4 mt-5">
+        <article class="container content px-4 mt-5">
             @Body
         </article>
     </main>
