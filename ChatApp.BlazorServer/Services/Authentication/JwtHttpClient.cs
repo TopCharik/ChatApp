@@ -18,7 +18,7 @@ public class JwtHttpClient : IJwtHttpClient
     
     public async Task<HttpResponseMessage> GetAsync(string url, bool logoutOnUnauthorized = true)
     {
-        var client = await Before();
+        var client = await BeforeHttpRequest();
         
         var response = await client.GetAsync(url);
 
@@ -28,7 +28,7 @@ public class JwtHttpClient : IJwtHttpClient
 
     public async Task<HttpResponseMessage> PostAsync(string url, HttpContent? httpContent, bool logoutOnUnauthorized = true)
     {
-        var client = await Before();
+        var client = await BeforeHttpRequest();
         
         var response = await client.PostAsync(url, httpContent);
 
@@ -38,7 +38,7 @@ public class JwtHttpClient : IJwtHttpClient
 
     public async Task<HttpResponseMessage> PutAsync(string url, HttpContent? httpContent, bool logoutOnUnauthorized = true)
     {
-        var client = await Before();
+        var client = await BeforeHttpRequest();
         
         var response = await client.PutAsync(url, httpContent);
 
@@ -48,7 +48,7 @@ public class JwtHttpClient : IJwtHttpClient
 
     public async Task<HttpResponseMessage> DeleteAsync(string url, bool logoutOnUnauthorized = true)
     {
-        var client = await Before();
+        var client = await BeforeHttpRequest();
         
         var response = await client.DeleteAsync(url);
 
@@ -58,7 +58,7 @@ public class JwtHttpClient : IJwtHttpClient
 
     public async Task<HttpResponseMessage> PatchAsync(string url, HttpContent? httpContent, bool logoutOnUnauthorized = true)
     {
-        var client = await Before();
+        var client = await BeforeHttpRequest();
         
         var response = await client.PatchAsync(url, httpContent);
 
@@ -68,7 +68,7 @@ public class JwtHttpClient : IJwtHttpClient
 
     public async Task<HttpResponseMessage> PostAsJsonAsync(string url, object value, bool logoutOnUnauthorized = true)
     {
-        var client = await Before();
+        var client = await BeforeHttpRequest();
         
         var response = await client.PostAsJsonAsync(url, value);
 
@@ -78,7 +78,7 @@ public class JwtHttpClient : IJwtHttpClient
 
     public async Task<HttpResponseMessage> PutAsJsonAsync(string url, object value, bool logoutOnUnauthorized = true)
     {
-        var client = await Before();
+        var client = await BeforeHttpRequest();
         
         var response = await client.GetAsync(url);
 
@@ -88,7 +88,7 @@ public class JwtHttpClient : IJwtHttpClient
 
     public async Task<HttpResponseMessage> PatchAsJsonAsync(string url, object value, bool logoutOnUnauthorized = true)
     {
-        var client = await Before();
+        var client = await BeforeHttpRequest();
         
         var response = await client.PatchAsJsonAsync(url, value);
 
@@ -96,18 +96,6 @@ public class JwtHttpClient : IJwtHttpClient
         return response;
     }
 
-    private async Task<HttpClient> Before()
-    {
-        var httpClient = _httpClientFactory.CreateClient();
-        var token = await _jwtProvider.GetTokenAsync();
-        
-
-        httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
-
-
-        return httpClient;
-    }
-    
     private async Task<HttpClient> BeforeHttpRequest()
     {
         var httpClient = _httpClientFactory.CreateClient();
