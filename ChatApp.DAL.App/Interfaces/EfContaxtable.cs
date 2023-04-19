@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ChatApp.DAL.App.Interfaces;
 
-public interface IEfContaxtable
+public interface IContaxtable
 {
     void SetContext(DbContext context);
 }

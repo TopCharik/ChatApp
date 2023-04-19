@@ -1,4 +1,4 @@
-namespace ChatApp.Core.Entities;
+namespace ChatApp.Core.Entities.AppUserAggregate;
 
 public class AspNetUser
 {
