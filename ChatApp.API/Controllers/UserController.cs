@@ -2,12 +2,14 @@ using AutoMapper;
 using ChatApp.BLL;
 using ChatApp.Core.Entities.AppUserAggregate;
 using ChatApp.DTO;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ChatApp.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class UserController : ControllerBase
 {
     private readonly IUserService _userService;
