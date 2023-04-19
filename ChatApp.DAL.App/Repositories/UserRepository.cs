@@ -51,29 +51,28 @@ public class UserRepository : BaseRepository<AppUser>, IUserRepository
     {
         var isAsc = sortOrder == "asc";
 
-        if (!string.IsNullOrEmpty(sortField))
+        users = sortField switch
         {
-            users = sortField switch
-            {
-                "realname" =>
-                    isAsc
-                        ? users.OrderBy(u => u.RealName)
-                        : users.OrderByDescending(u => u.RealName),
-                "username" =>
-                    isAsc
-                        ? users.OrderBy(u => u.UserName)
-                        : users.OrderByDescending(u => u.UserName),
-                "email" =>
-                    isAsc
-                        ? users.OrderBy(u => u.Email)
-                        : users.OrderByDescending(u => u.Email),
-                "phone" =>
-                    isAsc
-                        ? users.OrderBy(u => u.PhoneNumber)
-                        : users.OrderByDescending(u => u.PhoneNumber),
-                _ => users,
-            };
-        }
+            "realname" =>
+                isAsc
+                    ? users.OrderBy(u => u.RealName)
+                    : users.OrderByDescending(u => u.RealName),
+            "username" =>
+                isAsc
+                    ? users.OrderBy(u => u.UserName)
+                    : users.OrderByDescending(u => u.UserName),
+            "email" =>
+                isAsc
+                    ? users.OrderBy(u => u.Email)
+                    : users.OrderByDescending(u => u.Email),
+            "phone" =>
+                isAsc
+                    ? users.OrderBy(u => u.PhoneNumber)
+                    : users.OrderByDescending(u => u.PhoneNumber),
+            _ => isAsc
+                ? users.OrderBy(u => u.UserName)
+                : users.OrderByDescending(u => u.UserName),
+        };
     }
 
     private static void SearchByRealName(ref IQueryable<AppUser> users, string? realName)
@@ -93,8 +92,8 @@ public class UserRepository : BaseRepository<AppUser>, IUserRepository
     private static void SearchByNormalizedEmail(ref IQueryable<AppUser> users, string? normalizedEmail)
     {
         users = string.IsNullOrEmpty(normalizedEmail)
-                ? users
-                : users.Where(u => u.NormalizedEmail.Contains(normalizedEmail));
+            ? users
+            : users.Where(u => u.NormalizedEmail.Contains(normalizedEmail));
     }
 
     private static void SearchByPhoneNumber(ref IQueryable<AppUser> users, string? phoneNumber)
