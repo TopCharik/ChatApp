@@ -1,9 +1,10 @@
+using System.Linq.Expressions;
 using ChatApp.DAL.App.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace ChatApp.DAL.App.Repositories;
 
-public class BaseRepository<T> : EfBaseRespository<T> where T : class
+public class BaseRepository<T> : IBaseRepository<T> where T : class
 {
     protected DbContext _context;
 
@@ -11,23 +12,26 @@ public class BaseRepository<T> : EfBaseRespository<T> where T : class
     {
         _context = context;
     }
-
-    public async Task<List<T>> GetAsync()
+    
+    public void SetContext(DbContext context)
     {
-        return await _context.Set<T>().ToListAsync();
+        _context = context;
     }
 
-    public async Task<int> CountAsync()
+    public IQueryable<T> GetAll()
     {
-        return await _context.Set<T>().CountAsync();
+        return _context.Set<T>()
+            .AsNoTracking();
     }
 
-    public async Task<T?> GetByIdAsync(int id)
+    public IQueryable<T> GetByCondition(Expression<Func<T, bool>> expression)
     {
-        return await _context.Set<T>().FindAsync(id);
+        return _context.Set<T>()
+            .Where(expression)
+            .AsNoTracking();
     }
 
-    public void Add(T entity)
+    public void Create(T entity)
     {
         _context.Set<T>().Add(entity);
     }
@@ -40,10 +44,5 @@ public class BaseRepository<T> : EfBaseRespository<T> where T : class
     public void Delete(T entity)
     {
         _context.Set<T>().Remove(entity);
-    }
-
-    public void SetContext(DbContext context)
-    {
-        _context = context;
     }
 }

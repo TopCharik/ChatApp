@@ -80,7 +80,7 @@ public class JwtHttpClient : IJwtHttpClient
     {
         var client = await BeforeHttpRequest();
         
-        var response = await client.GetAsync(url);
+        var response = await client.PutAsJsonAsync(url, value);
 
         await AfterHttpRequest(response, logoutOnUnauthorized);
         return response;

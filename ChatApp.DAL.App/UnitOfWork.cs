@@ -19,25 +19,7 @@ public class EfUnitOfWork : IEfUnitOfWork
         _serviceProvider = serviceProvider;
     }
 
-    public IBaseRepository<T> GetBaseRepository<T>() where T : class
-    {
-        var type = typeof(T);
-
-        if (!_repositories.ContainsKey(type))
-        {
-            var repositoryType = typeof(BaseRepository<>);
-            var repositoryInstance = Activator.CreateInstance(
-                repositoryType.MakeGenericType(typeof(T)),
-                _context
-                ) ?? throw new ArgumentException($"Can't make repository from {type}");
-            
-            _repositories.Add(type, repositoryInstance);
-        }
-
-        return (IBaseRepository<T>) _repositories[type];
-    }
-    
-    public TRepository GetRepository<TRepository>() where TRepository: IEfContaxtable
+    public TRepository GetRepository<TRepository>() where TRepository: IContaxtable
     {
         var type = typeof(TRepository);
 

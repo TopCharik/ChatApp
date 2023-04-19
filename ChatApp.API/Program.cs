@@ -1,9 +1,11 @@
 using ChatApp.API.Extensions;
 using ChatApp.API.Helpers;
 using ChatApp.API.Middlewares;
+using ChatApp.BLL;
 using ChatApp.DAL.App;
 using ChatApp.DAL.App.AppContext;
 using ChatApp.DAL.App.Interfaces;
+using ChatApp.DAL.App.Repositories;
 using ChatApp.DAL.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -43,6 +45,8 @@ builder.Services.AddJwtAuthentication(config);
 
 
 builder.Services.AddScoped<IEfUnitOfWork, EfUnitOfWork>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.AddAutoMapper(typeof(MappingProfiles));
 
