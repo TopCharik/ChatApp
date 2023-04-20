@@ -5,33 +5,25 @@
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
+
 <h3>Login</h3>
-
-<EditForm
-    Model="@_loginDto"
-    OnValidSubmit="@OnLogin">
+<EditForm Model="@_loginDto" OnValidSubmit="OnLogin" Style="width: 100%">
     <DataAnnotationsValidator/>
-    <ValidationSummary/>
-    <div class="form-group">
-        <label for="user-name">User name</label>
-        <InputText class="form-control" id="user-name" @bind-Value="@_loginDto.UserName"/>
-    </div>
-
-
-    <div class="form-group">
-        <label for="password">Password</label>
-        <InputText type="password" class="form-control" id="password" @bind-Value="@_loginDto.Password"/>
-    </div>
-
-    <button type="submit" class="btn btn-primary mt-3">Login</button>
-    
-    @if (!string.IsNullOrEmpty(_errorMessage))
-    {
-        <p class="text-danger">
-            @_errorMessage
-        </p>
-    }
-    
+    <MudCard>
+        <MudCardContent>
+            <MudTextField Label="Username"
+                          @bind-Value="_loginDto.UserName" For="@(() => _loginDto.UserName)"/>
+            <MudTextField Label="Password" Class="mt-3"
+                          @bind-Value="_loginDto.Password" For="@(() => _loginDto.Password)" InputType="InputType.Password"/>
+            @if (_errorMessage != null)
+            {
+                <MudText Color="Color.Error" Class="mt-5">@_errorMessage</MudText>
+            }
+        </MudCardContent>
+        <MudCardActions>
+            <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Login</MudButton>
+        </MudCardActions>
+    </MudCard>
 </EditForm>
 
 
@@ -64,4 +56,5 @@
             _loginDto.Password = string.Empty;
         }
     }
+
 }

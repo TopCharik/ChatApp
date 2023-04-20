@@ -1,23 +1,71 @@
 ﻿@inherits LayoutComponentBase
+@inject NavigationManager NavigationManager
+@inject IJwtProvider JwtProvider
 
 <PageTitle>ChatApp.BlazorServer</PageTitle>
 
 <div class="page">
-    <Header>
-    </Header>
-
-    <AuthorizeView>
-        <Authorized>
-            <div class="sidebar">
-                <NavMenu />
-            </div>
-        </Authorized>
-    </AuthorizeView>
-
-
-    <main>
-        <article class="container content px-4 mt-5">
-            @Body
-        </article>
-    </main>
+    <MudThemeProvider/>
+    <MudDialogProvider/>
+    <MudSnackbarProvider/>
+    <MudLayout>
+        <MudAppBar Elevation="1">
+            <AuthorizeView>
+                <Authorized>
+                    <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@ToggleDrawer"/>
+                    <MudSpacer/>
+                    <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="OnLogOut">Logout</MudButton>
+                </Authorized>
+                <NotAuthorized>
+                    <MudSpacer/>
+                    <MudButton Variant="Variant.Filled" Color="Color.Success" Class="me-3" OnClick="OnLogin">
+                        Login
+                    </MudButton>
+                    <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="OnRegister">Register</MudButton>
+                </NotAuthorized>
+            </AuthorizeView>
+        </MudAppBar>
+        <MudDrawer @bind-Open="@open" Elevation="1">
+            <MudDrawerHeader>
+                <MudText Typo="Typo.h6">Chat App</MudText>
+            </MudDrawerHeader>
+            <AuthorizeView>
+                <Authorized>
+                    <MudNavMenu>
+                        <MudNavLink Match="NavLinkMatch.Prefix" href="users">Users</MudNavLink>
+                        <MudNavLink Match="NavLinkMatch.Prefix" href="change-password">Change password</MudNavLink>
+                    </MudNavMenu>
+                </Authorized>
+            </AuthorizeView>
+        </MudDrawer>
+        <MudMainContent Class="pt-16 px-16">
+            <MudContainer Class="mt-6">
+                @Body
+            </MudContainer>
+        </MudMainContent>
+    </MudLayout>
 </div>
+
+@code{
+    bool open = false;
+
+    void ToggleDrawer()
+    {
+        open = !open;
+    }
+
+    private void OnLogin()
+    {
+        NavigationManager.NavigateTo("login");
+    }
+    
+    private void OnRegister()
+    {
+        NavigationManager.NavigateTo("register");
+    }
+    
+    private async Task OnLogOut()
+    {
+        await JwtProvider.DeleteTokenAsync();
+    }
+}

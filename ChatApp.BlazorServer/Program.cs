@@ -3,6 +3,7 @@ using ChatApp.BlazorServer.ApiProviders;
 using ChatApp.BlazorServer.Helpers;
 using ChatApp.BlazorServer.Services.Authentication;
 using Microsoft.AspNetCore.Components.Authorization;
+using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +12,7 @@ builder.Services.AddServerSideBlazor();
 
 
 builder.Services.AddHttpClient();
+builder.Services.AddMudServices();
 builder.Services.AddScoped<IJwtStorage, LocalStorageJwtStorage>();
 builder.Services.AddScoped<IJwtProvider, JwtProvider>();
 builder.Services.AddScoped<IJwtHttpClient, JwtHttpClient>();
