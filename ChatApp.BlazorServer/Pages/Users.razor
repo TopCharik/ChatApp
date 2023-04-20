@@ -1,74 +1,94 @@
 @page "/Users"
 @using ChatApp.DTO
+@attribute [Authorize]
 @inject IUsersApiProvider UsersApiProvider
 
-<MudTable ServerData="@(new Func<TableState, Task<TableData<AppUserDto>>>(ServerReload))"
-          Dense="true" Hover="true" @ref="table">
-    <ToolBarContent>
-        <MudText Typo="Typo.h6">Users</MudText>
-        <MudSpacer/>
-        <MudTextField T="string" ValueChanged="@(s => OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
-                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0">
-        </MudTextField>
-    </ToolBarContent>
-    <HeaderContent>
-        <MudTh>
-            <MudTableSortLabel SortLabel="nr_field" T="AppUserDto">Username</MudTableSortLabel>
-        </MudTh>
-        <MudTh>
-            <MudTableSortLabel SortLabel="sign_field" T="AppUserDto">RealName</MudTableSortLabel>
-        </MudTh>
-        <MudTh>
-            <MudTableSortLabel SortLabel="name_field" T="AppUserDto">Email</MudTableSortLabel>
-        </MudTh>
-        <MudTh>
-            <MudTableSortLabel SortLabel="position_field" T="AppUserDto">PhoneNumber</MudTableSortLabel>
-        </MudTh>
-    </HeaderContent>
-    <RowTemplate>
-        <MudTd DataLabel="Username">@context.UserName</MudTd>
-        <MudTd DataLabel="Name">@context.RealName</MudTd>
-        <MudTd DataLabel="Position">@context.Email</MudTd>
-        <MudTd DataLabel="Molar mass">@context.PhoneNumber</MudTd>
-    </RowTemplate>
-    <NoRecordsContent>
-        <MudText>No matching records found</MudText>
-    </NoRecordsContent>
-    <LoadingContent>
-        <MudText>Loading...</MudText>
-    </LoadingContent>
-    <PagerContent>
-        <MudTablePager/>
-    </PagerContent>
-</MudTable>
-
+<div>
+    <MudTable ServerData="@(new Func<TableState, Task<TableData<AppUserDto>>>(ServerReload))"
+              Dense="true" Hover="true" @ref="_table">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">Users</MudText>
+            <MudSpacer/>
+            <MudTextField T="string" ValueChanged="@(s => OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0">
+            </MudTextField>
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh><MudTableSortLabel SortLabel="username" T="AppUserDto">User Name</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortLabel="realname" T="AppUserDto">Real Name</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortLabel="email" T="AppUserDto">Email</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortLabel="phone" T="AppUserDto">Phone Number</MudTableSortLabel></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Username">@context.UserName</MudTd>
+            <MudTd DataLabel="Name">@context.RealName</MudTd>
+            <MudTd DataLabel="Position">@context.Email</MudTd>
+            <MudTd DataLabel="Molar mass">@context.PhoneNumber</MudTd>
+        </RowTemplate>
+        <NoRecordsContent>
+            <MudText>No matching records found</MudText>
+        </NoRecordsContent>
+        <LoadingContent>
+            <MudText>Loading...</MudText>
+        </LoadingContent>
+        <PagerContent>
+            <MudTablePager/>
+        </PagerContent>
+    </MudTable>
+</div>
 
 @code {
     private List<AppUserDto> pagedData = new();
-    private MudTable<AppUserDto> table;
-    private PagedResponseDto<AppUserDto>? _data;
+    private MudTable<AppUserDto> _table;
+    private string test = "";
+    private PagedResponseDto<AppUserDto>? _data = new();
+    private readonly Dictionary<string, string> _queryParams = new();
+    private int _totalItems;
+    private string? _searchString = null;
 
-    private int totalItems;
-    private string searchString = null;
-    
 
     private async Task<TableData<AppUserDto>> ServerReload(TableState state)
     {
-        var response = await UsersApiProvider.LoadUsers();
+        UpdateSortParams(state);
+        UpdatePagingParams(state);
+        _queryParams["PageSize"] = state.PageSize.ToString();
+        _queryParams["Page"] = (state.Page + 1).ToString();
+
+        var response = await UsersApiProvider.LoadUsers(_queryParams);
 
         if (response.IsSuccessStatusCode)
         {
-            _data = await response.Content.ReadFromJsonAsync<PagedResponseDto<AppUserDto>>();   
+            _data = await response.Content.ReadFromJsonAsync<PagedResponseDto<AppUserDto>>();
         }
-        
+
 
         return new TableData<AppUserDto> {TotalItems = _data.TotalCount, Items = _data.Items};
     }
 
     private void OnSearch(string text)
     {
-        searchString = text;
-        table.ReloadServerData();
+        _queryParams["search"] = text;
+        _table.ReloadServerData();
+    }
+
+    private void UpdateSortParams(TableState state)
+    {
+        _queryParams.Remove("SortField");
+        _queryParams.Remove("OrderBy");
+        if (state.SortDirection != SortDirection.None)
+        {
+            _queryParams["SortField"] = state.SortLabel;
+            _queryParams["OrderBy"] =
+                state.SortDirection == SortDirection.Ascending
+                    ? "asc"
+                    : "desc";
+        }
+    }
+
+    private void UpdatePagingParams(TableState state)
+    {
+        _queryParams["PageSize"] = state.PageSize.ToString();
+        _queryParams["Page"] = (state.Page + 1).ToString();
     }
 
 }

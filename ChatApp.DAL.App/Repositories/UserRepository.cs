@@ -28,7 +28,7 @@ public class UserRepository : BaseRepository<AppUser>, IUserRepository
             users
                 .Include(u => u.Avatars.OrderByDescending(a => a.DateSet))
             ,
-            parameters.PageNumber,
+            parameters.Page,
             parameters.PageSize
         );
     }
