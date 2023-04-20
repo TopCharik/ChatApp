@@ -18,11 +18,11 @@ public class UserRepository : BaseRepository<AppUser>, IUserRepository
         var users = GetAll();
 
         SearchGlobal(ref users, parameters);
-        FilterUsers(ref users, parameters.SortField, parameters.OrderBy);
+        SortUsers(ref users, parameters.SortField, parameters.OrderBy);
         SearchByUserName(ref users, parameters.NormalizedUserName);
         SearchByRealName(ref users, parameters.RealName);
         SearchByNormalizedEmail(ref users, parameters.NormalizedEmail);
-        SearchByPhoneNumber(ref users, parameters.PhoneNumber);
+        users = SearchByPhoneNumber(users, parameters.PhoneNumber);
 
         return await PagedList<AppUser>.ToPagedList(
             users
@@ -47,7 +47,7 @@ public class UserRepository : BaseRepository<AppUser>, IUserRepository
             );
     }
 
-    private static void FilterUsers(ref IQueryable<AppUser> users, string? sortField, string? sortOrder)
+    private static void SortUsers(ref IQueryable<AppUser> users, string? sortField, string? sortOrder)
     {
         var isAsc = sortOrder == "asc";
 
@@ -96,9 +96,9 @@ public class UserRepository : BaseRepository<AppUser>, IUserRepository
             : users.Where(u => u.NormalizedEmail.Contains(normalizedEmail));
     }
 
-    private static void SearchByPhoneNumber(ref IQueryable<AppUser> users, string? phoneNumber)
+    private IQueryable<AppUser> SearchByPhoneNumber(IQueryable<AppUser> users, string? phoneNumber)
     {
-        users = string.IsNullOrEmpty(phoneNumber)
+        return string.IsNullOrEmpty(phoneNumber)
             ? users
             : users.Where(u => u.PhoneNumber.Contains(phoneNumber));
     }

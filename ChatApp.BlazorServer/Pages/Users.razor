@@ -1,25 +1,73 @@
 @page "/Users"
 @using ChatApp.DTO
+@using Microsoft.AspNetCore.WebUtilities
 @attribute [Authorize]
 @inject IUsersApiProvider UsersApiProvider
+@inject NavigationManager NavigationManager
 
 <div>
     <MudTable ServerData="@(new Func<TableState, Task<TableData<AppUserDto>>>(ServerReload))"
-              Dense="true" Hover="true" @ref="_table">
+              Dense="true" Hover="true" @ref="_table" CustomHeader="true">
         <ToolBarContent>
             <MudText Typo="Typo.h6">Users</MudText>
             <MudSpacer/>
-            <MudTextField T="string" ValueChanged="@(s => OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
+            <MudTextField T="string" ValueChanged="@(s => OnSearch("search", s))" Placeholder="Search" Adornment="Adornment.Start"
                           AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0">
             </MudTextField>
         </ToolBarContent>
         <HeaderContent>
-            <MudTh><MudTableSortLabel SortLabel="username" T="AppUserDto">User Name</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel SortLabel="realname" T="AppUserDto">Real Name</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel SortLabel="email" T="AppUserDto">Email</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel SortLabel="phone" T="AppUserDto">Phone Number</MudTableSortLabel></MudTh>
+            <MudTHeadRow>
+                <MudTh>Avatar</MudTh>
+                <MudTh>
+                    <MudTableSortLabel SortLabel="username" T="AppUserDto">User Name</MudTableSortLabel>
+                </MudTh>
+                <MudTh>
+                    <MudTableSortLabel SortLabel="realname" T="AppUserDto">Real Name</MudTableSortLabel>
+                </MudTh>
+                <MudTh>
+                    <MudTableSortLabel SortLabel="email" T="AppUserDto">Email</MudTableSortLabel>
+                </MudTh>
+                <MudTh>
+                    <MudTableSortLabel SortLabel="phone" T="AppUserDto">Phone Number</MudTableSortLabel>
+                </MudTh>
+            </MudTHeadRow>
+            <MudTHeadRow>
+                <MudTh></MudTh>
+                <MudTh>
+                    <MudTextField T="string" ValueChanged="@(s => OnSearch("username", s))" Placeholder="Username" Adornment="Adornment.Start"
+                                  AdornmentIcon="@Icons.Material.Filled.FilterAlt" IconSize="Size.Medium" Class="mt-0">
+                    </MudTextField>
+                </MudTh>
+                <MudTh>
+                    <MudTextField T="string" ValueChanged="@(s => OnSearch("realname", s))" Placeholder="Real Name" Adornment="Adornment.Start"
+                                  AdornmentIcon="@Icons.Material.Filled.FilterAlt" IconSize="Size.Medium" Class="mt-0">
+                    </MudTextField>
+                </MudTh>
+                <MudTh>
+                    <MudTextField T="string" ValueChanged="@(s => OnSearch("email", s))" Placeholder="Email" Adornment="Adornment.Start"
+                                  AdornmentIcon="@Icons.Material.Filled.FilterAlt" IconSize="Size.Medium" Class="mt-0">
+                    </MudTextField>
+                </MudTh>
+                <MudTh>
+                    <MudTextField T="string" ValueChanged="@(s => OnSearch("phone", s))" Placeholder="Phone" Adornment="Adornment.Start"
+                                  AdornmentIcon="@Icons.Material.Filled.FilterAlt" IconSize="Size.Medium" Class="mt-0">
+                    </MudTextField>
+                </MudTh>
+            </MudTHeadRow>
         </HeaderContent>
-        <RowTemplate>
+        <RowTemplate >
+            <MudTd DataLabel="Avatar">
+                @if (@context.Avatars.Count > 0)
+                {
+                    <MudAvatar Color="Color.Secondary">
+                        <MudImage Src="@context.Avatars[0].PictureUrl"></MudImage>
+                    </MudAvatar>
+                }
+                else
+                {
+                    <MudAvatar Color="Color.Primary">@context.UserName.Substring(0, 2).ToUpper()</MudAvatar>
+                }
+            </MudTd>
             <MudTd DataLabel="Username">@context.UserName</MudTd>
             <MudTd DataLabel="Name">@context.RealName</MudTd>
             <MudTd DataLabel="Position">@context.Email</MudTd>
@@ -40,19 +88,16 @@
 @code {
     private List<AppUserDto> pagedData = new();
     private MudTable<AppUserDto> _table;
-    private string test = "";
     private PagedResponseDto<AppUserDto>? _data = new();
-    private readonly Dictionary<string, string> _queryParams = new();
+    private Dictionary<string, string> _queryParams = new();
     private int _totalItems;
     private string? _searchString = null;
-
+    
 
     private async Task<TableData<AppUserDto>> ServerReload(TableState state)
     {
         UpdateSortParams(state);
         UpdatePagingParams(state);
-        _queryParams["PageSize"] = state.PageSize.ToString();
-        _queryParams["Page"] = (state.Page + 1).ToString();
 
         var response = await UsersApiProvider.LoadUsers(_queryParams);
 
@@ -61,27 +106,36 @@
             _data = await response.Content.ReadFromJsonAsync<PagedResponseDto<AppUserDto>>();
         }
 
+        var url = NavigationManager.BaseUri;
+        url = QueryHelpers.AddQueryString($"{url}users", _queryParams);
+        NavigationManager.NavigateTo(url);
 
         return new TableData<AppUserDto> {TotalItems = _data.TotalCount, Items = _data.Items};
     }
 
-    private void OnSearch(string text)
+    private void OnSearch(string field, string value)
     {
-        _queryParams["search"] = text;
+        _queryParams["Page"] = "0";
+        _queryParams[field] = value;
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            _queryParams.Remove(field);
+        }
         _table.ReloadServerData();
     }
 
     private void UpdateSortParams(TableState state)
     {
-        _queryParams.Remove("SortField");
-        _queryParams.Remove("OrderBy");
-        if (state.SortDirection != SortDirection.None)
+        _queryParams["SortField"] = state.SortLabel;
+        _queryParams["OrderBy"] =
+            state.SortDirection == SortDirection.Ascending
+                ? "asc"
+                : "desc";
+        
+        if (state.SortDirection == SortDirection.None)
         {
-            _queryParams["SortField"] = state.SortLabel;
-            _queryParams["OrderBy"] =
-                state.SortDirection == SortDirection.Ascending
-                    ? "asc"
-                    : "desc";
+            _queryParams.Remove("SortField");
+            _queryParams.Remove("OrderBy");
         }
     }
 
@@ -89,6 +143,14 @@
     {
         _queryParams["PageSize"] = state.PageSize.ToString();
         _queryParams["Page"] = (state.Page + 1).ToString();
+        if (_queryParams["PageSize"] == "10")
+        {
+            _queryParams.Remove("PageSize");
+        }
+        if (_queryParams["Page"] == "1")
+        {
+            _queryParams.Remove("Page");
+        }
     }
 
 }
