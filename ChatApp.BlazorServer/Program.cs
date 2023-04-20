@@ -17,6 +17,7 @@ builder.Services.AddScoped<IJwtStorage, LocalStorageJwtStorage>();
 builder.Services.AddScoped<IJwtProvider, JwtProvider>();
 builder.Services.AddScoped<IJwtHttpClient, JwtHttpClient>();
 builder.Services.AddScoped<IAuthenticationApiProvider, AuthenticationApiProvider>();
+builder.Services.AddScoped<IUsersApiProvider, UsersApiProvider>();
 builder.Services.AddScoped<IJwtHelper, JwtHelper>();
 builder.Services.AddScoped<IJwtHttpClient, JwtHttpClient>();
 builder.Services.AddScoped<AuthenticationStateProvider, JwtAuthenticationStateProvider>();

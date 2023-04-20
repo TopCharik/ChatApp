@@ -17,6 +17,9 @@
                     <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="OnLogOut">Logout</MudButton>
                 </Authorized>
                 <NotAuthorized>
+                    <MudButton Variant="Variant.Text" Style="color: #fff" Class="me-3" Href="/">
+                        ChatApp
+                    </MudButton>
                     <MudSpacer/>
                     <MudButton Variant="Variant.Filled" Color="Color.Success" Class="me-3" OnClick="OnLogin">
                         Login
@@ -27,7 +30,9 @@
         </MudAppBar>
         <MudDrawer @bind-Open="@open" Elevation="1">
             <MudDrawerHeader>
-                <MudText Typo="Typo.h6">Chat App</MudText>
+                <MudButton Variant="Variant.Text" Color="Color.Primary" Class="me-3" Href="/">
+                    Chat App
+                </MudButton>
             </MudDrawerHeader>
             <AuthorizeView>
                 <Authorized>
@@ -58,14 +63,15 @@
     {
         NavigationManager.NavigateTo("login");
     }
-    
+
     private void OnRegister()
     {
         NavigationManager.NavigateTo("register");
     }
-    
+
     private async Task OnLogOut()
     {
         await JwtProvider.DeleteTokenAsync();
     }
+
 }

@@ -7,8 +7,8 @@ public class PagedResponseDto<T>
     public int PageSize { get; set; }
     public int TotalCount { get; set; }
 
-    public bool HasPrevious => CurrentPage > 1;
-    public bool HasNext => CurrentPage < TotalPages;
+    public bool HasPrevious { get; set; } = false;
+    public bool HasNext { get; set; }= false;
 
-    public List<T> Items { get; set; }
+    public List<T> Items { get; set; } = new();
 }
