@@ -1,5 +1,6 @@
 using ChatApp.Core.Entities;
 using ChatApp.Core.Entities.AppUserAggregate;
+using ChatApp.Core.Helpers;
 using ChatApp.DAL.App.AppContext;
 using ChatApp.DAL.App.Helpers;
 using Microsoft.EntityFrameworkCore;
@@ -17,12 +18,12 @@ public class UserRepository : BaseRepository<AppUser>, IUserRepository
     {
         var users = GetAll();
 
-        SearchGlobal(ref users, parameters);
         SortUsers(ref users, parameters.SortField, parameters.OrderBy);
         SearchByUserName(ref users, parameters.NormalizedUserName);
         SearchByRealName(ref users, parameters.RealName);
         SearchByNormalizedEmail(ref users, parameters.NormalizedEmail);
-        users = SearchByPhoneNumber(users, parameters.PhoneNumber);
+        SearchByPhoneNumber(ref users, parameters.PhoneNumber);
+        SearchGlobal(ref users, parameters);
 
         return await PagedList<AppUser>.ToPagedList(
             users
@@ -40,16 +41,16 @@ public class UserRepository : BaseRepository<AppUser>, IUserRepository
         users = string.IsNullOrEmpty(search)
             ? users
             : users.Where(u =>
-                u.RealName.Contains(search) ||
-                u.NormalizedEmail.Contains(search) ||
-                u.UserName.Contains(search) ||
-                u.PhoneNumber.Contains(search)
-            );
+                EF.Functions.Like(u.RealName, $"%{search}%") ||
+                EF.Functions.Like(u.NormalizedEmail, $"%{search}%") ||
+                EF.Functions.Like(u.UserName, $"%{search}%") ||
+                EF.Functions.Like(u.PhoneNumber, $"%{search}%")
+                );
     }
 
-    private static void SortUsers(ref IQueryable<AppUser> users, string? sortField, string? sortOrder)
+    private static void SortUsers(ref IQueryable<AppUser> users, string? sortField, SortDirection? sortOrder)
     {
-        var isAsc = sortOrder == "asc";
+        var isAsc = sortOrder == SortDirection.Ascending;
 
         users = sortField switch
         {
@@ -79,27 +80,27 @@ public class UserRepository : BaseRepository<AppUser>, IUserRepository
     {
         users = string.IsNullOrEmpty(realName)
             ? users
-            : users.Where(u => u.RealName.Contains(realName));
+            : users.Where(u => EF.Functions.Like(u.RealName, $"%{realName}%"));
     }
 
     private static void SearchByUserName(ref IQueryable<AppUser> users, string? userName)
     {
         users = string.IsNullOrEmpty(userName)
             ? users
-            : users.Where(u => u.UserName.Contains(userName));
+            : users.Where(u => EF.Functions.Like(u.UserName, $"%{userName}%"));
     }
 
     private static void SearchByNormalizedEmail(ref IQueryable<AppUser> users, string? normalizedEmail)
     {
         users = string.IsNullOrEmpty(normalizedEmail)
             ? users
-            : users.Where(u => u.NormalizedEmail.Contains(normalizedEmail));
+            : users.Where(u => EF.Functions.Like(u.NormalizedEmail, $"%{normalizedEmail}%"));
     }
 
-    private IQueryable<AppUser> SearchByPhoneNumber(IQueryable<AppUser> users, string? phoneNumber)
+    private void SearchByPhoneNumber(ref IQueryable<AppUser> users, string? phoneNumber)
     {
-        return string.IsNullOrEmpty(phoneNumber)
+        users = string.IsNullOrEmpty(phoneNumber)
             ? users
-            : users.Where(u => u.PhoneNumber.Contains(phoneNumber));
+            : users.Where(u => EF.Functions.Like(u.PhoneNumber, $"%{phoneNumber}%"));
     }
 }
