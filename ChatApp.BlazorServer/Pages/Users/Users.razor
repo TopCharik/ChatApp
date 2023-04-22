@@ -24,7 +24,10 @@
                     <MudTableSortLabel SortLabel="username" T="AppUserDto">User Name</MudTableSortLabel>
                 </MudTh>
                 <MudTh>
-                    <MudTableSortLabel SortLabel="realname" T="AppUserDto">Real Name</MudTableSortLabel>
+                    <MudTableSortLabel SortLabel="realname" T="AppUserDto">First Name</MudTableSortLabel>
+                </MudTh>
+                <MudTh>
+                    <MudTableSortLabel SortLabel="realname" T="AppUserDto">Last Name</MudTableSortLabel>
                 </MudTh>
                 <MudTh>
                     <MudTableSortLabel SortLabel="email" T="AppUserDto">Email</MudTableSortLabel>
@@ -41,7 +44,12 @@
                     </MudTextField>
                 </MudTh>
                 <MudTh>
-                    <MudTextField T="string" ValueChanged="@(s => OnSearch("realname", s))" Placeholder="Real Name" Adornment="Adornment.Start"
+                    <MudTextField T="string" ValueChanged="@(s => OnSearch("firstname", s))" Placeholder="First Name" Adornment="Adornment.Start"
+                                  AdornmentIcon="@Icons.Material.Filled.FilterAlt" IconSize="Size.Medium" Class="mt-0">
+                    </MudTextField>
+                </MudTh>
+                <MudTh>
+                    <MudTextField T="string" ValueChanged="@(s => OnSearch("lastname", s))" Placeholder="Last Name" Adornment="Adornment.Start"
                                   AdornmentIcon="@Icons.Material.Filled.FilterAlt" IconSize="Size.Medium" Class="mt-0">
                     </MudTextField>
                 </MudTh>
@@ -71,7 +79,8 @@
                 }
             </MudTd>
             <MudTd DataLabel="Username">@context.UserName</MudTd>
-            <MudTd DataLabel="Name">@context.RealName</MudTd>
+            <MudTd DataLabel="Name">@context.LastName</MudTd>
+            <MudTd DataLabel="Name">@context.FirstName</MudTd>
             <MudTd DataLabel="Position">@context.Email</MudTd>
             <MudTd DataLabel="Molar mass">@context.PhoneNumber</MudTd>
         </RowTemplate>
@@ -92,8 +101,6 @@
     private MudTable<AppUserDto> _table;
     private PagedResponseDto<AppUserDto>? _data = new();
     private Dictionary<string, string> _queryParams = new();
-    private int _totalItems;
-    private string? _searchString = null;
 
 
     private async Task<TableData<AppUserDto>> ServerReload(TableState state)

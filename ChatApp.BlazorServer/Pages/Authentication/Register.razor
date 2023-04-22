@@ -8,18 +8,20 @@
 <h3>Register</h3>
 
 
-<EditForm Model="@_registerDto" OnValidSubmit="OnRegister" Style="width: 100%">
+<EditForm Model="@_dto" OnValidSubmit="OnRegister" Style="width: 100%">
     <DataAnnotationsValidator/>
     <MudCard>
         <MudCardContent>
             <MudTextField Label="Username"
-                          @bind-Value="_registerDto.UserName" For="@(() => _registerDto.UserName)"/>
+                          @bind-Value="_dto.UserName" For="@(() => _dto.UserName)"/>
             <MudTextField Label="Email" Class="mt-3"
-                          @bind-Value="_registerDto.Email" For="@(() => _registerDto.Email)"/>
-            <MudTextField Label="Real name" Class="mt-3"
-                          @bind-Value="_registerDto.RealName" For="@(() => _registerDto.RealName)"/>
+                          @bind-Value="_dto.Email" For="@(() => _dto.Email)"/>
+            <MudTextField Label="First name" Class="mt-3"
+                          @bind-Value="_dto.FirstName" For="@(() => _dto.FirstName)"/>
+            <MudTextField Label="Last name" Class="mt-3"
+                                      @bind-Value="_dto.LastName" For="@(() => _dto.LastName)"/>
             <MudTextField Label="Password" Class="mt-3"
-                          @bind-Value="_registerDto.Password" For="@(() => _registerDto.Password)" InputType="InputType.Password"/>
+                          @bind-Value="_dto.Password" For="@(() => _dto.Password)" InputType="InputType.Password"/>
             @if (_apiError != null)
             {
                 @foreach (var errorMessage in _apiError.Errors)
@@ -42,7 +44,7 @@
 
 
 @code {
-    private UserRegisterDto _registerDto = new();
+    private RegisterAppUserDto _dto = new();
     private ApiError? _apiError;
 
     protected override async Task OnInitializedAsync()
@@ -56,7 +58,7 @@
 
     private async Task OnRegister()
     {
-        var response = await AuthenticationApiProvider.Register(_registerDto);
+        var response = await AuthenticationApiProvider.Register(_dto);
 
         if (response.IsSuccessStatusCode)
         {

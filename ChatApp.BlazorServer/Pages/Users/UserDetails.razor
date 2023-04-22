@@ -29,7 +29,10 @@
                     Username: @_appUserDto.UserName
                 </MudListItem>
                 <MudListItem Avatar="@Icons.Material.Filled.PermIdentity">
-                    Name: @_appUserDto.RealName
+                    First Name: @_appUserDto.LastName
+                </MudListItem>
+                <MudListItem Avatar="@Icons.Material.Filled.PermIdentity">
+                    Last Name: @_appUserDto.FirstName
                 </MudListItem>
                 <MudListItem Avatar="@Icons.Material.Filled.AlternateEmail">
                     Email: @_appUserDto.Email
@@ -41,7 +44,6 @@
             </MudList>
         </MudItem>
     </MudGrid>
-
 }
 
 

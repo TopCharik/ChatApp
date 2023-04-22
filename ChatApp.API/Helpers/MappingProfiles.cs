@@ -12,7 +12,7 @@ public class MappingProfiles : Profile
 {
     public MappingProfiles()
     {
-        CreateMap<UserRegisterDto, ExtendedIdentityUser>();
+        CreateMap<RegisterAppUserDto, ExtendedIdentityUser>();
         CreateMap<AppUserQueryParams, AppUserParameters>()
             .ForMember(
                 dest => dest.NormalizedEmail,
@@ -37,6 +37,7 @@ public class MappingProfiles : Profile
             );
         CreateMap<Avatar, AvatarDto>();
         CreateMap<AppUser, AppUserDto>();
+        CreateMap<ExtendedIdentityUser, AppUserDto>();
         CreateMap<PagedList<AppUser>, PagedResponseDto<AppUserDto>>()
             .ForMember(
                 dest => dest.Items,

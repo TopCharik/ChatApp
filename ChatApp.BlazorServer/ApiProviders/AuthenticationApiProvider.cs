@@ -21,9 +21,9 @@ public class AuthenticationApiProvider : IAuthenticationApiProvider
         return response;
     }
 
-    public async Task<HttpResponseMessage> Register(UserRegisterDto userRegisterDto)
+    public async Task<HttpResponseMessage> Register(RegisterAppUserDto registerAppUserDto)
     {
-        var response = await _jwtHttpClient.PostAsJsonAsync($"{_apiUrl}/api/Account/register", userRegisterDto);
+        var response = await _jwtHttpClient.PostAsJsonAsync($"{_apiUrl}/api/Account/register", registerAppUserDto);
         return response;
     }
 

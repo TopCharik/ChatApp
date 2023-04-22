@@ -5,7 +5,8 @@ namespace ChatApp.Core.Entities.AppUserAggregate;
 public class AppUserParameters : PagingParameters
 {
     public string? Search { get; set; }
-    public string? RealName { get; set; }
+    public string? FirstName { get; set; }
+    public string? SecondName { get; set; }
     public string? NormalizedUserName { get; set; }
     public string? NormalizedEmail { get; set; }
     public string? PhoneNumber { get; set; }

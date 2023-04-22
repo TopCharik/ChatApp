@@ -5,6 +5,8 @@
         primary key,
     UserName             nvarchar(256),
     NormalizedUserName   nvarchar(256),
+    FirstName            nvarchar(256),
+    LastName             nvarchar(256),
     Email                nvarchar(256),
     NormalizedEmail      nvarchar(256),
     EmailConfirmed       bit not null,

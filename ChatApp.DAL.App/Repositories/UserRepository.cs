@@ -19,7 +19,8 @@ public class UserRepository : BaseRepository<AppUser>, IUserRepository
 
         SortUsers(ref users, parameters.SortField, parameters.OrderBy);
         SearchByUserName(ref users, parameters.NormalizedUserName);
-        SearchByRealName(ref users, parameters.RealName);
+        SearchByFirstName(ref users, parameters.FirstName);
+        SearchByLastName(ref users, parameters.SecondName);
         SearchByNormalizedEmail(ref users, parameters.NormalizedEmail);
         SearchByPhoneNumber(ref users, parameters.PhoneNumber);
         SearchGlobal(ref users, parameters);
@@ -47,7 +48,8 @@ public class UserRepository : BaseRepository<AppUser>, IUserRepository
         users = string.IsNullOrEmpty(search)
             ? users
             : users.Where(u =>
-                EF.Functions.Like(u.RealName, $"%{search}%") ||
+                EF.Functions.Like(u.FirstName, $"%{search}%") ||
+                EF.Functions.Like(u.LastName, $"%{search}%") ||
                 EF.Functions.Like(u.NormalizedEmail, $"%{search}%") ||
                 EF.Functions.Like(u.UserName, $"%{search}%") ||
                 EF.Functions.Like(u.PhoneNumber, $"%{search}%")
@@ -58,12 +60,16 @@ public class UserRepository : BaseRepository<AppUser>, IUserRepository
     {
         var isAsc = sortOrder == SortDirection.Ascending;
 
-        users = sortField switch
+        users = sortField?.ToLower() switch
         {
-            "realname" =>
+            "firstname" =>
                 isAsc
-                    ? users.OrderBy(u => u.RealName)
-                    : users.OrderByDescending(u => u.RealName),
+                    ? users.OrderBy(u => u.FirstName)
+                    : users.OrderByDescending(u => u.FirstName),
+            "lastname" =>
+                isAsc
+                    ? users.OrderBy(u => u.LastName)
+                    : users.OrderByDescending(u => u.LastName),
             "username" =>
                 isAsc
                     ? users.OrderBy(u => u.UserName)
@@ -82,11 +88,18 @@ public class UserRepository : BaseRepository<AppUser>, IUserRepository
         };
     }
 
-    private static void SearchByRealName(ref IQueryable<AppUser> users, string? realName)
+    private static void SearchByFirstName(ref IQueryable<AppUser> users, string? realName)
     {
         users = string.IsNullOrEmpty(realName)
             ? users
-            : users.Where(u => EF.Functions.Like(u.RealName, $"%{realName}%"));
+            : users.Where(u => EF.Functions.Like(u.FirstName, $"%{realName}%"));
+    }
+    
+    private static void SearchByLastName(ref IQueryable<AppUser> users, string? realName)
+    {
+        users = string.IsNullOrEmpty(realName)
+            ? users
+            : users.Where(u => EF.Functions.Like(u.LastName, $"%{realName}%"));
     }
 
     private static void SearchByUserName(ref IQueryable<AppUser> users, string? userName)

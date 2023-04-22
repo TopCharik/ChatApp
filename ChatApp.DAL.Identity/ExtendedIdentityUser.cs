@@ -4,5 +4,6 @@ namespace ChatApp.DAL.Identity;
 
 public class ExtendedIdentityUser : IdentityUser
 {
-    public string RealName { get; set; }
+    public string? FirstName { get; set; }
+    public string? LastName { get; set; }
 }

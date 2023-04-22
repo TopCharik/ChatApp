@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ChatApp.DTO;
 
-public class UserRegisterDto
+public class RegisterAppUserDto
 {
     [Required]
     [EmailAddress]
@@ -11,8 +11,9 @@ public class UserRegisterDto
     [Required]
     public string UserName { get; set; }
     
-    [Required]
-    public string RealName { get; set; }
+    public string? FirstName { get; set; }
+    
+    public string? LastName { get; set; }
     
     [Required]
     public string Password { get; set; }

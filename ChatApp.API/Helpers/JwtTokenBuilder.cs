@@ -25,7 +25,7 @@ public class JwtTokenBuilder : IJwtTokenBuilder
         var claims = new List<Claim>
         {
             new Claim(ClaimTypes.Name, user.UserName),
-            new Claim("RealName", user.RealName),
+            new Claim("RealName", $"{user.FirstName} + {user.LastName}"),
             new Claim(ClaimTypes.Email, user.Email),
         };
 
