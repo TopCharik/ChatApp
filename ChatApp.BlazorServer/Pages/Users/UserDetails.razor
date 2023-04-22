@@ -28,19 +28,27 @@
                 <MudListItem Avatar="@Icons.Material.Filled.PermIdentity">
                     Username: @_appUserDto.UserName
                 </MudListItem>
-                <MudListItem Avatar="@Icons.Material.Filled.PermIdentity">
-                    First Name: @_appUserDto.LastName
-                </MudListItem>
-                <MudListItem Avatar="@Icons.Material.Filled.PermIdentity">
-                    Last Name: @_appUserDto.FirstName
-                </MudListItem>
+                @if (_appUserDto.FirstName != null)
+                {
+                    <MudListItem Avatar="@Icons.Material.Filled.PermIdentity">
+                        Last Name: @_appUserDto.FirstName
+                    </MudListItem>
+                }
+                @if (_appUserDto.LastName != null)
+                {
+                    <MudListItem Avatar="@Icons.Material.Filled.PermIdentity">
+                        First Name: @_appUserDto.LastName
+                    </MudListItem>
+                }
                 <MudListItem Avatar="@Icons.Material.Filled.AlternateEmail">
                     Email: @_appUserDto.Email
                 </MudListItem>
-                <MudListItem Avatar="@Icons.Material.Filled.Phone">
-                    Phone Number: @_appUserDto.PhoneNumber
-                </MudListItem>
-
+                @if (_appUserDto.PhoneNumber != null)
+                {
+                    <MudListItem Avatar="@Icons.Material.Filled.Phone">
+                        Phone Number: @_appUserDto.PhoneNumber
+                    </MudListItem>
+                }
             </MudList>
         </MudItem>
     </MudGrid>

@@ -58,11 +58,11 @@ public class AccountController : ControllerBase
 
     [HttpPost]
     [Route("register")]
-    public async Task<ActionResult<string>> Register(UserRegisterDto registerDto)
+    public async Task<ActionResult<string>> Register(RegisterAppUserDto dto)
     {
-        var user = _mapper.Map<ExtendedIdentityUser>(registerDto);
+        var user = _mapper.Map<ExtendedIdentityUser>(dto);
 
-        var result = await _userManager.CreateAsync(user, registerDto.Password);
+        var result = await _userManager.CreateAsync(user, dto.Password);
         if (!result.Succeeded)
         {
             var errors = result.Errors.ToDictionary(error => error.Code, error => error.Description);
@@ -93,5 +93,43 @@ public class AccountController : ControllerBase
         }
 
         return _jwtTokenBuilder.CreateToken(user);
+    }
+
+    [HttpPost]
+    [Authorize]
+    [Route("update-user")]
+    public async Task<ActionResult<AppUserDto>> Register(UpdateUserDto appUserDto)
+    {
+        var user = await _userManager.FindByNameAsync(appUserDto.UserName);
+        
+        if (user == null)
+        {
+            var errors = new Dictionary<string, string>();
+            errors.Add("User update failed", "User with this username is not registered.");
+            return BadRequest(new ApiError(400, errors));
+        }
+
+        if (!string.Equals(user.UserName, HttpContext.User.Identity?.Name, StringComparison.CurrentCultureIgnoreCase))
+        {
+            var errors = new Dictionary<string, string>();
+            errors.Add("User update failed", "You can't change this user information.");
+            return Unauthorized(new ApiError(401, errors));
+        }
+
+        user.UserName = appUserDto.UserName;
+        user.FirstName = appUserDto.FirstName;
+        user.LastName = appUserDto.LastName;
+        user.Email = appUserDto.Email;
+        user.PhoneNumber = appUserDto.PhoneNumber;
+
+        var result = await _userManager.UpdateAsync(user);
+
+        if (!result.Succeeded)
+        {
+            var errors = result.Errors.ToDictionary(error => error.Code, error => error.Description);
+            return BadRequest(new ApiError(400, errors));
+        }
+        
+        return _mapper.Map<AppUserDto>(user);
     }
 }

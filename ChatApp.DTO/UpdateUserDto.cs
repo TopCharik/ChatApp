@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ChatApp.DTO;
 
-public class RegisterAppUserDto
+public class UpdateUserDto
 {
     [Required]
     [EmailAddress]
@@ -17,7 +17,4 @@ public class RegisterAppUserDto
     
     [Phone]
     public string? PhoneNumber { get; set; }
-    
-    [Required]
-    public string Password { get; set; }
 }
