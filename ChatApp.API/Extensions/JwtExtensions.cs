@@ -7,7 +7,7 @@ namespace ChatApp.API.Extensions;
 
 public static class JwtExtensions
 {
-    public static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration config)
+    public static void AddJwtAuthentication(this IServiceCollection services, IConfiguration config)
     {
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
@@ -21,13 +21,10 @@ public static class JwtExtensions
                     ValidateIssuerSigningKey = true,
                     ValidIssuer = config["Token:Issuer"],
                     ValidateAudience = false,
-                    ValidateLifetime = true,
-                    ClockSkew = TimeSpan.Zero,
+                    ValidateLifetime = false,
                 };
             });
         
         services.AddScoped<IJwtTokenBuilder, JwtTokenBuilder>();
-
-        return services;
     }
 }

@@ -1,3 +1,5 @@
+using ChatApp.Core.Entities.AppUserAggregate;
+
 namespace ChatApp.Core.Entities;
 
 public class Avatar : BaseEntity

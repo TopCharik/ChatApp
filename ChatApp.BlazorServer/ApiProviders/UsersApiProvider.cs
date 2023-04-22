@@ -6,13 +6,11 @@ namespace ChatApp.BlazorServer.ApiProviders;
 public class UsersApiProvider : IUsersApiProvider
 {
     private readonly IJwtHttpClient _jwtHttpClient;
-    private readonly HttpClient _httpClient;
     private readonly string? _apiUrl;
 
     public UsersApiProvider(IJwtHttpClient jwtHttpClient, IConfiguration config, HttpClient httpClient)
     {
         _jwtHttpClient = jwtHttpClient;
-        _httpClient = httpClient;
         _apiUrl = config["ApiUrl"];
     }
 
@@ -21,5 +19,10 @@ public class UsersApiProvider : IUsersApiProvider
         var url = QueryHelpers.AddQueryString($"{_apiUrl}/api/User", queryParams);
 
         return await _jwtHttpClient.GetAsync(url);
+    }
+    
+    public async Task<HttpResponseMessage> LoadSingleUser(string username)
+    {
+        return await _jwtHttpClient.GetAsync($"{_apiUrl}/api/User/{username}");
     }
 }

@@ -15,9 +15,12 @@
                           @bind-Value="_loginDto.UserName" For="@(() => _loginDto.UserName)"/>
             <MudTextField Label="Password" Class="mt-3"
                           @bind-Value="_loginDto.Password" For="@(() => _loginDto.Password)" InputType="InputType.Password"/>
-            @if (_errorMessage != null)
+            @if (_apiError != null)
             {
-                <MudText Color="Color.Error" Class="mt-5">@_errorMessage</MudText>
+                @foreach (var errorMessage in _apiError.Errors)
+                {
+                    <MudText Color="Color.Error" Class="mt-5">@errorMessage.Value</MudText>   
+                }
             }
         </MudCardContent>
         <MudCardActions>
@@ -29,7 +32,7 @@
 
 @code {
     private LoginDto _loginDto = new();
-    private string? _errorMessage;
+    private ApiError? _apiError;
 
     protected override async Task OnInitializedAsync()
     {
@@ -50,9 +53,9 @@
             await AuthenticationStateProvider.GetAuthenticationStateAsync();
             NavigationManager.NavigateTo("/");
         }
-        if (response.StatusCode == HttpStatusCode.Unauthorized)
+        if (!response.IsSuccessStatusCode)
         {
-            _errorMessage = await response.Content.ReadAsStringAsync();
+            _apiError = await response.Content.ReadFromJsonAsync<ApiError>();
             _loginDto.Password = string.Empty;
         }
     }

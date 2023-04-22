@@ -4,7 +4,7 @@ namespace ChatApp.API.Extensions;
 
 public static class SwaggerExtensions
 {
-    public static IServiceCollection AddSwaggerService(this IServiceCollection services)
+    public static void AddSwaggerService(this IServiceCollection services)
     {
         services.AddSwaggerGen(options =>
         {
@@ -26,14 +26,12 @@ public static class SwaggerExtensions
                         Reference = new OpenApiReference
                         {
                             Type = ReferenceType.SecurityScheme,
-                            Id = "Bearer"
+                            Id = "Bearer",
                         }
                     },
                     new string[] { }
                 }
             });
         });
-        
-        return services;
     }
 }

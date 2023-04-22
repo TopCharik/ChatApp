@@ -7,4 +7,5 @@ namespace ChatApp.BLL;
 public interface IUserService
 {
     Task<PagedList<AppUser>> GetUsersAsync(AppUserParameters parameters);
+    Task<AppUser?> GetUserByUsername(string username);
 }

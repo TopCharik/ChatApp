@@ -1,4 +1,3 @@
-using ChatApp.Core.Entities;
 using ChatApp.Core.Entities.AppUserAggregate;
 using ChatApp.Core.Helpers;
 using ChatApp.DAL.App.AppContext;
@@ -32,6 +31,13 @@ public class UserRepository : BaseRepository<AppUser>, IUserRepository
             parameters.Page,
             parameters.PageSize
         );
+    }
+
+    public async Task<AppUser?> GetUserByUsernameAsync(string username)
+    {
+        return await _context.Set<AppUser>()
+            .Include(x => x.Avatars)
+            .FirstOrDefaultAsync(x => x.NormalizedUserName == username.Normalize());
     }
 
     private static void SearchGlobal(ref IQueryable<AppUser> users, AppUserParameters parameters)

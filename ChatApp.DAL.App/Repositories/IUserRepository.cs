@@ -8,4 +8,5 @@ namespace ChatApp.DAL.App.Repositories;
 public interface IUserRepository : IBaseRepository<AppUser>, IContaxtable
 {
     Task<PagedList<AppUser>> GetUsersAsync(AppUserParameters parameters);
+    Task<AppUser?> GetUserByUsernameAsync(string username);
 }

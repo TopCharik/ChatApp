@@ -7,6 +7,8 @@
 
 <div>
     <MudTable ServerData="@(new Func<TableState, Task<TableData<AppUserDto>>>(ServerReload))"
+              OnRowClick="RowClickEvent"
+              T="AppUserDto"
               Dense="true" Hover="true" @ref="_table" CustomHeader="true">
         <ToolBarContent>
             <MudText Typo="Typo.h6">Users</MudText>
@@ -55,7 +57,7 @@
                 </MudTh>
             </MudTHeadRow>
         </HeaderContent>
-        <RowTemplate >
+        <RowTemplate>
             <MudTd DataLabel="Avatar">
                 @if (@context.Avatars.Count > 0)
                 {
@@ -92,7 +94,7 @@
     private Dictionary<string, string> _queryParams = new();
     private int _totalItems;
     private string? _searchString = null;
-    
+
 
     private async Task<TableData<AppUserDto>> ServerReload(TableState state)
     {
@@ -113,14 +115,21 @@
         return new TableData<AppUserDto> {TotalItems = _data.TotalCount, Items = _data.Items};
     }
 
+    private void RowClickEvent(TableRowClickEventArgs<AppUserDto> tableRowClickEventArgs)
+    {
+        NavigationManager.NavigateTo($"users/{tableRowClickEventArgs.Item.UserName}");
+    }
+
     private void OnSearch(string field, string value)
     {
-        _queryParams["Page"] = "0";
+        _queryParams["Page"] = "1";
+
         _queryParams[field] = value;
         if (string.IsNullOrWhiteSpace(value))
         {
             _queryParams.Remove(field);
         }
+
         _table.ReloadServerData();
     }
 
@@ -131,7 +140,7 @@
             state.SortDirection == SortDirection.Ascending
                 ? "asc"
                 : "desc";
-        
+
         if (state.SortDirection == SortDirection.None)
         {
             _queryParams.Remove("SortField");

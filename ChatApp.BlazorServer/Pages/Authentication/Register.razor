@@ -20,15 +20,12 @@
                           @bind-Value="_registerDto.RealName" For="@(() => _registerDto.RealName)"/>
             <MudTextField Label="Password" Class="mt-3"
                           @bind-Value="_registerDto.Password" For="@(() => _registerDto.Password)" InputType="InputType.Password"/>
-            @if (_identityErrors.Count > 0)
+            @if (_apiError != null)
             {
-                <MudPaper Class="pa-4 mud-height-full">
-                    <MudText Typo="Typo.subtitle2"></MudText>
-                    @foreach (var error in _identityErrors)
-                    {
-                        <MudText Color="@Color.Error">@error.Description</MudText>
-                    }
-                </MudPaper>   
+                @foreach (var errorMessage in _apiError.Errors)
+                {
+                    <MudText Color="Color.Error" Class="mt-5">@errorMessage.Value</MudText>   
+                }
             }
         </MudCardContent>
         <MudCardActions>
@@ -46,7 +43,7 @@
 
 @code {
     private UserRegisterDto _registerDto = new();
-    private List<IdentityError> _identityErrors = new();
+    private ApiError? _apiError;
 
     protected override async Task OnInitializedAsync()
     {
@@ -68,9 +65,9 @@
             await AuthenticationStateProvider.GetAuthenticationStateAsync();
             NavigationManager.NavigateTo("/");
         }
-        if (response.StatusCode == HttpStatusCode.BadRequest)
+        if (!response.IsSuccessStatusCode)
         {
-            _identityErrors = await response.Content.ReadFromJsonAsync<List<IdentityError>>();
+            _apiError = await response.Content.ReadFromJsonAsync<ApiError>();
         }
     }
 

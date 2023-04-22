@@ -39,14 +39,18 @@ public class AccountController : ControllerBase
 
         if (user == null)
         {
-            return Unauthorized("Wrong password or/and user name.");
+            var errors = new Dictionary<string, string>();
+            errors.Add("Login failed", "User with this username is not registered.");
+            return Unauthorized(new ApiError(401, errors));
         }
 
         var result = await _signInManager.CheckPasswordSignInAsync(user, loginDto.Password, false);
 
         if (!result.Succeeded)
         {
-            return Unauthorized("Wrong password or/and user name.");
+            var errors = new Dictionary<string, string>();
+            errors.Add("Login failed", "User with this username is not registered.");
+            return Unauthorized(new ApiError(401, errors));
         }
 
         return _jwtTokenBuilder.CreateToken(user);
@@ -61,7 +65,8 @@ public class AccountController : ControllerBase
         var result = await _userManager.CreateAsync(user, registerDto.Password);
         if (!result.Succeeded)
         {
-            return BadRequest(result.Errors);
+            var errors = result.Errors.ToDictionary(error => error.Code, error => error.Description);
+            return BadRequest(new ApiError(400, errors));
         }
 
         return _jwtTokenBuilder.CreateToken(user);
@@ -83,7 +88,8 @@ public class AccountController : ControllerBase
 
         if (!result.Succeeded)
         {
-            return BadRequest(result.Errors);
+            var errors = result.Errors.ToDictionary(error => error.Code, error => error.Description);
+            return BadRequest(new ApiError(400, errors));
         }
 
         return _jwtTokenBuilder.CreateToken(user);

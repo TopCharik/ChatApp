@@ -21,4 +21,11 @@ public class UserService : IUserService
 
         return await repo.GetUsersAsync(parameters);
     }
+
+    public async Task<AppUser?> GetUserByUsername(string username)
+    {
+        var repo = _unitOfWork.GetRepository<IUserRepository>();
+
+        return await repo.GetUserByUsernameAsync(username);
+    }
 }

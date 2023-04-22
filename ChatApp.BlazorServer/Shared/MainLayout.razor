@@ -37,14 +37,14 @@
             <AuthorizeView>
                 <Authorized>
                     <MudNavMenu>
-                        <MudNavLink Match="NavLinkMatch.Prefix" href="users">Users</MudNavLink>
-                        <MudNavLink Match="NavLinkMatch.Prefix" href="change-password">Change password</MudNavLink>
+                        <MudNavLink Match="NavLinkMatch.All" Href="users" >Users</MudNavLink>
+                        <MudNavLink Match="NavLinkMatch.All" Href="change-password" >Change password</MudNavLink>
                     </MudNavMenu>
                 </Authorized>
             </AuthorizeView>
         </MudDrawer>
         <MudMainContent Class="pt-16 px-16">
-            <MudContainer Class="mt-6">
+            <MudContainer MaxWidth="MaxWidth.Large">
                 @Body
             </MudContainer>
         </MudMainContent>

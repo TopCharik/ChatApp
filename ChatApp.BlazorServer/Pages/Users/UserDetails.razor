@@ -1,0 +1,70 @@
+@page "/users/{username}"
+@using ChatApp.DTO
+@attribute [Authorize] 
+@inject IUsersApiProvider UsersApiProvider
+
+
+<h1 class="mt-5">User details</h1>
+
+@if (_appUserDto != null)
+{
+    <MudGrid>
+        <MudItem xs="12">
+        </MudItem>
+        <MudItem lg="4">
+            <MudAvatar style="height: 300px; width: 300px" Color="Color.Secondary">
+                @if (_appUserDto.Avatars.Count > 0)
+                {
+                    <MudImage Src="@_appUserDto.Avatars[0].PictureUrl"></MudImage>
+                }
+                else
+                {
+                    @_appUserDto.UserName.ToUpper()
+                }
+            </MudAvatar>
+        </MudItem>
+        <MudItem lg="8">
+            <MudList>
+                <MudListItem Avatar="@Icons.Material.Filled.PermIdentity">
+                    Username: @_appUserDto.UserName
+                </MudListItem>
+                <MudListItem Avatar="@Icons.Material.Filled.PermIdentity">
+                    Name: @_appUserDto.RealName
+                </MudListItem>
+                <MudListItem Avatar="@Icons.Material.Filled.AlternateEmail">
+                    Email: @_appUserDto.Email
+                </MudListItem>
+                <MudListItem Avatar="@Icons.Material.Filled.Phone">
+                    Phone Number: @_appUserDto.PhoneNumber
+                </MudListItem>
+
+            </MudList>
+        </MudItem>
+    </MudGrid>
+
+}
+
+
+@code {
+
+    [Parameter]
+    public string? username { get; set; }
+
+    private AppUserDto? _appUserDto;
+    private ApiError? _apiError;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var response = await UsersApiProvider.LoadSingleUser(username);
+
+        if (response.IsSuccessStatusCode)
+        {
+            _appUserDto = await response.Content.ReadFromJsonAsync<AppUserDto>();
+        }
+        if (!response.IsSuccessStatusCode)
+        {
+            _apiError = await response.Content.ReadFromJsonAsync<ApiError>();
+        }
+    }
+
+}

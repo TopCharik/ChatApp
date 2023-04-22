@@ -1,3 +1,5 @@
+using ChatApp.Core.Entities.AppUserAggregate;
+
 namespace ChatApp.Core.Entities;
 
 public class Participation : BaseEntity
@@ -18,9 +20,9 @@ public class Participation : BaseEntity
 
     public bool CanDeleteParticipants { get; set; }
 
-    public int CanChangeChatAvatar { get; set; }
+    public bool CanChangeChatAvatar { get; set; }
 
-    public int CanChangeChatTitle { get; set; }
+    public bool CanChangeChatTitle { get; set; }
 
     public bool CanChangePublicity { get; set; }
 
