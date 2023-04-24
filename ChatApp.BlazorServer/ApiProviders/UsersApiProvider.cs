@@ -1,4 +1,5 @@
 using ChatApp.BlazorServer.Services.Authentication;
+using ChatApp.DTO;
 using Microsoft.AspNetCore.WebUtilities;
 
 namespace ChatApp.BlazorServer.ApiProviders;
@@ -14,15 +15,21 @@ public class UsersApiProvider : IUsersApiProvider
         _apiUrl = config["ApiUrl"];
     }
 
-    public async Task<HttpResponseMessage> LoadUsers(Dictionary<string, string> queryParams)
+    public async Task<HttpResponseMessage> LoadUsersAsync(Dictionary<string, string> queryParams)
     {
         var url = QueryHelpers.AddQueryString($"{_apiUrl}/api/User", queryParams);
 
         return await _jwtHttpClient.GetAsync(url);
     }
     
-    public async Task<HttpResponseMessage> LoadSingleUser(string username)
+    public async Task<HttpResponseMessage> LoadSingleUserAsync(string username)
     {
         return await _jwtHttpClient.GetAsync($"{_apiUrl}/api/User/{username}");
+    }
+    
+    public async Task<HttpResponseMessage> UpdateUserAsync(UpdateUserDto updateUserDto)
+    {
+        var response = await _jwtHttpClient.PutAsJsonAsync($"{_apiUrl}/api/Account/update-user", updateUserDto, false);
+        return response;
     }
 }

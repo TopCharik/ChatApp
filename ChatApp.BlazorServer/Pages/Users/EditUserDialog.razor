@@ -1,0 +1,82 @@
+@using ChatApp.DTO
+@using AutoMapper
+@inject IMapper Mapper
+@inject IUsersApiProvider UsersApiProvider 
+
+<MudDialog Style="width: 500px">
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.Edit" Class="mr-3 mb-n1"/>
+            Edit user
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <EditForm Model="@_updateUserDto" OnValidSubmit="OnSubmitEdit" Style="width: 100%">
+            <DataAnnotationsValidator/>
+            <MudCardContent>
+                <MudTextField Label="First name" Class="mt-3"
+                              @bind-Value="_updateUserDto.FirstName" For="@(() => _updateUserDto.FirstName)"/>
+                <MudTextField Label="Last name" Class="mt-3"
+                              @bind-Value="_updateUserDto.LastName" For="@(() => _updateUserDto.LastName)"/>
+                <MudTextField Label="Email" Class="mt-3"
+                              @bind-Value="_updateUserDto.Email" For="@(() => _updateUserDto.Email)"/>
+                <MudTextField Label="Phone Number" Class="mt-3"
+                              @bind-Value="_updateUserDto.PhoneNumber" For="@(() => _updateUserDto.PhoneNumber)"/>
+                @if (_apiError != null)
+                {
+                    @foreach (var errorMessage in _apiError.Errors)
+                    {
+                        <MudText Color="Color.Error" Class="mt-5">@errorMessage.Value</MudText>
+                    }
+                }
+            </MudCardContent>
+            <MudCardActions>
+                <MudButton OnClick="Cancel">Cancel</MudButton>
+                <MudButton
+                    ButtonType="ButtonType.Submit"
+                    Variant="Variant.Filled"
+                    Color="Color.Primary"
+                    Class="ml-auto">
+                    Update user
+                </MudButton>
+            </MudCardActions>
+        </EditForm>
+    </DialogContent>
+</MudDialog>
+
+@code {
+
+    [CascadingParameter]
+    MudDialogInstance MudDialog { get; set; }
+
+    [Parameter]
+    public AppUserDto AppUserDto { get; set; } = new();
+
+    private UpdateUserDto _updateUserDto;
+    private ApiError? _apiError;
+
+    protected override void OnInitialized()
+    {
+        _updateUserDto = Mapper.Map<UpdateUserDto>(AppUserDto);
+    }
+
+    private async Task OnSubmitEdit()
+    {
+        var response = await UsersApiProvider.UpdateUserAsync(_updateUserDto);
+        if (response.IsSuccessStatusCode)
+        {
+            var updatedUser = await response.Content.ReadFromJsonAsync<AppUserDto>();
+            MudDialog.Close(DialogResult.Ok(updatedUser));
+        }
+        if (!response.IsSuccessStatusCode)
+        {
+            _apiError = await response.Content.ReadFromJsonAsync<ApiError>();
+        }
+    }
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+
+}

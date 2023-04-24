@@ -22,6 +22,7 @@ builder.Services.AddScoped<IJwtHelper, JwtHelper>();
 builder.Services.AddScoped<IJwtHttpClient, JwtHttpClient>();
 builder.Services.AddScoped<AuthenticationStateProvider, JwtAuthenticationStateProvider>();
 builder.Services.AddBlazoredLocalStorage();
+builder.Services.AddAutoMapper(typeof(MappingProfiles));
 
 
 var app = builder.Build();

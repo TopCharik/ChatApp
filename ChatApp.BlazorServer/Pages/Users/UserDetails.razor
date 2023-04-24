@@ -2,54 +2,67 @@
 @using ChatApp.DTO
 @attribute [Authorize] 
 @inject IUsersApiProvider UsersApiProvider
+@inject IDialogService DialogService
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 
 <h1 class="mt-5">User details</h1>
 
+
 @if (_appUserDto != null)
 {
-    <MudGrid>
-        <MudItem xs="12">
-        </MudItem>
+    <MudGrid Class="mt-5">
         <MudItem lg="4">
-            <MudAvatar style="height: 300px; width: 300px" Color="Color.Secondary">
-                @if (_appUserDto.Avatars.Count > 0)
-                {
-                    <MudImage Src="@_appUserDto.Avatars[0].PictureUrl"></MudImage>
-                }
-                else
-                {
-                    @_appUserDto.UserName.ToUpper()
-                }
-            </MudAvatar>
+                <MudAvatar  style="height: 300px; width: 300px" Color="Color.Secondary">
+                    @if (_appUserDto.Avatars.Count > 0)
+                    {
+                        <MudImage Src="@_appUserDto.Avatars[0].PictureUrl"></MudImage>
+                    }
+                    else
+                    {
+                        @_appUserDto.UserName.ToUpper()
+                    }
+                </MudAvatar>
         </MudItem>
         <MudItem lg="8">
-            <MudList>
-                <MudListItem Avatar="@Icons.Material.Filled.PermIdentity">
-                    Username: @_appUserDto.UserName
-                </MudListItem>
-                @if (_appUserDto.FirstName != null)
+            <MudGrid>
+                <MudItem lg="12">
+                    <h1 class="mt-5">Username: @_appUserDto.UserName</h1>
+                </MudItem>
+                @if (_canEdit)
                 {
-                    <MudListItem Avatar="@Icons.Material.Filled.PermIdentity">
-                        Last Name: @_appUserDto.FirstName
-                    </MudListItem>
+                    <MudItem lg="12">
+                        <MudButton OnClick="@((e) => EditUser())" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit">
+                            Edit User Information
+                        </MudButton>
+                    </MudItem>
                 }
-                @if (_appUserDto.LastName != null)
-                {
-                    <MudListItem Avatar="@Icons.Material.Filled.PermIdentity">
-                        First Name: @_appUserDto.LastName
-                    </MudListItem>
-                }
-                <MudListItem Avatar="@Icons.Material.Filled.AlternateEmail">
-                    Email: @_appUserDto.Email
-                </MudListItem>
-                @if (_appUserDto.PhoneNumber != null)
-                {
-                    <MudListItem Avatar="@Icons.Material.Filled.Phone">
-                        Phone Number: @_appUserDto.PhoneNumber
-                    </MudListItem>
-                }
-            </MudList>
+                <MudItem lg="12">
+                    <MudList>
+                        @if (_appUserDto.FirstName != null)
+                        {
+                            <MudListItem Avatar="@Icons.Material.Filled.PermIdentity">
+                                Last Name: @_appUserDto.FirstName
+                            </MudListItem>
+                        }
+                        @if (_appUserDto.LastName != null)
+                        {
+                            <MudListItem Avatar="@Icons.Material.Filled.PermIdentity">
+                                First Name: @_appUserDto.LastName
+                            </MudListItem>
+                        }
+                        <MudListItem Avatar="@Icons.Material.Filled.AlternateEmail">
+                            Email: @_appUserDto.Email
+                        </MudListItem>
+                        @if (_appUserDto.PhoneNumber != null)
+                        {
+                            <MudListItem Avatar="@Icons.Material.Filled.Phone">
+                                Phone Number: @_appUserDto.PhoneNumber
+                            </MudListItem>
+                        }
+                    </MudList>
+                </MudItem>
+            </MudGrid>
         </MudItem>
     </MudGrid>
 }
@@ -62,10 +75,30 @@
 
     private AppUserDto? _appUserDto;
     private ApiError? _apiError;
+    private bool _canEdit;
 
     protected override async Task OnInitializedAsync()
     {
-        var response = await UsersApiProvider.LoadSingleUser(username);
+        await LoadUser();
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        _canEdit = _appUserDto?.UserName == authState.User.Identity?.Name;
+    }
+
+    public async Task EditUser()
+    {
+        var parameters = new DialogParameters{["AppUserDto"] = _appUserDto};
+        var options = new DialogOptions{DisableBackdropClick = true};
+        var dialog = await DialogService.ShowAsync<EditUserDialog>("Delete Server", parameters,options);
+        var result = await dialog.Result;
+        if (!result.Canceled)
+        {
+            await LoadUser();
+        }
+    }
+
+    private async Task LoadUser()
+    {
+        var response = await UsersApiProvider.LoadSingleUserAsync(username);
 
         if (response.IsSuccessStatusCode)
         {
