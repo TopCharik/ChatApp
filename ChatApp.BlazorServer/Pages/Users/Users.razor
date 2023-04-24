@@ -114,10 +114,7 @@
         {
             _data = await response.Content.ReadFromJsonAsync<PagedResponseDto<AppUserDto>>();
         }
-
-        var url = NavigationManager.BaseUri;
-        url = QueryHelpers.AddQueryString($"{url}users", _queryParams);
-        NavigationManager.NavigateTo(url);
+        
 
         return new TableData<AppUserDto> {TotalItems = _data.TotalCount, Items = _data.Items};
     }

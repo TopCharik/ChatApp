@@ -1,0 +1,82 @@
+@using ChatApp.DTO
+@inject IJwtStorage JwtStorage
+@inject IUsersApiProvider UsersApiProvider 
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<MudDialog Style="width: 500px">
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.Edit" Class="mr-3 mb-n1"/>
+            Change username
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <EditForm Model="@_newUserName" OnValidSubmit="OnSubmitEdit" Style="width: 100%">
+            <DataAnnotationsValidator/>
+            <MudCardContent>
+                <MudTextField Label="Old username" Class="mt-3"
+                              @bind-Value="AppUserDto.UserName"
+                              ReadOnly="true"/>
+                <MudTextField Label="New username" Class="mt-3"
+                              @bind-Value="_newUserName"
+                              For="@(() => _newUserName)"/>
+                @if (_apiError != null)
+                {
+                    @foreach (var errorMessage in _apiError.Errors)
+                    {
+                        <MudText Color="Color.Error" Class="mt-5">@errorMessage.Value</MudText>
+                    }
+                }
+            </MudCardContent>
+            <MudCardActions>
+                <MudButton OnClick="Cancel">Cancel</MudButton>
+                <MudButton
+                    ButtonType="ButtonType.Submit"
+                    Variant="Variant.Filled"
+                    Color="Color.Primary"
+                    Class="ml-auto">
+                    Change username
+                </MudButton>
+            </MudCardActions>
+        </EditForm>
+    </DialogContent>
+</MudDialog>
+
+@code {
+
+    [CascadingParameter]
+    MudDialogInstance MudDialog { get; set; }
+
+    [Parameter]
+    public AppUserDto AppUserDto { get; set; } = new();
+
+    private string _newUserName;
+    private ApiError? _apiError;
+
+    protected override void OnInitialized()
+    {
+        _newUserName = AppUserDto.UserName;
+    }
+
+    private async Task OnSubmitEdit()
+    {
+        var response = await UsersApiProvider.ChangeUsernameAsync(AppUserDto.UserName, _newUserName);
+        if (response.IsSuccessStatusCode)
+        {
+            var token = await response.Content.ReadAsStringAsync();
+            await JwtStorage.SaveJwtTokenAsync(token);
+            await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            MudDialog.Close(DialogResult.Ok(_newUserName));
+        }
+        if (!response.IsSuccessStatusCode)
+        {
+            _apiError = await response.Content.ReadFromJsonAsync<ApiError>();
+        }
+    }
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+
+}

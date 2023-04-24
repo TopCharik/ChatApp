@@ -94,12 +94,19 @@ public class AccountController : ControllerBase
 
         return _jwtTokenBuilder.CreateToken(user);
     }
-
+    
     [HttpPut]
     [Authorize]
     [Route("update-user/{username}")]
     public async Task<ActionResult<AppUserDto>> Register(UpdateUserDto appUserDto, string username)
     {
+        if (!string.Equals(username, HttpContext.User.Identity?.Name, StringComparison.CurrentCultureIgnoreCase))
+        {
+            var errors = new Dictionary<string, string>();
+            errors.Add("User update failed", "You can't change this user information.");
+            return Unauthorized(new ApiError(401, errors));
+        }
+        
         var user = await _userManager.FindByNameAsync(username);
         
         if (user == null)
@@ -107,13 +114,6 @@ public class AccountController : ControllerBase
             var errors = new Dictionary<string, string>();
             errors.Add("User update failed", "User with this username is not registered.");
             return BadRequest(new ApiError(400, errors));
-        }
-
-        if (!string.Equals(user.UserName, HttpContext.User.Identity?.Name, StringComparison.CurrentCultureIgnoreCase))
-        {
-            var errors = new Dictionary<string, string>();
-            errors.Add("User update failed", "You can't change this user information.");
-            return Unauthorized(new ApiError(401, errors));
         }
 
         user.UserName = username;
@@ -131,5 +131,42 @@ public class AccountController : ControllerBase
         }
         
         return _mapper.Map<AppUserDto>(user);
+    }
+    
+    [HttpPut]
+    [Authorize]
+    [Route("change-username/{username}")]
+    public async Task<ActionResult<string>> ChangeUsername(string username,[FromBody] string newUsername)
+    {
+        if (!string.Equals(username, HttpContext.User.Identity?.Name, StringComparison.CurrentCultureIgnoreCase))
+        {
+            var errors = new Dictionary<string, string>();
+            errors.Add("User update failed", "You can't change this user information.");
+            return Unauthorized(new ApiError(401, errors));
+        }
+
+        
+        var user = await _userManager.FindByNameAsync(username);
+        
+        if (user == null)
+        {
+            var errors = new Dictionary<string, string>();
+            errors.Add("Username change failed", "User with this username is not registered.");
+            return BadRequest(new ApiError(400, errors));
+        }
+        
+        user.UserName = newUsername;
+
+        var result = await _userManager.UpdateAsync(user);
+
+        if (!result.Succeeded)
+        {
+            var errors = result.Errors.ToDictionary(error => error.Code, error => error.Description);
+            return BadRequest(new ApiError(400, errors));
+        }
+        
+        
+        
+        return _jwtTokenBuilder.CreateToken(user);
     }
 }

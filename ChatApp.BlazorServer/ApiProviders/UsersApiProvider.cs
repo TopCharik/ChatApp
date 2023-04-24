@@ -35,4 +35,14 @@ public class UsersApiProvider : IUsersApiProvider
         );
         return response;
     }
+
+    public async Task<HttpResponseMessage> ChangeUsernameAsync(string oldUsername, string newUsername)
+    {
+        var response = await _jwtHttpClient.PutAsJsonAsync(
+            $"{_apiUrl}/api/Account/change-username/{oldUsername}",
+            newUsername,
+            false
+        );
+        return response;
+    }
 }
