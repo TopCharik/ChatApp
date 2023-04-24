@@ -1,5 +1,6 @@
 @page "/Register"
 @using ChatApp.DTO
+@using System.ComponentModel.DataAnnotations
 @inject IAuthenticationApiProvider AuthenticationApiProvider
 @inject IJwtProvider JwtProvider
 @inject AuthenticationStateProvider AuthenticationStateProvider
@@ -8,25 +9,29 @@
 <h3>Register</h3>
 
 
-<EditForm Model="@_dto" OnValidSubmit="OnRegister" Style="width: 100%">
+<EditForm Model="@_registerAppUserModel" OnValidSubmit="OnRegister" Style="width: 100%">
     <DataAnnotationsValidator/>
     <MudCard>
         <MudCardContent>
             <MudTextField Label="Username"
-                          @bind-Value="_dto.UserName" For="@(() => _dto.UserName)"/>
+                          @bind-Value="_registerAppUserModel.UserName" For="@(() => _registerAppUserModel.UserName)"/>
             <MudTextField Label="Email" Class="mt-3"
-                          @bind-Value="_dto.Email" For="@(() => _dto.Email)"/>
+                          @bind-Value="_registerAppUserModel.Email" For="@(() => _registerAppUserModel.Email)"/>
             <MudTextField Label="First name" Class="mt-3"
-                          @bind-Value="_dto.FirstName" For="@(() => _dto.FirstName)"/>
+                          @bind-Value="_registerAppUserModel.FirstName" For="@(() => _registerAppUserModel.FirstName)"/>
             <MudTextField Label="Last name" Class="mt-3"
-                                      @bind-Value="_dto.LastName" For="@(() => _dto.LastName)"/>
+                          @bind-Value="_registerAppUserModel.LastName" For="@(() => _registerAppUserModel.LastName)"/>
+            <MudTextField Label="Phone Number" Class="mt-3"
+                          @bind-Value="_registerAppUserModel.PhoneNumber" For="@(() => _registerAppUserModel.PhoneNumber)"/>
             <MudTextField Label="Password" Class="mt-3"
-                          @bind-Value="_dto.Password" For="@(() => _dto.Password)" InputType="InputType.Password"/>
+                          @bind-Value="_registerAppUserModel.Password" For="@(() => _registerAppUserModel.Password)" InputType="InputType.Password"/>
+            <MudTextField Label="Confirm Password" Class="mt-3"
+                                      @bind-Value="_registerAppUserModel.ConfirmPassword" For="@(() => _registerAppUserModel.ConfirmPassword)" InputType="InputType.Password"/>
             @if (_apiError != null)
             {
                 @foreach (var errorMessage in _apiError.Errors)
                 {
-                    <MudText Color="Color.Error" Class="mt-5">@errorMessage.Value</MudText>   
+                    <MudText Color="Color.Error" Class="mt-5">@errorMessage.Value</MudText>
                 }
             }
         </MudCardContent>
@@ -44,7 +49,7 @@
 
 
 @code {
-    private RegisterAppUserDto _dto = new();
+    private RegisterAppUserModel _registerAppUserModel = new();
     private ApiError? _apiError;
 
     protected override async Task OnInitializedAsync()
@@ -58,7 +63,7 @@
 
     private async Task OnRegister()
     {
-        var response = await AuthenticationApiProvider.Register(_dto);
+        var response = await AuthenticationApiProvider.Register(_registerAppUserModel);
 
         if (response.IsSuccessStatusCode)
         {
@@ -73,4 +78,11 @@
         }
     }
 
+    
+    private class RegisterAppUserModel : RegisterAppUserDto
+    {
+        [Compare("Password")]
+        [Required(ErrorMessage = "Password is required")]
+        public string ConfirmPassword { get; set; }
+    }
 }

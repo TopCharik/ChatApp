@@ -95,7 +95,7 @@ public class AccountController : ControllerBase
         return _jwtTokenBuilder.CreateToken(user);
     }
 
-    [HttpPost]
+    [HttpPut]
     [Authorize]
     [Route("update-user")]
     public async Task<ActionResult<AppUserDto>> Register(UpdateUserDto appUserDto)

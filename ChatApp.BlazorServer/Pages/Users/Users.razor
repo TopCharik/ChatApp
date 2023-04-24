@@ -108,7 +108,7 @@
         UpdateSortParams(state);
         UpdatePagingParams(state);
 
-        var response = await UsersApiProvider.LoadUsers(_queryParams);
+        var response = await UsersApiProvider.LoadUsersAsync(_queryParams);
 
         if (response.IsSuccessStatusCode)
         {
