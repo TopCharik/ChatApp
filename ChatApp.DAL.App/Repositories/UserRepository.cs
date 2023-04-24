@@ -20,7 +20,7 @@ public class UserRepository : BaseRepository<AppUser>, IUserRepository
         SortUsers(ref users, parameters.SortField, parameters.OrderBy);
         SearchByUserName(ref users, parameters.NormalizedUserName);
         SearchByFirstName(ref users, parameters.FirstName);
-        SearchByLastName(ref users, parameters.SecondName);
+        SearchByLastName(ref users, parameters.LastName);
         SearchByNormalizedEmail(ref users, parameters.NormalizedEmail);
         SearchByPhoneNumber(ref users, parameters.PhoneNumber);
         SearchGlobal(ref users, parameters);

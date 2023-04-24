@@ -9,12 +9,18 @@
     <MudTable ServerData="@(new Func<TableState, Task<TableData<AppUserDto>>>(ServerReload))"
               OnRowClick="RowClickEvent"
               T="AppUserDto"
+              CurrentPage="Page"
               Dense="true" Hover="true" @ref="_table" CustomHeader="true">
         <ToolBarContent>
             <MudText Typo="Typo.h6">Users</MudText>
             <MudSpacer/>
-            <MudTextField T="string" ValueChanged="@(s => OnSearch("search", s))" Placeholder="Search" Adornment="Adornment.Start"
-                          AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0">
+            <MudTextField T="string"
+                          @bind-Value="Search"
+                          OnBlur="@(s => OnSearch("Search", Search))"
+                          Placeholder="Search"
+                          Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Search"
+                          IconSize="Size.Medium">
             </MudTextField>
         </ToolBarContent>
         <HeaderContent>
@@ -39,28 +45,52 @@
             <MudTHeadRow>
                 <MudTh></MudTh>
                 <MudTh>
-                    <MudTextField T="string" ValueChanged="@(s => OnSearch("username", s))" Placeholder="Username" Adornment="Adornment.Start"
+                    <MudTextField T="string"
+                                  @bind-Value="Username"
+                                  OnBlur="@(s => OnSearch("Username", Username))"
+                                  Placeholder="Username"
+                                  Adornment="Adornment.Start"
                                   AdornmentIcon="@Icons.Material.Filled.FilterAlt" IconSize="Size.Medium" Class="mt-0">
                     </MudTextField>
                 </MudTh>
                 <MudTh>
-                    <MudTextField T="string" ValueChanged="@(s => OnSearch("firstname", s))" Placeholder="First Name" Adornment="Adornment.Start"
-                                  AdornmentIcon="@Icons.Material.Filled.FilterAlt" IconSize="Size.Medium" Class="mt-0">
+                    <MudTextField T="string"
+                                  @bind-Value="FirstName"
+                                  OnBlur="@(s => OnSearch("FirstName", FirstName))"
+                                  Placeholder="First Name"
+                                  Adornment="Adornment.Start"
+                                  AdornmentIcon="@Icons.Material.Filled.FilterAlt"
+                                  IconSize="Size.Medium">
                     </MudTextField>
                 </MudTh>
                 <MudTh>
-                    <MudTextField T="string" ValueChanged="@(s => OnSearch("lastname", s))" Placeholder="Last Name" Adornment="Adornment.Start"
-                                  AdornmentIcon="@Icons.Material.Filled.FilterAlt" IconSize="Size.Medium" Class="mt-0">
+                    <MudTextField T="string"
+                                  @bind-Value="LastName"
+                                  OnBlur="@(s => OnSearch("LastName", LastName))"
+                                  Placeholder="First Name"
+                                  Adornment="Adornment.Start"
+                                  AdornmentIcon="@Icons.Material.Filled.FilterAlt"
+                                  IconSize="Size.Medium">
                     </MudTextField>
                 </MudTh>
                 <MudTh>
-                    <MudTextField T="string" ValueChanged="@(s => OnSearch("email", s))" Placeholder="Email" Adornment="Adornment.Start"
-                                  AdornmentIcon="@Icons.Material.Filled.FilterAlt" IconSize="Size.Medium" Class="mt-0">
+                    <MudTextField T="string"
+                                  @bind-Value="Email"
+                                  OnBlur="@(s => OnSearch("Email", Email))"
+                                  Placeholder="First Name"
+                                  Adornment="Adornment.Start"
+                                  AdornmentIcon="@Icons.Material.Filled.FilterAlt"
+                                  IconSize="Size.Medium">
                     </MudTextField>
                 </MudTh>
                 <MudTh>
-                    <MudTextField T="string" ValueChanged="@(s => OnSearch("phone", s))" Placeholder="Phone" Adornment="Adornment.Start"
-                                  AdornmentIcon="@Icons.Material.Filled.FilterAlt" IconSize="Size.Medium" Class="mt-0">
+                    <MudTextField T="string"
+                                  @bind-Value="Phone"
+                                  OnBlur="@(s => OnSearch("Phone", Phone))"
+                                  Placeholder="First Name"
+                                  Adornment="Adornment.Start"
+                                  AdornmentIcon="@Icons.Material.Filled.FilterAlt"
+                                  IconSize="Size.Medium">
                     </MudTextField>
                 </MudTh>
             </MudTHeadRow>
@@ -79,8 +109,8 @@
                 }
             </MudTd>
             <MudTd DataLabel="Username">@context.UserName</MudTd>
-            <MudTd DataLabel="Name">@context.LastName</MudTd>
             <MudTd DataLabel="Name">@context.FirstName</MudTd>
+            <MudTd DataLabel="Name">@context.LastName</MudTd>
             <MudTd DataLabel="Position">@context.Email</MudTd>
             <MudTd DataLabel="Molar mass">@context.PhoneNumber</MudTd>
         </RowTemplate>
@@ -97,16 +127,48 @@
 </div>
 
 @code {
-    private List<AppUserDto> pagedData = new();
     private MudTable<AppUserDto> _table;
     private PagedResponseDto<AppUserDto>? _data = new();
-    private Dictionary<string, string> _queryParams = new();
+    private readonly Dictionary<string, string> _queryParams = new();
 
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string? Search { get; set; }
+
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string? Username { get; set; }
+
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string? FirstName { get; set; }
+
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string? LastName { get; set; }
+
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string? Email { get; set; }
+
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string? Phone { get; set; }
+
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public int Page { get; set; }
+
+    protected override void OnInitialized()
+    {
+        InitQueryString();
+    }
 
     private async Task<TableData<AppUserDto>> ServerReload(TableState state)
     {
         UpdateSortParams(state);
         UpdatePagingParams(state);
+
 
         var response = await UsersApiProvider.LoadUsersAsync(_queryParams);
 
@@ -114,7 +176,9 @@
         {
             _data = await response.Content.ReadFromJsonAsync<PagedResponseDto<AppUserDto>>();
         }
-        
+
+        var url = QueryHelpers.AddQueryString("users/", _queryParams);
+        NavigationManager.NavigateTo(url);
 
         return new TableData<AppUserDto> {TotalItems = _data.TotalCount, Items = _data.Items};
     }
@@ -126,7 +190,7 @@
 
     private void OnSearch(string field, string value)
     {
-        _queryParams["Page"] = "1";
+        _table.CurrentPage = 0; 
 
         _queryParams[field] = value;
         if (string.IsNullOrWhiteSpace(value))
@@ -154,16 +218,29 @@
 
     private void UpdatePagingParams(TableState state)
     {
+        Page = state.Page;
+        
         _queryParams["PageSize"] = state.PageSize.ToString();
-        _queryParams["Page"] = (state.Page + 1).ToString();
+        _queryParams["Page"] = Page.ToString();
+        
         if (_queryParams["PageSize"] == "10")
         {
             _queryParams.Remove("PageSize");
         }
-        if (_queryParams["Page"] == "1")
+        if (_queryParams["Page"] == "0")
         {
             _queryParams.Remove("Page");
         }
     }
-
+    
+    private void InitQueryString()
+    {
+        _queryParams["Username"] = Username;
+        _queryParams["FirstName"] = FirstName;
+        _queryParams["LastName"] = LastName;
+        _queryParams["Email"] = Email;
+        _queryParams["Phone"] = Phone;
+        _queryParams["Search"] = Search;
+        _queryParams["Page"] = Page.ToString();
+    }
 }
