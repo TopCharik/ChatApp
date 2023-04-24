@@ -97,10 +97,10 @@ public class AccountController : ControllerBase
 
     [HttpPut]
     [Authorize]
-    [Route("update-user")]
-    public async Task<ActionResult<AppUserDto>> Register(UpdateUserDto appUserDto)
+    [Route("update-user/{username}")]
+    public async Task<ActionResult<AppUserDto>> Register(UpdateUserDto appUserDto, string username)
     {
-        var user = await _userManager.FindByNameAsync(appUserDto.UserName);
+        var user = await _userManager.FindByNameAsync(username);
         
         if (user == null)
         {
@@ -116,7 +116,7 @@ public class AccountController : ControllerBase
             return Unauthorized(new ApiError(401, errors));
         }
 
-        user.UserName = appUserDto.UserName;
+        user.UserName = username;
         user.FirstName = appUserDto.FirstName;
         user.LastName = appUserDto.LastName;
         user.Email = appUserDto.Email;

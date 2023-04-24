@@ -21,15 +21,18 @@ public class UsersApiProvider : IUsersApiProvider
 
         return await _jwtHttpClient.GetAsync(url);
     }
-    
+
     public async Task<HttpResponseMessage> LoadSingleUserAsync(string username)
     {
         return await _jwtHttpClient.GetAsync($"{_apiUrl}/api/User/{username}");
     }
-    
-    public async Task<HttpResponseMessage> UpdateUserAsync(UpdateUserDto updateUserDto)
+
+    public async Task<HttpResponseMessage> UpdateUserAsync(UpdateUserDto updateUserDto, string username)
     {
-        var response = await _jwtHttpClient.PutAsJsonAsync($"{_apiUrl}/api/Account/update-user", updateUserDto, false);
+        var response = await _jwtHttpClient.PutAsJsonAsync(
+            $"{_apiUrl}/api/Account/update-user/{username}",
+            updateUserDto, false
+        );
         return response;
     }
 }
