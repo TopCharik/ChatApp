@@ -1,6 +1,7 @@
 using AutoMapper;
 using ChatApp.Core.Entities;
 using ChatApp.Core.Entities.AppUserAggregate;
+using ChatApp.Core.Entities.ChatInfoAggregate;
 using ChatApp.Core.Helpers;
 using ChatApp.DAL.App.Helpers;
 using ChatApp.DAL.Identity;
@@ -43,5 +44,13 @@ public class MappingProfiles : Profile
                 dest => dest.Items,
                 opt => opt.MapFrom(src => src)
             );
+        CreateMap<Conversation, ConversationDto>();
+        CreateMap<ChatInfo, ChatInfoDto>();
+        CreateMap<PagedList<Conversation>, PagedResponseDto<ConversationDto>>()
+            .ForMember(
+                dest => dest.Items,
+                opt => opt.MapFrom(src => src)
+            );
+        CreateMap<ChatInfoQueryParams, ChatInfoParameters>();
     }
 }

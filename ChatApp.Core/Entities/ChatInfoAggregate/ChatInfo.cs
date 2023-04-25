@@ -8,7 +8,7 @@ public class ChatInfo : BaseEntity
 
     public bool IsPrivate { get; set; }
 
-    public ICollection<Avatar> Avatars { get; }
+    public ICollection<Avatar> Avatars  { get; set; }
 
     public Conversation? Conversation { get; set; }
 }

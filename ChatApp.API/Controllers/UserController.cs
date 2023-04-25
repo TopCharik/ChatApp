@@ -23,7 +23,6 @@ public class UserController : ControllerBase
     }
 
     [HttpGet]
-    [AllowAnonymous]
     public async Task<ActionResult<PagedResponseDto<AppUserDto>>> GetUsers([FromQuery] AppUserQueryParams parameters)
     {
         var userParameters = _mapper.Map<AppUserParameters>(parameters);
@@ -34,7 +33,6 @@ public class UserController : ControllerBase
     }
     
     [HttpGet]
-    [AllowAnonymous]
     [Route("{username}")]
     public async Task<ActionResult<AppUserDto>> GetUsers(string username)
     {
