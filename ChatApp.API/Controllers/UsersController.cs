@@ -34,18 +34,16 @@ public class UsersController : ControllerBase
     
     [HttpGet]
     [Route("{username}")]
-    public async Task<ActionResult<AppUserDto>> GetUsers(string username)
+    public async Task<ActionResult<AppUserDto>> GetUser(string username)
     {
-        var userDetails = await _userService.GetUserByUsername(username);
+        var result = await _userService.GetUserByUsername(username);
         
-        if (userDetails == null)
+        if (!result.Succeeded)
         {
-            var errors = new Dictionary<string, string>();
-            errors.Add("User not found", "User with this username is not registered.");
-            return NotFound(new ApiError(404, errors));
+            return NotFound(new ApiError(404, result.Errors));
         }
         
-        var userDetailsDto = _mapper.Map<AppUserDto>(userDetails);
+        var userDetailsDto = _mapper.Map<AppUserDto>(result.Value);
         
         return userDetailsDto;
     }

@@ -1,4 +1,3 @@
-using ChatApp.Core.Entities;
 using ChatApp.Core.Entities.AppUserAggregate;
 using ChatApp.DAL.App.Helpers;
 using ChatApp.DAL.App.Interfaces;

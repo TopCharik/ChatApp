@@ -18,17 +18,17 @@ public class ChatsController : ControllerBase
 {
     private readonly IChatService _chatService;
     private readonly IMapper _mapper;
-    private readonly UserManager<ExtendedIdentityUser> _userManager;
+    private readonly IUserService _userService;
 
     public ChatsController(
         IChatService chatService,
         IMapper mapper,
-        UserManager<ExtendedIdentityUser> userManager
+        IUserService userService
     )
     {
         _chatService = chatService;
         _mapper = mapper;
-        _userManager = userManager;
+        _userService = userService;
     }
 
     [HttpGet]
@@ -46,8 +46,20 @@ public class ChatsController : ControllerBase
     public async Task<ActionResult> CreateChat([FromBody] NewChatDto newChatDto)
     {
         var ownerName = HttpContext.User.Identity!.Name!;
-        var ownerId = await _userManager.FindByNameAsync(ownerName);
-        var newConversation = ConversationFactory.NewChat(newChatDto, ownerId.Id);
+        
+        var ownerId = await _userService.GetUserByUsername(ownerName);
+        if (!ownerId.Succeeded)
+        {
+            return BadRequest(new ApiError(400, ownerId.Errors));
+        }
+        
+        var userIds = await _userService.GetUserIdsByUsernames(newChatDto.Usernames);
+        if (!userIds.Succeeded)
+        {
+            return BadRequest(new ApiError(400, userIds.Errors));
+        }
+
+        var newConversation = ConversationFactory.NewChat(newChatDto, ownerId.Value!.Id, userIds.Value!);
 
         var result = await _chatService.CreateNewChat(newConversation);
 

@@ -36,7 +36,7 @@ public class UserRepository : BaseRepository<AppUser>, IUserRepository
 
     public async Task<AppUser?> GetUserByUsernameAsync(string username)
     {
-        return await _context.Set<AppUser>()
+        return await GetAll()
             .Include(x => x.Avatars)
             .FirstOrDefaultAsync(x => x.NormalizedUserName == username.Normalize());
     }

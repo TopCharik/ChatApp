@@ -11,5 +11,5 @@ public class NewChatDto
     [Required]
     public bool IsPrivate { get; set; }
     public string? AvatarUrl { get; set; }
-    public string[]? AppUserIds { get; set; }
+    public List<string> Usernames { get; set; }
 }

@@ -5,9 +5,9 @@ namespace ChatApp.API.Helpers;
 
 public static class ConversationFactory
 {
-    public static Conversation NewChat(NewChatDto newChatDto, string ownerId)
+    public static Conversation NewChat(NewChatDto newChatDto, string ownerId, List<string> userIds)
     {
-        var participants = (newChatDto.AppUserIds ?? Array.Empty<string>())
+        var participants = userIds
             .Select(ParticipationFactory.DefaultChatMember).ToList();
 
         var Avatars = new List<Avatar>();
