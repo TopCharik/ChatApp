@@ -4,7 +4,6 @@ namespace ChatApp.DTO;
 
 public class UpdateUserDto
 {
-    [Required]
     [EmailAddress]
     public string Email { get; set; }
 

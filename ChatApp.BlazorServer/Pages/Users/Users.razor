@@ -1,6 +1,4 @@
 @page "/Users"
-@using ChatApp.DTO
-@using Microsoft.AspNetCore.WebUtilities
 @attribute [Authorize]
 @inject IUsersApiProvider UsersApiProvider
 @inject NavigationManager NavigationManager
@@ -16,7 +14,7 @@
             <MudSpacer/>
             <MudTextField T="string"
                           @bind-Value="Search"
-                          OnBlur="@(s => OnSearch("Search", Search))"
+                          OnBlur="@(_ => OnSearch("Search", Search))"
                           Placeholder="Search"
                           Adornment="Adornment.Start"
                           AdornmentIcon="@Icons.Material.Filled.Search"
@@ -30,10 +28,10 @@
                     <MudTableSortLabel SortLabel="username" T="AppUserDto">User Name</MudTableSortLabel>
                 </MudTh>
                 <MudTh>
-                    <MudTableSortLabel SortLabel="realname" T="AppUserDto">First Name</MudTableSortLabel>
+                    <MudTableSortLabel SortLabel="firstname" T="AppUserDto">First Name</MudTableSortLabel>
                 </MudTh>
                 <MudTh>
-                    <MudTableSortLabel SortLabel="realname" T="AppUserDto">Last Name</MudTableSortLabel>
+                    <MudTableSortLabel SortLabel="lastname" T="AppUserDto">Last Name</MudTableSortLabel>
                 </MudTh>
                 <MudTh>
                     <MudTableSortLabel SortLabel="email" T="AppUserDto">Email</MudTableSortLabel>
@@ -47,7 +45,7 @@
                 <MudTh>
                     <MudTextField T="string"
                                   @bind-Value="Username"
-                                  OnBlur="@(s => OnSearch("Username", Username))"
+                                  OnBlur="@(_ => OnSearch("Username", Username))"
                                   Placeholder="Username"
                                   Adornment="Adornment.Start"
                                   AdornmentIcon="@Icons.Material.Filled.FilterAlt" IconSize="Size.Medium" Class="mt-0">
@@ -56,7 +54,7 @@
                 <MudTh>
                     <MudTextField T="string"
                                   @bind-Value="FirstName"
-                                  OnBlur="@(s => OnSearch("FirstName", FirstName))"
+                                  OnBlur="@(_ => OnSearch("FirstName", FirstName))"
                                   Placeholder="First Name"
                                   Adornment="Adornment.Start"
                                   AdornmentIcon="@Icons.Material.Filled.FilterAlt"
@@ -66,8 +64,8 @@
                 <MudTh>
                     <MudTextField T="string"
                                   @bind-Value="LastName"
-                                  OnBlur="@(s => OnSearch("LastName", LastName))"
-                                  Placeholder="First Name"
+                                  OnBlur="@(_ => OnSearch("LastName", LastName))"
+                                  Placeholder="Last Name"
                                   Adornment="Adornment.Start"
                                   AdornmentIcon="@Icons.Material.Filled.FilterAlt"
                                   IconSize="Size.Medium">
@@ -76,8 +74,8 @@
                 <MudTh>
                     <MudTextField T="string"
                                   @bind-Value="Email"
-                                  OnBlur="@(s => OnSearch("Email", Email))"
-                                  Placeholder="First Name"
+                                  OnBlur="@(_ => OnSearch("Email", Email))"
+                                  Placeholder="Email"
                                   Adornment="Adornment.Start"
                                   AdornmentIcon="@Icons.Material.Filled.FilterAlt"
                                   IconSize="Size.Medium">
@@ -86,8 +84,8 @@
                 <MudTh>
                     <MudTextField T="string"
                                   @bind-Value="Phone"
-                                  OnBlur="@(s => OnSearch("Phone", Phone))"
-                                  Placeholder="First Name"
+                                  OnBlur="@(_ => OnSearch("Phone", Phone))"
+                                  Placeholder="Phone"
                                   Adornment="Adornment.Start"
                                   AdornmentIcon="@Icons.Material.Filled.FilterAlt"
                                   IconSize="Size.Medium">
@@ -127,7 +125,7 @@
 </div>
 
 @code {
-    private MudTable<AppUserDto> _table;
+    private MudTable<AppUserDto>? _table;
     private PagedResponseDto<AppUserDto>? _data = new();
     private readonly Dictionary<string, string> _queryParams = new();
 

@@ -14,13 +14,13 @@ namespace ChatApp.API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
-public class ChatController : ControllerBase
+public class ChatsController : ControllerBase
 {
     private readonly IChatService _chatService;
     private readonly IMapper _mapper;
     private readonly UserManager<ExtendedIdentityUser> _userManager;
 
-    public ChatController(
+    public ChatsController(
         IChatService chatService,
         IMapper mapper,
         UserManager<ExtendedIdentityUser> userManager
@@ -41,9 +41,9 @@ public class ChatController : ControllerBase
         return chatsDto;
     }
     
-    [HttpGet]
+    [HttpPost]
     [Route("create-chat")]
-    public async Task<ActionResult> CreateChat([FromQuery] NewChatDto newChatDto)
+    public async Task<ActionResult> CreateChat([FromBody] NewChatDto newChatDto)
     {
         var ownerName = HttpContext.User.Identity!.Name!;
         var ownerId = await _userManager.FindByNameAsync(ownerName);

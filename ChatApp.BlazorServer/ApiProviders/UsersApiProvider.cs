@@ -17,14 +17,14 @@ public class UsersApiProvider : IUsersApiProvider
 
     public async Task<HttpResponseMessage> LoadUsersAsync(Dictionary<string, string> queryParams)
     {
-        var url = QueryHelpers.AddQueryString($"{_apiUrl}/api/User", queryParams);
+        var url = QueryHelpers.AddQueryString($"{_apiUrl}/api/Users", queryParams);
 
         return await _jwtHttpClient.GetAsync(url);
     }
 
     public async Task<HttpResponseMessage> LoadSingleUserAsync(string username)
     {
-        return await _jwtHttpClient.GetAsync($"{_apiUrl}/api/User/{username}");
+        return await _jwtHttpClient.GetAsync($"{_apiUrl}/api/Users/{username}");
     }
 
     public async Task<HttpResponseMessage> UpdateUserAsync(UpdateUserDto updateUserDto, string username)

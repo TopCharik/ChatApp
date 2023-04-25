@@ -1,0 +1,202 @@
+@page "/Chats"
+@attribute [Authorize]
+@inject IChatsApiProvider ChatsApiProvider
+@inject NavigationManager NavigationManager
+@inject IDialogService DialogService
+
+<div>
+    <MudButton 
+        OnClick="@((e) => CreateNewChat())"
+        Class="mt-5"
+        Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Chat">
+        Create new chat
+    </MudButton>
+    <MudTable ServerData="@(new Func<TableState, Task<TableData<ConversationDto>>>(ServerReload))"
+              OnRowClick="RowClickEvent"
+              Class="mt-5"
+              T="ConversationDto"
+              CurrentPage="Page"
+              Dense="true" Hover="true" @ref="_table" CustomHeader="true">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">Chats</MudText>
+            <MudSpacer/>
+            @*<MudTextField T="string"
+                          @bind-Value="Search"
+                          OnBlur="@(_ => OnSearch("Search", Search))"
+                          Placeholder="Search"
+                          Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Search"
+                          IconSize="Size.Medium">
+            </MudTextField>*@
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTHeadRow>
+                <MudTh>Avatar</MudTh>
+                <MudTh>
+                    <MudTableSortLabel SortLabel="username" T="AppUserDto">Title</MudTableSortLabel>
+                </MudTh>
+                <MudTh>
+                    <MudTableSortLabel SortLabel="firstname" T="AppUserDto">Chat link</MudTableSortLabel>
+                </MudTh>
+            </MudTHeadRow>
+            <MudTHeadRow>
+                <MudTh></MudTh>
+                <MudTh>
+                    <MudTextField T="string"
+                                  @bind-Value="Title"
+                                  OnBlur="@(_ => OnSearch("Title", Title))"
+                                  Placeholder="Chat Title"
+                                  Adornment="Adornment.Start"
+                                  AdornmentIcon="@Icons.Material.Filled.FilterAlt" IconSize="Size.Medium" Class="mt-0">
+                    </MudTextField>
+                </MudTh>
+                <MudTh>
+                    <MudTextField T="string"
+                                  @bind-Value="ChatLink"
+                                  OnBlur="@(_ => OnSearch("ChatLink", ChatLink))"
+                                  Placeholder="Chat Link"
+                                  Adornment="Adornment.Start"
+                                  AdornmentIcon="@Icons.Material.Filled.FilterAlt"
+                                  IconSize="Size.Medium">
+                    </MudTextField>
+                </MudTh>
+            </MudTHeadRow>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Avatar">
+                @if (@context?.ChatInfo?.Avatars.Count > 0)
+                {
+                    <MudAvatar Color="Color.Secondary">
+                        <MudImage Src="@context?.ChatInfo?.Avatars[0].PictureUrl"></MudImage>
+                    </MudAvatar>
+                }
+                else
+                {
+                    <MudAvatar Color="Color.Primary">@context.ChatInfo.Title.Substring(0, 2).ToUpper()</MudAvatar>
+                }
+            </MudTd>
+            <MudTd DataLabel="Username">@context.ChatInfo.Title</MudTd>
+            <MudTd DataLabel="Name">@context.ChatInfo.ChatLink</MudTd>
+        </RowTemplate>
+        <NoRecordsContent>
+            <MudText>No matching records found</MudText>
+        </NoRecordsContent>
+        <LoadingContent>
+            <MudText>Loading...</MudText>
+        </LoadingContent>
+        <PagerContent>
+            <MudTablePager/>
+        </PagerContent>
+    </MudTable>
+</div>
+
+@code {
+    private MudTable<ConversationDto>? _table;
+    private PagedResponseDto<ConversationDto>? _data = new();
+    private readonly Dictionary<string, string> _queryParams = new();
+
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string? Title { get; set; }
+
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string? ChatLink { get; set; }
+
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public int Page { get; set; }
+
+    protected override void OnInitialized()
+    {
+        InitQueryString();
+    }
+
+    private async Task<TableData<ConversationDto>> ServerReload(TableState state)
+    {
+        UpdateSortParams(state);
+        UpdatePagingParams(state);
+
+
+        var response = await ChatsApiProvider.LoadChatsAsync(_queryParams);
+
+        if (response.IsSuccessStatusCode)
+        {
+            _data = await response.Content.ReadFromJsonAsync<PagedResponseDto<ConversationDto>>();
+        }
+
+        var url = QueryHelpers.AddQueryString("chats/", _queryParams);
+        NavigationManager.NavigateTo(url);
+
+        return new TableData<ConversationDto> {TotalItems = _data.TotalCount, Items = _data.Items};
+    }
+
+    private void RowClickEvent(TableRowClickEventArgs<ConversationDto> tableRowClickEventArgs)
+    {
+        NavigationManager.NavigateTo($"chats/{tableRowClickEventArgs.Item.ChatInfo.ChatLink}");
+    }
+
+    private void OnSearch(string field, string value)
+    {
+        _table.CurrentPage = 0;
+
+        _queryParams[field] = value;
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            _queryParams.Remove(field);
+        }
+
+        _table.ReloadServerData();
+    }
+
+    private void UpdateSortParams(TableState state)
+    {
+        _queryParams["SortField"] = state.SortLabel;
+        _queryParams["OrderBy"] =
+            state.SortDirection == SortDirection.Ascending
+                ? "asc"
+                : "desc";
+
+        if (state.SortDirection == SortDirection.None)
+        {
+            _queryParams.Remove("SortField");
+            _queryParams.Remove("OrderBy");
+        }
+    }
+
+    private void UpdatePagingParams(TableState state)
+    {
+        Page = state.Page;
+
+        _queryParams["PageSize"] = state.PageSize.ToString();
+        _queryParams["Page"] = Page.ToString();
+
+        if (_queryParams["PageSize"] == "10")
+        {
+            _queryParams.Remove("PageSize");
+        }
+        if (_queryParams["Page"] == "0")
+        {
+            _queryParams.Remove("Page");
+        }
+    }
+
+    private void InitQueryString()
+    {
+        _queryParams["Title"] = Title;
+        _queryParams["ChatLink"] = ChatLink;
+        _queryParams["Page"] = Page.ToString();
+    }
+
+    private async Task CreateNewChat()
+    {
+        var options = new DialogOptions {DisableBackdropClick = true};
+        var dialog = await DialogService.ShowAsync<NewChatDialog>("", options);
+        var result = await dialog.Result;
+        if (!result.Canceled)
+        {
+            _table.ReloadServerData();
+        }
+    }
+
+}

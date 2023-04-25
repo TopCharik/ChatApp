@@ -16,7 +16,8 @@ public class ConversationsRepository : BaseRepository<Conversation>, IConversati
             .Include(x => x.ChatInfo)
             .ThenInclude(x => x.Avatars.OrderBy(x => x.DateSet))
             .Where(x => EF.Functions.Like(x.ChatInfo.Title, $"%{parameters.Title}%"))
-            .Where(x => EF.Functions.Like(x.ChatInfo.ChatLink, $"%{parameters.ChatLink}%"));
+            .Where(x => EF.Functions.Like(x.ChatInfo.ChatLink, $"%{parameters.ChatLink}%"))
+            .Where(x => x.ChatInfo.IsPrivate == false);
 
         return await PagedList<Conversation>.ToPagedList(chats, parameters.Page, parameters.PageSize);
     }

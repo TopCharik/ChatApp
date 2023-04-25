@@ -40,7 +40,7 @@ public class AccountController : ControllerBase
         if (user == null)
         {
             var errors = new Dictionary<string, string>();
-            errors.Add("Login failed", "User with this username is not registered.");
+            errors.Add("Login failed", "Wrong password or username.");
             return Unauthorized(new ApiError(401, errors));
         }
 
@@ -49,7 +49,7 @@ public class AccountController : ControllerBase
         if (!result.Succeeded)
         {
             var errors = new Dictionary<string, string>();
-            errors.Add("Login failed", "User with this username is not registered.");
+            errors.Add("Login failed", "Wrong password or username.");
             return Unauthorized(new ApiError(401, errors));
         }
 

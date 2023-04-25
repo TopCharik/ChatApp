@@ -1,0 +1,70 @@
+@inject IChatsApiProvider ChatsApiProvider 
+
+<MudDialog Style="width: 500px">
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.Edit" Class="mr-3"/>
+            Create new chat: @_newChatDto.ChatLink
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <EditForm Model="@_newChatDto" OnValidSubmit="OnSubmitEdit" Style="width: 100%">
+            <DataAnnotationsValidator />
+            <MudCardContent>
+                <MudTextField Label="Chat title"
+                              @bind-Value="_newChatDto.Title" For="@(() => _newChatDto.Title)"/>
+                <MudTextField Label="Chat link" Class="mt-3"
+                              @bind-Value="_newChatDto.ChatLink" For="@(() => _newChatDto.ChatLink)"/>
+                <MudTextField Label="Chat avatar url" Class="mt-3"
+                              @bind-Value="_newChatDto.AvatarUrl" For="@(() => _newChatDto.AvatarUrl)"/>
+                <MudSwitch Label="Is private chat" Class="mt-3"
+                           @bind-Checked="_newChatDto.IsPrivate" For="@(() => _newChatDto.IsPrivate)"/>
+                @if (_apiError != null)
+                {
+                    @foreach (var errorMessage in _apiError.Errors)
+                    {
+                        <MudText Color="Color.Error" Class="mt-5">@errorMessage.Value</MudText>
+                    }
+                }
+            </MudCardContent>
+            <MudCardActions>
+                <MudButton OnClick="Cancel">Cancel</MudButton>
+                <MudButton
+                    ButtonType="ButtonType.Submit"
+                    Variant="Variant.Filled"
+                    Color="Color.Primary"
+                    Class="ml-auto">
+                    Create chat
+                </MudButton>
+            </MudCardActions>
+        </EditForm>
+    </DialogContent>
+</MudDialog>
+
+@code {
+
+    [CascadingParameter]
+    MudDialogInstance MudDialog { get; set; }
+
+    private NewChatDto _newChatDto = new();
+    private ApiError? _apiError;
+
+    private async Task OnSubmitEdit()
+    {
+        var response = await ChatsApiProvider.CreateNewChatAsync(_newChatDto);
+        if (response.IsSuccessStatusCode)
+        {
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        if (!response.IsSuccessStatusCode)
+        {
+            _apiError = await response.Content.ReadFromJsonAsync<ApiError>();
+        }
+    }
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+
+}
