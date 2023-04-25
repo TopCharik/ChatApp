@@ -4,6 +4,6 @@
         constraint PK_ChatInfo
         primary key,
     Title      nvarchar(256) not null,
-    InviteLink nvarchar(128) not null,
+    ChatLink nvarchar(128) not null,
     IsPrivate  bit default 0 not null
 )

@@ -6,5 +6,5 @@ public class ChatInfoParameters : PagingParameters
 {
     public string? Title { get; set; }
 
-    public string? InviteLink { get; set; }
+    public string? ChatLink { get; set; }
 }

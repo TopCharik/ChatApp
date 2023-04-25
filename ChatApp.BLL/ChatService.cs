@@ -27,7 +27,7 @@ public class ChatService : IChatService
     {
         var repo = _unitOfWork.GetRepository<IConversationsRepository>();
 
-        var chat = await repo.GetChatByInviteLink(conversation.ChatInfo.InviteLink);
+        var chat = await repo.GetChatByLink(conversation.ChatInfo.ChatLink);
         if (chat != null)
         {
             var errors = new Dictionary<string, string>()

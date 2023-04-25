@@ -10,7 +10,7 @@ public class ChatInfoConfiguration : IEntityTypeConfiguration<ChatInfo>
     {
         builder.HasKey(e => e.Id).HasName("PK_ChatInfo");
 
-        builder.Property(e => e.InviteLink).HasMaxLength(128);
+        builder.Property(e => e.ChatLink).HasMaxLength(128);
         builder.Property(e => e.Title).HasMaxLength(256);
     }
 }

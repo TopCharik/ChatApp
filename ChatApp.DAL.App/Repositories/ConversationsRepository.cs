@@ -16,24 +16,17 @@ public class ConversationsRepository : BaseRepository<Conversation>, IConversati
             .Include(x => x.ChatInfo)
             .ThenInclude(x => x.Avatars.OrderBy(x => x.DateSet))
             .Where(x => EF.Functions.Like(x.ChatInfo.Title, $"%{parameters.Title}%"))
-            .Where(x => EF.Functions.Like(x.ChatInfo.InviteLink, $"%{parameters.InviteLink}%"));
+            .Where(x => EF.Functions.Like(x.ChatInfo.ChatLink, $"%{parameters.ChatLink}%"));
 
         return await PagedList<Conversation>.ToPagedList(chats, parameters.Page, parameters.PageSize);
     }
 
-    public async Task<Conversation?> GetChatByInviteLink(string inviteLink)
+    public async Task<Conversation?> GetChatByLink(string ChatLink)
     {
         var chat = await GetByCondition(x => x.ChatInfoId != null)
             .Include(x => x.ChatInfo)
             .ThenInclude(x => x.Avatars.OrderBy(x => x.DateSet))
-            .FirstOrDefaultAsync(x => EF.Functions.Like(x.ChatInfo.InviteLink, $"%{inviteLink}%"));
+            .FirstOrDefaultAsync(x => EF.Functions.Like(x.ChatInfo.ChatLink, $"%{ChatLink}%"));
         return chat;
-    }
-
-    public async Task CreateNewChat(Conversation newChat)
-    {
-        Create(newChat);
-        await _context.SaveChangesAsync();
-        return;
     }
 }

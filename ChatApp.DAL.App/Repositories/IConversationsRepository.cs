@@ -8,7 +8,6 @@ namespace ChatApp.DAL.App.Repositories;
 public interface IConversationsRepository : IBaseRepository<Conversation>
 {
     public Task<PagedList<Conversation>> GetPublicChatsAsync(ChatInfoParameters parameters);
-    public Task<Conversation?> GetChatByInviteLink(string inviteLink);
-    public Task CreateNewChat(Conversation newChat);
+    public Task<Conversation?> GetChatByLink(string ChatLink);
 
 }

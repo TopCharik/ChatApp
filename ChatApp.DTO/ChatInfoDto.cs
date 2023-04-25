@@ -4,7 +4,7 @@ public class ChatInfoDto
 {
     public string Title { get; set; }
 
-    public string InviteLink { get; set; }
+    public string ChatLink { get; set; }
 
     public bool IsPrivate { get; set; }
 

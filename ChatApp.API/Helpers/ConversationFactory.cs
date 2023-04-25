@@ -28,7 +28,7 @@ public static class ConversationFactory
             ChatInfo = new ChatInfo
             {
                 Title = newChatDto.Title,
-                InviteLink = newChatDto.InviteLink,
+                ChatLink = newChatDto.ChatLink,
                 IsPrivate = newChatDto.IsPrivate,
                 Avatars = Avatars,
             },
