@@ -106,11 +106,35 @@
                     <MudAvatar Color="Color.Primary">@context.UserName.Substring(0, 2).ToUpper()</MudAvatar>
                 }
             </MudTd>
-            <MudTd DataLabel="Username">@context.UserName</MudTd>
-            <MudTd DataLabel="Name">@context.FirstName</MudTd>
-            <MudTd DataLabel="Name">@context.LastName</MudTd>
-            <MudTd DataLabel="Position">@context.Email</MudTd>
-            <MudTd DataLabel="Molar mass">@context.PhoneNumber</MudTd>
+            <MudTd DataLabel="Username">
+                <MudHighlighter
+                    Text="@context.UserName"
+                    HighlightedTexts="new[] {Search, Username}"/>
+            </MudTd>
+            <MudTd DataLabel="Name">
+                
+                <MudHighlighter
+                    Text="@context.FirstName"
+                    HighlightedTexts="new[] {Search, FirstName}"/>
+            </MudTd>
+            <MudTd DataLabel="Name">
+                
+                <MudHighlighter
+                    Text="@context.LastName"
+                    HighlightedTexts="new[] {Search, LastName}"/>
+            </MudTd>
+            <MudTd DataLabel="Position">
+                
+                <MudHighlighter
+                    Text="@context.Email"
+                    HighlightedTexts="new[] {Search, Email}"/>
+            </MudTd>
+            <MudTd DataLabel="Molar mass">
+                
+                <MudHighlighter
+                    Text="@context.PhoneNumber"
+                    HighlightedTexts="new[] {Search, Phone}"/>
+            </MudTd>
         </RowTemplate>
         <NoRecordsContent>
             <MudText>No matching records found</MudText>
@@ -188,7 +212,7 @@
 
     private void OnSearch(string field, string value)
     {
-        _table.CurrentPage = 0; 
+        _table.CurrentPage = 0;
 
         _queryParams[field] = value;
         if (string.IsNullOrWhiteSpace(value))
@@ -217,10 +241,10 @@
     private void UpdatePagingParams(TableState state)
     {
         Page = state.Page;
-        
+
         _queryParams["PageSize"] = state.PageSize.ToString();
         _queryParams["Page"] = Page.ToString();
-        
+
         if (_queryParams["PageSize"] == "10")
         {
             _queryParams.Remove("PageSize");
@@ -230,7 +254,7 @@
             _queryParams.Remove("Page");
         }
     }
-    
+
     private void InitQueryString()
     {
         _queryParams["Username"] = Username;
@@ -241,4 +265,5 @@
         _queryParams["Search"] = Search;
         _queryParams["Page"] = Page.ToString();
     }
+
 }
