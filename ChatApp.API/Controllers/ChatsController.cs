@@ -79,13 +79,13 @@ public class ChatsController : ControllerBase
     public async Task<ActionResult<ConversationParticipationDto>> GetParticipationByChatLink(string chatLink)
     {
         var username = HttpContext.User.Identity!.Name!;
-        var userId = await _userService.GetUserByUsername(username);
-        if (!userId.Succeeded)
+        var user = await _userService.GetUserByUsername(username);
+        if (!user.Succeeded)
         {
-            return BadRequest(new ApiError(400, userId.Errors));
+            return BadRequest(new ApiError(400, user.Errors));
         }
         
-        var conversation = await _chatService.GetParticipationByChatLink(chatLink, userId.Value!.Id);
+        var conversation = await _chatService.GetParticipationByChatLink(chatLink, user.Value!.Id);
         if (!conversation.Succeeded)
         {
             return BadRequest(new ApiError(400, conversation.Errors));

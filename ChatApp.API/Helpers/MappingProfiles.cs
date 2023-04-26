@@ -58,5 +58,10 @@ public class MappingProfiles : Profile
                 dest =>  dest.Participation,
                 opt => opt.MapFrom(src => src.Participations.FirstOrDefault())
             );
+        CreateMap<NewMessageDto, Message>()
+            .ForMember(
+                dest => dest.DateSent,
+                opt => opt.MapFrom(src => DateTime.Now)
+            );
     }
 }
