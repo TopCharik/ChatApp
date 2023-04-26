@@ -33,10 +33,10 @@
             <MudTHeadRow>
                 <MudTh>Avatar</MudTh>
                 <MudTh>
-                    <MudTableSortLabel SortLabel="username" T="AppUserDto">Title</MudTableSortLabel>
+                    <MudTableSortLabel SortLabel="title" T="ConversationDto">Title</MudTableSortLabel>
                 </MudTh>
                 <MudTh>
-                    <MudTableSortLabel SortLabel="firstname" T="AppUserDto">Chat link</MudTableSortLabel>
+                    <MudTableSortLabel SortLabel="chatlink" T="ConversationDto">Chat Link</MudTableSortLabel>
                 </MudTh>
             </MudTHeadRow>
             <MudTHeadRow>
@@ -118,7 +118,7 @@
 
     private async Task<TableData<ConversationDto>> ServerReload(TableState state)
     {
-        UpdateSortParams(state);
+        /*UpdateSortParams(state);*/
         UpdatePagingParams(state);
 
 

@@ -2,6 +2,7 @@ namespace ChatApp.DTO;
 
 public class ChatInfoDto
 {
+    public string Type { get; set; }
     public string Title { get; set; }
 
     public string ChatLink { get; set; }

@@ -1,3 +1,5 @@
+using ChatApp.Core.Entities.ChatInfoAggregate;
+
 namespace ChatApp.Core.Entities;
 
 public class Conversation : BaseEntity

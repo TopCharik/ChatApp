@@ -52,5 +52,11 @@ public class MappingProfiles : Profile
                 opt => opt.MapFrom(src => src)
             );
         CreateMap<ChatInfoQueryParams, ChatInfoParameters>();
+        CreateMap<Participation, ParticipationDto>();
+        CreateMap<Conversation, ConversationParticipationDto>()
+            .ForMember(
+                dest =>  dest.Participation,
+                opt => opt.MapFrom(src => src.Participations.FirstOrDefault())
+            );
     }
 }

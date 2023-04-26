@@ -1,6 +1,7 @@
 using System.Reflection;
 using ChatApp.Core.Entities;
 using ChatApp.Core.Entities.AppUserAggregate;
+using ChatApp.Core.Entities.ChatInfoAggregate;
 using Microsoft.EntityFrameworkCore;
 
 namespace ChatApp.DAL.App.AppContext;

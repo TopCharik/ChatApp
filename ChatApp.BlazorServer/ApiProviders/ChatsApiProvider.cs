@@ -24,6 +24,11 @@ public class ChatsApiProvider : IChatsApiProvider
 
     public async Task<HttpResponseMessage> CreateNewChatAsync(NewChatDto newChatDto)
     {
-        return await _jwtHttpClient.PostAsJsonAsync($"{_apiUrl}/api/Chats/create-chat", newChatDto);
+        return await _jwtHttpClient.PostAsJsonAsync($"{_apiUrl}/api/Chats", newChatDto);
+    }
+
+    public async Task<HttpResponseMessage> GetChatParticipation(string chatLink)
+    {
+        return await _jwtHttpClient.GetAsync($"{_apiUrl}/api/Chats/Participation/{chatLink}");
     }
 }

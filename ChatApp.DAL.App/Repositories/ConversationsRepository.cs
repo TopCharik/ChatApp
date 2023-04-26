@@ -26,13 +26,24 @@ public class ConversationsRepository : BaseRepository<Conversation>, IConversati
         return await PagedList<Conversation>.ToPagedList(chats, parameters.Page, parameters.PageSize);
     }
 
-    public async Task<Conversation?> GetChatByLink(string ChatLink)
+    public async Task<Conversation?> GetChatByLink(string chatLink)
     {
         var chat = await GetByCondition(x => x.ChatInfoId != null)
             .Include(x => x.ChatInfo)
             .ThenInclude(x => x.Avatars.OrderBy(x => x.DateSet))
-            .FirstOrDefaultAsync(x => EF.Functions.Like(x.ChatInfo.ChatLink, $"%{ChatLink}%"));
+            .FirstOrDefaultAsync(x => EF.Functions.Like(x.ChatInfo.ChatLink, $"%{chatLink}%"));
+        
         return chat;
+    }
+
+    public async Task<Conversation?> GetChatWithUserParticipationByLink(string chatLink, string userId)
+    {
+        var conversation = await GetByCondition(x => x.ChatInfoId != null)
+            .Include(x => x.ChatInfo)
+            .Include(x => x.Participations.Where(p => p.AspNetUserId == userId))
+            .FirstOrDefaultAsync(x => EF.Functions.Like(x.ChatInfo.ChatLink, $"%{chatLink}%"));
+        
+        return conversation;
     }
 
     private static void SearchGlobal(ref IQueryable<Conversation> chats, string? search)

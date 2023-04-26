@@ -32,7 +32,7 @@ public class ChatService : IChatService
         {
             var errors = new Dictionary<string, string>()
             {
-                {"Chat creation failed", "Chat with this Invite link already exist."},
+                {"Chat creation failed", "Chat with this link already exist."},
             };
             return new ServiceResult(errors);
         }
@@ -41,5 +41,31 @@ public class ChatService : IChatService
         await _unitOfWork.SaveChangesAsync();
         
         return new ServiceResult();
+    }
+
+    public async Task<ServiceResult<Conversation>> GetChatByLink(string chatLink)
+    {
+        var repo = _unitOfWork.GetRepository<IConversationsRepository>();
+
+        var chat = await repo.GetChatByLink(chatLink);
+        if (chat == null)
+        {
+            var errors = new Dictionary<string, string>()
+            {
+                {"Chat not found", "Chat with this link doesn't exist."},
+            };
+            return new ServiceResult<Conversation>(errors);
+        }
+
+        return new ServiceResult<Conversation>(chat);
+    }
+
+    public async Task<ServiceResult<Conversation>> GetParticipationByChatLink(string chatLink, string userId)
+    {
+        var repo = _unitOfWork.GetRepository<IConversationsRepository>();
+
+        var conversation = await repo.GetChatWithUserParticipationByLink(chatLink, userId);
+
+        return new ServiceResult<Conversation>(conversation);
     }
 }

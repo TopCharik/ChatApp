@@ -4,6 +4,7 @@ namespace ChatApp.BlazorServer.ApiProviders;
 
 public interface IChatsApiProvider
 {
-    public Task<HttpResponseMessage> LoadChatsAsync(Dictionary<string, string> queryParams);
-    public Task<HttpResponseMessage> CreateNewChatAsync(NewChatDto newChatDto);
+    Task<HttpResponseMessage> LoadChatsAsync(Dictionary<string, string> queryParams);
+    Task<HttpResponseMessage> CreateNewChatAsync(NewChatDto newChatDto);
+    Task<HttpResponseMessage> GetChatParticipation(string chatLink);
 }

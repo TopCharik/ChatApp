@@ -2,10 +2,8 @@ using AutoMapper;
 using ChatApp.API.Helpers;
 using ChatApp.BLL;
 using ChatApp.Core.Entities.ChatInfoAggregate;
-using ChatApp.DAL.Identity;
 using ChatApp.DTO;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ChatApp.API.Controllers;
@@ -40,9 +38,41 @@ public class ChatsController : ControllerBase
 
         return chatsDto;
     }
+
+    [HttpGet]
+    [Route("{chatLink}")]
+    public async Task<ActionResult<ConversationDto>> GetChatByChatLink(string chatLink)
+    {
+        var chat = await _chatService.GetChatByLink(chatLink);
+        if (!chat.Succeeded)
+        {
+            return BadRequest(new ApiError(400, chat.Errors));
+        }
+        
+        return _mapper.Map<ConversationDto>(chat.Value);
+    }
     
+    [HttpGet]
+    [Route("Participation/{chatLink}")]
+    public async Task<ActionResult<ConversationParticipationDto>> GetParticipationByChatLink(string chatLink)
+    {
+        var username = HttpContext.User.Identity!.Name!;
+        
+        var userId = await _userService.GetUserByUsername(username);
+        if (!userId.Succeeded)
+        {
+            return BadRequest(new ApiError(400, userId.Errors));
+        }
+        var conversation = await _chatService.GetParticipationByChatLink(chatLink, userId.Value!.Id);
+        if (!conversation.Succeeded)
+        {
+            return BadRequest(new ApiError(400, conversation.Errors));
+        }
+        
+        return _mapper.Map<ConversationParticipationDto>(conversation.Value);
+    }
+
     [HttpPost]
-    [Route("create-chat")]
     public async Task<ActionResult> CreateChat([FromBody] NewChatDto newChatDto)
     {
         var ownerName = HttpContext.User.Identity!.Name!;

@@ -46,7 +46,9 @@
                         @foreach (var user in _searchUsers.Take(5))
                         {
                             <MudListItem OnClick="() => AddUser(user)">
-                                @user.UserName | @user.FirstName @user.LastName | @user.Email | @user.PhoneNumber;
+                                <MudHighlighter 
+                                    Text="@($"{user.UserName} | {user.FirstName} {user.LastName} | {user.Email} | {user.PhoneNumber};")"
+                                    HighlightedText="@_searchString"/>
                             </MudListItem>
                         }
                     </MudList>
@@ -113,7 +115,7 @@
         {
             searchParams["page"] = page.ToString();
             var response = await UsersApiProvider.LoadUsersAsync(searchParams);
-            
+
             if (response.IsSuccessStatusCode)
             {
                 var pagedList = await response.Content.ReadFromJsonAsync<PagedResponseDto<AppUserDto>>();

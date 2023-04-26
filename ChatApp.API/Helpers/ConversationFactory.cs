@@ -1,4 +1,5 @@
 using ChatApp.Core.Entities;
+using ChatApp.Core.Entities.ChatInfoAggregate;
 using ChatApp.DTO;
 
 namespace ChatApp.API.Helpers;
