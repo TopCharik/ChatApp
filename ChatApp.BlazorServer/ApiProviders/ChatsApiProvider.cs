@@ -36,4 +36,9 @@ public class ChatsApiProvider : IChatsApiProvider
     {
         return await _jwtHttpClient.PostAsJsonAsync($"{_apiUrl}/api/Chats/{chatLink}/Join", new {});
     }
+    
+    public async Task<HttpResponseMessage> LeaveChat(string chatLink)
+    {
+        return await _jwtHttpClient.DeleteAsync($"{_apiUrl}/api/Chats/Participation/{chatLink}");
+    }
 }

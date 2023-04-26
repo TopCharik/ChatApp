@@ -8,4 +8,5 @@ public interface IChatsApiProvider
     Task<HttpResponseMessage> CreateNewChatAsync(NewChatDto newChatDto);
     Task<HttpResponseMessage> GetChatParticipation(string chatLink);
     Task<HttpResponseMessage> JoinChat(string chatLink);
+    Task<HttpResponseMessage> LeaveChat(string chatLink);
 }

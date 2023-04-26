@@ -74,6 +74,26 @@ public class ChatsController : ControllerBase
         return Ok();
     }
     
+    [HttpDelete]
+    [Route("Participation/{chatLink}")]
+    public async Task<ActionResult<ConversationDto>> LeaveChat(string chatLink)
+    {
+        var username = HttpContext.User.Identity!.Name!;
+        var user = await _userService.GetUserByUsername(username);
+        if (!user.Succeeded)
+        {
+            return BadRequest(new ApiError(400, user.Errors));
+        }
+
+        var result = await _chatService.LeaveChat(chatLink, user.Value!.Id);
+        if (!result.Succeeded)
+        {
+            return BadRequest(new ApiError(400, result.Errors));
+        }
+
+        return Ok();
+    }
+    
     [HttpGet]
     [Route("Participation/{chatLink}")]
     public async Task<ActionResult<ConversationParticipationDto>> GetParticipationByChatLink(string chatLink)

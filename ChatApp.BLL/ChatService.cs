@@ -59,6 +59,36 @@ public class ChatService : IChatService
 
         return new ServiceResult();
     }
+    
+    public async Task<ServiceResult> LeaveChat(string chatLink, string userId)
+    {
+        var chat = await GetChatByLink(chatLink);
+        if (!chat.Succeeded)
+        {
+            return new ServiceResult(chat.Errors);
+
+        }
+
+        var repo = _unitOfWork.GetRepository<IParticipationRepository>();
+        
+        var participation = repo
+            .GetByCondition(x => x.AspNetUserId == userId && x.ConversationId == chat.Value!.Id)
+            .FirstOrDefault();
+
+        if (participation == null)
+        {
+            var errors = new Dictionary<string, string>()
+            {
+                {"Chat leave failed", "User is not a member of this chat."},
+            };
+            return new ServiceResult(errors);
+        }
+        
+        repo.Delete(participation);
+        await _unitOfWork.SaveChangesAsync();
+        
+        return new ServiceResult();
+    }
 
     public async Task<ServiceResult> CreateNewChat(Conversation conversation)
     {
