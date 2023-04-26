@@ -12,18 +12,17 @@ public class ConversationsRepository : BaseRepository<Conversation>, IConversati
     {
     }
 
-    public async Task<PagedList<Conversation>> GetPublicChatsAsync(ChatInfoParameters parameters)
+    public async Task<PagedList<ChatInfoView>> GetPublicChatsAsync(ChatInfoParameters parameters)
     {
-        var chats = GetByCondition(x => x.ChatInfoId != null)
-            .Include(x => x.ChatInfo)
-            .ThenInclude(x => x.Avatars.OrderBy(x => x.DateSet))
-            .Where(x => x.ChatInfo.IsPrivate == false);
+        var chats = _context.Set<ChatInfoView>()
+            .Include(x => x.Avatars)
+            .AsNoTracking();
 
         SearchGlobal(ref chats, parameters.Search);
         SearchByTitle(ref chats, parameters.Title);
         SearchByLink(ref chats, parameters.ChatLink);
 
-        return await PagedList<Conversation>.ToPagedList(chats, parameters.Page, parameters.PageSize);
+        return await PagedList<ChatInfoView>.ToPagedList(chats, parameters.Page, parameters.PageSize);
     }
 
     public async Task<Conversation?> GetChatByLink(string chatLink)
@@ -46,29 +45,29 @@ public class ConversationsRepository : BaseRepository<Conversation>, IConversati
         return conversation;
     }
 
-    private static void SearchGlobal(ref IQueryable<Conversation> chats, string? search)
+    private static void SearchGlobal(ref IQueryable<ChatInfoView> chats, string? search)
     {
 
         chats = string.IsNullOrEmpty(search)
             ? chats
             : chats.Where(u =>
-                EF.Functions.Like(u.ChatInfo.Title, $"%{search}%") ||
-                EF.Functions.Like(u.ChatInfo.ChatLink, $"%{search}%")
+                EF.Functions.Like(u.Title, $"%{search}%") ||
+                EF.Functions.Like(u.ChatLink, $"%{search}%")
             );
     }
 
-    private static void SearchByTitle(ref IQueryable<Conversation> chats, string? title)
+    private static void SearchByTitle(ref IQueryable<ChatInfoView> chats, string? title)
     {
         chats = string.IsNullOrEmpty(title)
             ? chats
-            : chats.Where(u => EF.Functions.Like(u.ChatInfo.Title, $"%{title}%"));
+            : chats.Where(u => EF.Functions.Like(u.Title, $"%{title}%"));
     }
 
-    private static void SearchByLink(ref IQueryable<Conversation> chats, string? link)
+    private static void SearchByLink(ref IQueryable<ChatInfoView> chats, string? link)
     {
         chats = string.IsNullOrEmpty(link)
             ? chats
-            : chats.Where(u => EF.Functions.Like(u.ChatInfo.ChatLink, $"%{link}%"));
+            : chats.Where(u => EF.Functions.Like(u.ChatLink, $"%{link}%"));
 
     }
 }

@@ -30,11 +30,11 @@ public class ChatsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<PagedResponseDto<ConversationDto>>> GetChats([FromQuery] ChatInfoQueryParams queryParams)
+    public async Task<ActionResult<PagedResponseDto<ChatInfoDto>>> GetChats([FromQuery] ChatInfoQueryParams queryParams)
     {
         var parameters = _mapper.Map<ChatInfoParameters>(queryParams);
         var chats = await _chatService.GetChatsAsync(parameters);
-        var chatsDto = _mapper.Map<PagedResponseDto<ConversationDto>>(chats);
+        var chatsDto = _mapper.Map<PagedResponseDto<ChatInfoDto>>(chats);
 
         return chatsDto;
     }

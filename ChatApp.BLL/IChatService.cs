@@ -9,7 +9,7 @@ public interface IChatService
 {
     Task<ServiceResult> CreateNewChat(Conversation conversation);
     Task<ServiceResult> JoinChat(string chatLink, Participation userId);
-    Task<PagedList<Conversation>> GetChatsAsync(ChatInfoParameters parameters);
+    Task<PagedList<ChatInfoView>> GetChatsAsync(ChatInfoParameters parameters);
     Task<ServiceResult<Conversation>> GetChatByLink(string chatLink);
     Task<ServiceResult<Conversation>> GetParticipationByChatLink(string chatLink, string userId);
 }

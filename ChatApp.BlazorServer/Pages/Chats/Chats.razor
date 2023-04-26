@@ -5,16 +5,16 @@
 @inject IDialogService DialogService
 
 <div>
-    <MudButton 
+    <MudButton
         OnClick="@((e) => CreateNewChat())"
         Class="mt-5"
         Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Chat">
         Create new chat
     </MudButton>
-    <MudTable ServerData="@(new Func<TableState, Task<TableData<ConversationDto>>>(ServerReload))"
+    <MudTable ServerData="@(new Func<TableState, Task<TableData<ChatInfoDto>>>(ServerReload))"
               OnRowClick="RowClickEvent"
               Class="mt-5"
-              T="ConversationDto"
+              T="ChatInfoDto"
               CurrentPage="Page"
               Dense="true" Hover="true" @ref="_table" CustomHeader="true">
         <ToolBarContent>
@@ -33,10 +33,13 @@
             <MudTHeadRow>
                 <MudTh>Avatar</MudTh>
                 <MudTh>
-                    <MudTableSortLabel SortLabel="title" T="ConversationDto">Title</MudTableSortLabel>
+                    <MudTableSortLabel SortLabel="title" T="ChatInfoDto">Title</MudTableSortLabel>
                 </MudTh>
                 <MudTh>
-                    <MudTableSortLabel SortLabel="chatlink" T="ConversationDto">Chat Link</MudTableSortLabel>
+                    <MudTableSortLabel SortLabel="chatlink" T="ChatInfoDto">Chat Link</MudTableSortLabel>
+                </MudTh>
+                <MudTh>
+                    <MudTableSortLabel SortLabel="members" T="ChatInfoDto">Members</MudTableSortLabel>
                 </MudTh>
             </MudTHeadRow>
             <MudTHeadRow>
@@ -60,23 +63,33 @@
                                   IconSize="Size.Medium">
                     </MudTextField>
                 </MudTh>
+                <MudTh></MudTh>
             </MudTHeadRow>
         </HeaderContent>
         <RowTemplate>
             <MudTd DataLabel="Avatar">
-                @if (@context?.ChatInfo?.Avatars.Count > 0)
+                @if (@context.Avatars != null && @context.Avatars.Count > 0)
                 {
                     <MudAvatar Color="Color.Secondary">
-                        <MudImage Src="@context?.ChatInfo?.Avatars[0].PictureUrl"></MudImage>
+                        <MudImage Src="@context.Avatars[0].PictureUrl"></MudImage>
                     </MudAvatar>
                 }
                 else
                 {
-                    <MudAvatar Color="Color.Primary">@context.ChatInfo.Title.Substring(0, 2).ToUpper()</MudAvatar>
+                    <MudAvatar Color="Color.Primary">@context.Title.Substring(0, 2).ToUpper()</MudAvatar>
                 }
             </MudTd>
-            <MudTd DataLabel="Username">@context.ChatInfo.Title</MudTd>
-            <MudTd DataLabel="Name">@context.ChatInfo.ChatLink</MudTd>
+            <MudTd DataLabel="Username">
+                <MudHighlighter
+                    Text="@context.Title"
+                    HighlightedTexts="new[] {Search, Title}"/>
+            </MudTd>
+            <MudTd DataLabel="Name">
+                <MudHighlighter
+                    Text="@context.ChatLink"
+                    HighlightedTexts="new[] {Search, ChatLink}"/>
+            </MudTd>
+            <MudTd DataLabel="Members">@context.ParticipationsCount.ToString()</MudTd>
         </RowTemplate>
         <NoRecordsContent>
             <MudText>No matching records found</MudText>
@@ -91,8 +104,8 @@
 </div>
 
 @code {
-    private MudTable<ConversationDto>? _table;
-    private PagedResponseDto<ConversationDto>? _data = new();
+    private MudTable<ChatInfoDto>? _table;
+    private PagedResponseDto<ChatInfoDto>? _data = new();
     private readonly Dictionary<string, string> _queryParams = new();
 
     [Parameter]
@@ -102,7 +115,7 @@
     [Parameter]
     [SupplyParameterFromQuery]
     public string? ChatLink { get; set; }
-    
+
     [Parameter]
     [SupplyParameterFromQuery]
     public string? Search { get; set; }
@@ -116,9 +129,9 @@
         InitQueryString();
     }
 
-    private async Task<TableData<ConversationDto>> ServerReload(TableState state)
+    private async Task<TableData<ChatInfoDto>> ServerReload(TableState state)
     {
-        /*UpdateSortParams(state);*/
+        UpdateSortParams(state);
         UpdatePagingParams(state);
 
 
@@ -126,18 +139,18 @@
 
         if (response.IsSuccessStatusCode)
         {
-            _data = await response.Content.ReadFromJsonAsync<PagedResponseDto<ConversationDto>>();
+            _data = await response.Content.ReadFromJsonAsync<PagedResponseDto<ChatInfoDto>>();
         }
 
         var url = QueryHelpers.AddQueryString("chats/", _queryParams);
         NavigationManager.NavigateTo(url);
 
-        return new TableData<ConversationDto> {TotalItems = _data.TotalCount, Items = _data.Items};
+        return new TableData<ChatInfoDto> {TotalItems = _data.TotalCount, Items = _data.Items};
     }
 
-    private void RowClickEvent(TableRowClickEventArgs<ConversationDto> tableRowClickEventArgs)
+    private void RowClickEvent(TableRowClickEventArgs<ChatInfoDto> tableRowClickEventArgs)
     {
-        NavigationManager.NavigateTo($"chats/{tableRowClickEventArgs.Item.ChatInfo.ChatLink}");
+        NavigationManager.NavigateTo($"chats/{tableRowClickEventArgs.Item.ChatLink}");
     }
 
     private void OnSearch(string field, string value)

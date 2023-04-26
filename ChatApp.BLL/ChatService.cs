@@ -16,7 +16,7 @@ public class ChatService : IChatService
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<PagedList<Conversation>> GetChatsAsync(ChatInfoParameters parameters)
+    public async Task<PagedList<ChatInfoView>> GetChatsAsync(ChatInfoParameters parameters)
     {
         var repo = _unitOfWork.GetRepository<IConversationsRepository>();
 

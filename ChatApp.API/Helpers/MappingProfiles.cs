@@ -51,6 +51,12 @@ public class MappingProfiles : Profile
                 dest => dest.Items,
                 opt => opt.MapFrom(src => src)
             );
+        CreateMap<ChatInfoView, ChatInfoDto>();
+        CreateMap<PagedList<ChatInfoView>, PagedResponseDto<ChatInfoDto>>()
+            .ForMember(
+                dest => dest.Items,
+                opt => opt.MapFrom(src => src)
+            );
         CreateMap<ChatInfoQueryParams, ChatInfoParameters>();
         CreateMap<Participation, ParticipationDto>();
         CreateMap<Conversation, ConversationParticipationDto>()

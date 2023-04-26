@@ -19,6 +19,9 @@ public class AvatarConfiguration : IEntityTypeConfiguration<Avatar>
         builder.HasOne(d => d.ChatInfo).WithMany(p => p.Avatars)
             .HasForeignKey(d => d.ChatInfoId)
             .HasConstraintName("FK_Pictures_ChatInfo");
+        
+        builder.HasOne(d => d.ChatInfoView).WithMany(p => p.Avatars)
+            .HasForeignKey(d => d.ChatInfoId);
 
         builder.HasOne(d => d.User).WithMany(p => p.Avatars)
             .HasForeignKey(d => d.UserId)
