@@ -12,13 +12,17 @@
         <MudText>Participation Id: @_conversationParticipationDto.Participation.Id.ToString()</MudText>
         <MudText>CanWriteMessages: @_conversationParticipationDto.Participation.CanWriteMessages.ToString()</MudText>
     }
-    @if (_conversationParticipationDto.Participation == null && !_conversationParticipationDto.ChatInfo.IsPrivate)
+    @if (_conversationParticipationDto.Participation == null)
     {
-        <MudText>Join chat</MudText>
-    }
-    @if (_conversationParticipationDto.Participation == null && _conversationParticipationDto.ChatInfo.IsPrivate)
-    {
-        <MudText>This is a private chat</MudText>
+        <MudText>User is not a participant of this chat.</MudText>
+        @if (_conversationParticipationDto.ChatInfo.IsPrivate)
+        {
+            <MudText>This is a private chat</MudText>
+        }
+        @if (!_conversationParticipationDto.ChatInfo.IsPrivate)
+        {
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="OnJoinChat">Join Chat</MudButton>
+        }
     }
     
      
@@ -32,6 +36,18 @@
 
 
     protected override async Task OnInitializedAsync()
+    {
+        await UpdateChatParticipation();
+    }
+
+    private async Task OnJoinChat()
+    {
+        var response = await ChatsApiProvider.JoinChat(ChatLink);
+
+        await UpdateChatParticipation();
+    }
+
+    private async Task UpdateChatParticipation()
     {
         var response = await ChatsApiProvider.GetChatParticipation(ChatLink);
         if (response.IsSuccessStatusCode)

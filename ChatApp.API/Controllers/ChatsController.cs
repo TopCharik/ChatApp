@@ -52,17 +52,39 @@ public class ChatsController : ControllerBase
         return _mapper.Map<ConversationDto>(chat.Value);
     }
     
+    [HttpPost]
+    [Route("{chatLink}/Join")]
+    public async Task<ActionResult<ConversationDto>> JoinChat(string chatLink)
+    {
+        var username = HttpContext.User.Identity!.Name!;
+        var user = await _userService.GetUserByUsername(username);
+        if (!user.Succeeded)
+        {
+            return BadRequest(new ApiError(400, user.Errors));
+        }
+
+        var participation = ParticipationFactory.DefaultChatMember(user.Value!.Id);
+
+        var result = await _chatService.JoinChat(chatLink, participation);
+        if (!result.Succeeded)
+        {
+            return BadRequest(new ApiError(400, result.Errors));
+        }
+
+        return Ok();
+    }
+    
     [HttpGet]
     [Route("Participation/{chatLink}")]
     public async Task<ActionResult<ConversationParticipationDto>> GetParticipationByChatLink(string chatLink)
     {
         var username = HttpContext.User.Identity!.Name!;
-        
         var userId = await _userService.GetUserByUsername(username);
         if (!userId.Succeeded)
         {
             return BadRequest(new ApiError(400, userId.Errors));
         }
+        
         var conversation = await _chatService.GetParticipationByChatLink(chatLink, userId.Value!.Id);
         if (!conversation.Succeeded)
         {

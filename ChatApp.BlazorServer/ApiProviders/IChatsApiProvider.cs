@@ -7,4 +7,5 @@ public interface IChatsApiProvider
     Task<HttpResponseMessage> LoadChatsAsync(Dictionary<string, string> queryParams);
     Task<HttpResponseMessage> CreateNewChatAsync(NewChatDto newChatDto);
     Task<HttpResponseMessage> GetChatParticipation(string chatLink);
+    Task<HttpResponseMessage> JoinChat(string chatLink);
 }
