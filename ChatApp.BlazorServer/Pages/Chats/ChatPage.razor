@@ -1,5 +1,5 @@
 @page "/Chats/{ChatLink}"
-@inject IChatsApiProvider ChatsApiProvider
+@inject IParticipationApiProvider ParticipationApiProvider
 
 <h3>ChatsPage @ChatLink</h3>
 
@@ -43,21 +43,21 @@
 
     private async Task OnJoinChat()
     {
-        var response = await ChatsApiProvider.JoinChat(ChatLink);
+        var response = await ParticipationApiProvider.JoinChat(ChatLink);
 
         await UpdateChatParticipation();
     }
     
     private async Task OnLeaveChat()
     {
-        var response = await ChatsApiProvider.LeaveChat(ChatLink);
+        var response = await ParticipationApiProvider.LeaveChat(ChatLink);
 
         await UpdateChatParticipation();
     }
 
     private async Task UpdateChatParticipation()
     {
-        var response = await ChatsApiProvider.GetChatParticipation(ChatLink);
+        var response = await ParticipationApiProvider.GetChatParticipation(ChatLink);
         if (response.IsSuccessStatusCode)
         {
             _conversationParticipationDto = await response.Content.ReadFromJsonAsync<ConversationParticipationDto>();
