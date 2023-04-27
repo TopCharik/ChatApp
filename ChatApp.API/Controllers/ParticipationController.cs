@@ -2,12 +2,14 @@ using AutoMapper;
 using ChatApp.API.Helpers;
 using ChatApp.BLL;
 using ChatApp.DTO;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ChatApp.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class ParticipationController : ControllerBase
 {
     private readonly IChatService _chatService;

@@ -11,5 +11,5 @@ public class AppUserParameters : PagingParameters
     public string? NormalizedEmail { get; set; }
     public string? PhoneNumber { get; set; }
     public string? SortField { get; set; }
-    public SortDirection? OrderBy { get; set; }
+    public SortDirection? SortDirection { get; set; }
 }

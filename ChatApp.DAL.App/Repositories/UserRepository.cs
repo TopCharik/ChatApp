@@ -17,7 +17,7 @@ public class UserRepository : BaseRepository<AppUser>, IUserRepository
     {
         var users = GetAll();
 
-        SortUsers(ref users, parameters.SortField, parameters.OrderBy);
+        SortUsers(ref users, parameters.SortField, parameters.SortDirection);
         SearchByUserName(ref users, parameters.NormalizedUserName);
         SearchByFirstName(ref users, parameters.FirstName);
         SearchByLastName(ref users, parameters.LastName);

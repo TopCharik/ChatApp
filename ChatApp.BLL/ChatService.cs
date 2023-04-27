@@ -131,8 +131,17 @@ public class ChatService : IChatService
     {
         var repo = _unitOfWork.GetRepository<IConversationsRepository>();
 
-        var conversation = await repo.GetChatWithUserParticipationByLink(chatLink, userId);
-
-        return new ServiceResult<Conversation>(conversation);
+        var chatWithUserParticipation = await repo.GetChatWithUserParticipationByLink(chatLink, userId);
+        if (chatWithUserParticipation == null)
+        {
+            var errors = new Dictionary<string, string>()
+            {
+                {"Chat not found", "Chat with this link doesn't exist."},
+            };
+            return new ServiceResult<Conversation>(errors);
+        }
+        
+        
+        return new ServiceResult<Conversation>(chatWithUserParticipation);
     }
 }

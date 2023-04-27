@@ -16,19 +16,7 @@ public class MappingProfiles : Profile
         CreateMap<RegisterAppUserDto, ExtendedIdentityUser>();
         CreateMap<AppUserQueryParams, AppUserParameters>()
             .ForMember(
-                dest => dest.NormalizedEmail,
-                opt => opt.MapFrom(src => src.Email.Normalize())
-            )
-            .ForMember(
-                dest => dest.NormalizedUserName,
-                opt => opt.MapFrom(src => src.UserName.Normalize())
-            )
-            .ForMember(
-                dest => dest.SortField,
-                opt => opt.MapFrom(src => src.SortField.ToLower())
-            )
-            .ForMember(
-                dest => dest.OrderBy,
+                dest => dest.SortDirection,
                 opt => opt.MapFrom(src => src.OrderBy == "asc"
                     ? SortDirection.Ascending
                     : SortDirection.Descending))
@@ -57,11 +45,16 @@ public class MappingProfiles : Profile
                 dest => dest.Items,
                 opt => opt.MapFrom(src => src)
             );
-        CreateMap<ChatInfoQueryParams, ChatInfoParameters>();
+        CreateMap<ChatInfoQueryParams, ChatInfoParameters>()
+            .ForMember(
+                dest => dest.SortDirection,
+                opt => opt.MapFrom(src => src.OrderBy == "asc"
+                    ? SortDirection.Ascending
+                    : SortDirection.Descending));
         CreateMap<Participation, ParticipationDto>();
         CreateMap<Conversation, ConversationParticipationDto>()
             .ForMember(
-                dest =>  dest.Participation,
+                dest => dest.Participation,
                 opt => opt.MapFrom(src => src.Participations.FirstOrDefault())
             );
         CreateMap<NewMessageDto, Message>()

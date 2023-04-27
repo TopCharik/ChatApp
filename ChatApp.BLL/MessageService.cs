@@ -15,13 +15,36 @@ public class MessageService : IMessageService
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<List<Message>> GetMessages(int conversationId)
+    public async Task<ServiceResult<List<Message>>> GetMessages(int conversationId, string userId)
     {
-        var repo = _unitOfWork.GetRepository<IMessageRepository>();
+        var conversationsRepo = _unitOfWork.GetRepository<IConversationsRepository>();
 
-        var messages = await repo.GetMessages(conversationId);
+        var chatWithUserParticipation = await conversationsRepo.GetChatWithUserParticipationById(conversationId, userId);
+        
+        if (chatWithUserParticipation == null)
+        {
+            var errors = new Dictionary<string, string>
+            {
+                {"Get messages failed", "Chat with this link doesn't exist."},
+            };
+            return new ServiceResult<List<Message>>(errors);
+        }
+        
+        if (chatWithUserParticipation.ChatInfo!.IsPrivate 
+            && chatWithUserParticipation.Participations?.FirstOrDefault()?.AspNetUserId != userId)
+        {
+            var errors = new Dictionary<string, string>
+            {
+                {"Get messages failed", "This is a private chat. Only participants can read messages."},
+            };
+            return new ServiceResult<List<Message>>(errors);
+        }
+        
+        var messageRepo = _unitOfWork.GetRepository<IMessageRepository>();
 
-        return messages;
+        var messages = await messageRepo.GetMessages(conversationId);
+
+        return new ServiceResult<List<Message>>(messages);
     }
 
     public async Task<ServiceResult> SendMessage(Message message, string senderId, int conversationId)

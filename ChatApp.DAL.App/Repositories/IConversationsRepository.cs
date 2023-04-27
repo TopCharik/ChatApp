@@ -10,5 +10,5 @@ public interface IConversationsRepository : IBaseRepository<Conversation>
     Task<PagedList<ChatInfoView>> GetPublicChatsAsync(ChatInfoParameters parameters);
     Task<Conversation?> GetChatByLink(string ChatLink);
     Task<Conversation?> GetChatWithUserParticipationByLink(string chatLink, string userId);
-
+    Task<Conversation?> GetChatWithUserParticipationById(int chatId, string userId);
 }

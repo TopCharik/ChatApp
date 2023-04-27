@@ -2,12 +2,14 @@ using AutoMapper;
 using ChatApp.BLL;
 using ChatApp.Core.Entities;
 using ChatApp.DTO;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ChatApp.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class MessagesController : ControllerBase
 {
     private readonly IMessageService _messageService;
@@ -25,8 +27,20 @@ public class MessagesController : ControllerBase
     [Route("{conversationId}")]
     public async Task<ActionResult<List<MessageDto>>> GetMessages(int conversationId)
     {
-        var messages = await _messageService.GetMessages(conversationId);
-        return _mapper.Map<List<MessageDto>>(messages);
+        var username = HttpContext.User.Identity!.Name!;
+        var user = await _userService.GetUserByUsername(username);
+        if (!user.Succeeded)
+        {
+            return BadRequest(new ApiError(400, user.Errors));
+        }
+        
+        var messages = await _messageService.GetMessages(conversationId, user.Value.Id);
+        if (!messages.Succeeded)
+        {
+            return Unauthorized(new ApiError(401, messages.Errors));
+        }
+        
+        return _mapper.Map<List<MessageDto>>(messages.Value);
     }
 
     [HttpPost]
