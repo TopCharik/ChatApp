@@ -16,20 +16,20 @@ public class AuthenticationApiProvider : IAuthenticationApiProvider
     
     public async Task<HttpResponseMessage> Login(LoginDto loginDto)
     {
-        var response = await _jwtHttpClient.PostAsJsonAsync($"{_apiUrl}/api/Account/login", loginDto);
+        var response = await _jwtHttpClient.PostAsJsonAsync($"{_apiUrl}/api/Users/login", loginDto);
 
         return response;
     }
 
     public async Task<HttpResponseMessage> Register(RegisterAppUserDto registerAppUserDto)
     {
-        var response = await _jwtHttpClient.PostAsJsonAsync($"{_apiUrl}/api/Account/register", registerAppUserDto);
+        var response = await _jwtHttpClient.PostAsJsonAsync($"{_apiUrl}/api/Users/register", registerAppUserDto);
         return response;
     }
 
     public async Task<HttpResponseMessage> ChangePassword(ChangePasswordDto changePasswordDto)
     {
-        var response = await _jwtHttpClient.PostAsJsonAsync($"{_apiUrl}/api/Account/change-password", changePasswordDto);
+        var response = await _jwtHttpClient.PatchAsJsonAsync($"{_apiUrl}/api/Users/change-password", changePasswordDto);
 
         return response;
     }

@@ -5,6 +5,8 @@ public class ParticipationDto
     public int Id { get; set; }
 
     public string AspNetUserId { get; set; }
+    
+    public AppUserDto AppUser { get; set; }
 
     public int ConversationId { get; set; }
     

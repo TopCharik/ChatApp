@@ -15,18 +15,27 @@ public class MessageService : IMessageService
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<ServiceResult> SendMessage(Message message, string senderId)
+    public async Task<List<Message>> GetMessages(int conversationId)
+    {
+        var repo = _unitOfWork.GetRepository<IMessageRepository>();
+
+        var messages = await repo.GetMessages(conversationId);
+
+        return messages;
+    }
+
+    public async Task<ServiceResult> SendMessage(Message message, string senderId, int conversationId)
     {
         var participationRepo = _unitOfWork.GetRepository<IParticipationRepository>();
         var participation = await participationRepo
             .GetByCondition(x => x.AspNetUserId == senderId)
-            .FirstOrDefaultAsync(x => x.Id == message.ParticipationId);
+            .FirstOrDefaultAsync(x => x.ConversationId == conversationId);
 
         if (participation == null)
         {
             var errors = new Dictionary<string, string>
             {
-                {"Message creation failed", $"Can't find participation with ParticipationId={message.ParticipationId}"},
+                {"Message creation failed", $"User is not a member of this conversation."},
             };
             return new ServiceResult(errors);
         }
@@ -35,7 +44,7 @@ public class MessageService : IMessageService
         {
             var errors = new Dictionary<string, string>()
             {
-                {"Message creation failed", $"User can't write messages in this chat"},
+                {"Message creation failed", $"User can't write messages in this chat."},
             };
             return new ServiceResult(errors);
         }
@@ -44,15 +53,15 @@ public class MessageService : IMessageService
         {
             var errors = new Dictionary<string, string>()
             {
-                {"Message creation failed", $"User muted untill {participation.MutedUntil}"},
+                {"Message creation failed", $"User muted until {participation.MutedUntil}."},
             };
             return new ServiceResult(errors);
         }
         
         var repo = _unitOfWork.GetRepository<IMessageRepository>();
 
-        message.ConversationId = participation.ConversationId;
         repo.Create(message);
+        message.ParticipationId = participation.Id;
         await _unitOfWork.SaveChangesAsync();
         
         return new ServiceResult();

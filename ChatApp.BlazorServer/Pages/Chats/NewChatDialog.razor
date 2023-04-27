@@ -28,11 +28,12 @@
                         <MudText Color="Color.Error" Class="mt-5">@errorMessage.Value</MudText>
                     }
                 }
+                <MudText Class="mt-3">Added Users:</MudText>
                 <MudChipSet>
-                    <MudChip Text="@_currentUsername"></MudChip>
+                    <MudChip Color="Color.Primary" Text="@_currentUsername"></MudChip>
                     @foreach (var username in _selectedUsernames)
                     {
-                        <MudChip CloseIcon="true" OnClose="DeselectUsername" Text="@username"></MudChip>
+                        <MudChip  OnClose="DeselectUsername" Text="@username"></MudChip>
                     }
                 </MudChipSet>
                 <MudExpansionPanel Text="Users">
@@ -119,6 +120,7 @@
         while (true)
         {
             searchParams["page"] = page.ToString();
+            searchParams["pageSize"] = "100";
             var response = await UsersApiProvider.LoadUsersAsync(searchParams);
 
             if (response.IsSuccessStatusCode)

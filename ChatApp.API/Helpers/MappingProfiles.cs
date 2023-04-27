@@ -69,5 +69,6 @@ public class MappingProfiles : Profile
                 dest => dest.DateSent,
                 opt => opt.MapFrom(src => DateTime.Now)
             );
+        CreateMap<Message, MessageDto>();
     }
 }
