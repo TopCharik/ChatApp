@@ -29,8 +29,8 @@ public class UsersApiProvider : IUsersApiProvider
 
     public async Task<HttpResponseMessage> UpdateUserAsync(UpdateUserDto updateUserDto, string username)
     {
-        var response = await _jwtHttpClient.PutAsJsonAsync(
-            $"{_apiUrl}/api/Account/update-user/{username}",
+        var response = await _jwtHttpClient.PatchAsJsonAsync(
+            $"{_apiUrl}/api/Users/update-user/{username}",
             updateUserDto, false
         );
         return response;
@@ -38,8 +38,8 @@ public class UsersApiProvider : IUsersApiProvider
 
     public async Task<HttpResponseMessage> ChangeUsernameAsync(string oldUsername, string newUsername)
     {
-        var response = await _jwtHttpClient.PutAsJsonAsync(
-            $"{_apiUrl}/api/Account/change-username/{oldUsername}",
+        var response = await _jwtHttpClient.PatchAsJsonAsync(
+            $"{_apiUrl}/api/Users/change-username/{oldUsername}",
             newUsername,
             false
         );

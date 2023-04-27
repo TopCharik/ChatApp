@@ -20,9 +20,18 @@ public class MessagesController : ControllerBase
         _userService = userService;
         _mapper = mapper;
     }
+    
+    [HttpGet]
+    [Route("{conversationId}")]
+    public async Task<ActionResult<List<MessageDto>>> GetMessages(int conversationId)
+    {
+        var messages = await _messageService.GetMessages(conversationId);
+        return _mapper.Map<List<MessageDto>>(messages);
+    }
 
     [HttpPost]
-    public async Task<ActionResult> SendMessage(NewMessageDto newMessageDto)
+    [Route("{conversationId}")]
+    public async Task<ActionResult> SendMessage(int conversationId, [FromBody] NewMessageDto newMessageDto)
     {
         var username = HttpContext.User.Identity!.Name!;
         var sender = await _userService.GetUserByUsername(username);
@@ -32,7 +41,7 @@ public class MessagesController : ControllerBase
         }
         
         var message = _mapper.Map<Message>(newMessageDto);
-        var result = await _messageService.SendMessage(message, sender.Value!.Id);
+        var result = await _messageService.SendMessage(message, sender.Value!.Id, conversationId);
 
         if (!result.Succeeded)
         {

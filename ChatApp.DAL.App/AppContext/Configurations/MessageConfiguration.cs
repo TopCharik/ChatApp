@@ -11,16 +11,8 @@ public class MessageConfiguration : IEntityTypeConfiguration<Message>
         builder.Property(e => e.DateSent).HasColumnType("datetime");
         builder.Property(e => e.MessageText).HasMaxLength(4000);
         
-        builder.HasOne(d => d.Conversation).WithMany(p => p.Messages)
-            .HasForeignKey(d => d.ConversationId)
-            .HasConstraintName("FK_Messages_Conversation");
-        
         builder.HasOne(d => d.Participation).WithMany(p => p.Messages)
             .HasForeignKey(d => d.ParticipationId)
             .HasConstraintName("FK_Messages_Participations");
-
-        builder.HasOne(d => d.ReplyToNavigation).WithMany(p => p.InverseReplyToNavigation)
-            .HasForeignKey(d => d.ReplyTo)
-            .HasConstraintName("FK_Messages_Messages_ReplyTo");
     }
 }

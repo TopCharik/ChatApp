@@ -5,5 +5,6 @@ namespace ChatApp.BLL;
 
 public interface IMessageService
 {
-    Task<ServiceResult> SendMessage(Message message, string senderId);
+    Task<List<Message>> GetMessages(int conversationId);
+    Task<ServiceResult> SendMessage(Message message, string senderId, int conversationId);
 }
