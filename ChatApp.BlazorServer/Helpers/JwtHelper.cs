@@ -5,10 +5,8 @@ namespace ChatApp.BlazorServer.Helpers;
 
 public class JwtHelper : IJwtHelper
 {
-    public IEnumerable<Claim> ParseClaimsFromJwt(string? jwt)
+    public IEnumerable<Claim> ParseClaimsFromJwt(string jwt)
     {
-        if (string.IsNullOrEmpty(jwt)) return new List<Claim>();
-
         var payload = jwt.Split('.')[1];
         var jsonBytes = ParseBase64WithoutPadding(payload);
         var keyValuePairs = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonBytes);

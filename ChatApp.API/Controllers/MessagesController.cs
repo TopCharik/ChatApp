@@ -59,7 +59,7 @@ public class MessagesController : ControllerBase
 
         if (!result.Succeeded)
         {
-            return BadRequest(result.Errors);
+            return BadRequest(new ApiError(400, result.Errors));
         }
 
         return Ok();

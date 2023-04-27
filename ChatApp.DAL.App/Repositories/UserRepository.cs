@@ -18,10 +18,10 @@ public class UserRepository : BaseRepository<AppUser>, IUserRepository
         var users = GetAll();
 
         SortUsers(ref users, parameters.SortField, parameters.SortDirection);
-        SearchByUserName(ref users, parameters.NormalizedUserName);
+        SearchByUserName(ref users, parameters.UserName);
         SearchByFirstName(ref users, parameters.FirstName);
         SearchByLastName(ref users, parameters.LastName);
-        SearchByNormalizedEmail(ref users, parameters.NormalizedEmail);
+        SearchByNormalizedEmail(ref users, parameters.Email);
         SearchByPhoneNumber(ref users, parameters.PhoneNumber);
         SearchGlobal(ref users, parameters);
 

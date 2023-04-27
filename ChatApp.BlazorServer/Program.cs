@@ -20,6 +20,7 @@ builder.Services.AddScoped<IAuthenticationApiProvider, AuthenticationApiProvider
 builder.Services.AddScoped<IUsersApiProvider, UsersApiProvider>();
 builder.Services.AddScoped<IChatsApiProvider, ChatsApiProvider>();
 builder.Services.AddScoped<IParticipationApiProvider, ParticipationApiProvider>();
+builder.Services.AddScoped<IMessagesApiProvider, MessagesApiProvider>();
 builder.Services.AddScoped<IJwtHelper, JwtHelper>();
 builder.Services.AddScoped<IJwtHttpClient, JwtHttpClient>();
 builder.Services.AddScoped<AuthenticationStateProvider, JwtAuthenticationStateProvider>();
