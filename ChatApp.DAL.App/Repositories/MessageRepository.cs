@@ -17,18 +17,9 @@ public class MessageRepository : BaseRepository<Message>, IMessageRepository
             .ThenInclude(x => x.Avatars)
             .Where(x => x.Participation.ConversationId == conversationId);
         
-        BeforeTimeFilter(ref messages, messageParameters.Before);
         AfterTimeFilter(ref messages, messageParameters.After);
 
         return await messages.ToListAsync();
-    }
-    
-    
-    private static void BeforeTimeFilter(ref IQueryable<Message> messages, DateTime? before)
-    {
-        messages = before == null
-            ? messages
-            : messages.Where(x => x.DateSent > before);
     }
     
     private static void AfterTimeFilter(ref IQueryable<Message> messages, DateTime? after)

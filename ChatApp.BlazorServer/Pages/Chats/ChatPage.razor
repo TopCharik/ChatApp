@@ -1,5 +1,7 @@
 @page "/Chats/{ChatLink}"
 @using Microsoft.AspNetCore.SignalR.Client
+@using System.Data.SqlTypes
+@using System.Globalization
 @inject IParticipationApiProvider ParticipationApiProvider
 @inject IMessagesApiProvider MessagesApiProvider
 @inject IJSRuntime JsRuntime
@@ -72,7 +74,7 @@
                                         From: @message.Participation.AppUser.UserName
                                     </MudText>
                                     <MudText Color="Color.Primary" Typo="@Typo.caption" Style="font-size: xx-small!important;">
-                                        @message.DateSent.ToLongDateString()
+                                        @message.DateSent.ToString("yyyy-MM-ddTHH:mm:ss.fff")
                                     </MudText>
                                     <MudText Typo="@Typo.body2" Style="padding: 20px 20px 5px 5px;">
                                         @message.MessageText
@@ -146,7 +148,7 @@
     protected override async Task OnInitializedAsync()
     {
         await UpdateChatParticipation();
-        await LoadMessages();
+        await UpdateMessages();
         if (HubConnection.State == HubConnectionState.Disconnected)
         {
             await HubConnection.StartAsync();
@@ -156,7 +158,11 @@
         {
             _hubSubscription = HubConnection.On($"{_conversationParticipationDto.Id.ToString()}/NewMessage", async () =>
             {
-                await LoadMessages();
+                var date = _messages.Count == 0 
+                    ? SqlDateTime.MinValue.Value 
+                    : _messages[^1].DateSent;
+                
+                await LoadNewMessages(date);
             });
         }
     }
@@ -182,6 +188,7 @@
         if (response.IsSuccessStatusCode)
         {
             await UpdateChatParticipation();
+            await UpdateMessages();
         }
         if (!response.IsSuccessStatusCode)
         {
@@ -202,7 +209,7 @@
         }
     }
 
-    private async Task LoadMessages()
+    private async Task UpdateMessages()
     {
         if (_conversationParticipationDto == null) return;
 
@@ -211,6 +218,25 @@
         if (response.IsSuccessStatusCode)
         {
             _messages = await response.Content.ReadFromJsonAsync<List<MessageDto>>();
+            await InvokeAsync(StateHasChanged);
+            await JsRuntime.InvokeAsync<string>("ScrollToBottom", "chatContainer");
+        }
+        if (!response.IsSuccessStatusCode)
+        {
+            _messagesError = await response.Content.ReadFromJsonAsync<ApiError>();
+        }
+    }
+    
+    private async Task LoadNewMessages(DateTime after)
+    {
+        if (_conversationParticipationDto == null) return;
+
+        var response = await MessagesApiProvider.LoadMessagesAfterAsync(_conversationParticipationDto.Id, after);
+
+        if (response.IsSuccessStatusCode)
+        {
+            var newMessages = await response.Content.ReadFromJsonAsync<List<MessageDto>>();
+            _messages.AddRange(newMessages);
             await InvokeAsync(StateHasChanged);
             await JsRuntime.InvokeAsync<string>("ScrollToBottom", "chatContainer");
         }
