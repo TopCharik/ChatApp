@@ -1,4 +1,5 @@
 using ChatApp.Core.Entities;
+using ChatApp.Core.Entities.MessageArggregate;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

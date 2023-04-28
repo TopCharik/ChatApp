@@ -1,5 +1,5 @@
 using ChatApp.BLL.Helpers;
-using ChatApp.Core.Entities;
+using ChatApp.Core.Entities.MessageArggregate;
 using ChatApp.DAL.App.Interfaces;
 using ChatApp.DAL.App.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -15,7 +15,8 @@ public class MessageService : IMessageService
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<ServiceResult<List<Message>>> GetMessages(int conversationId, string userId)
+    public async Task<ServiceResult<List<Message>>> 
+        GetMessages(int conversationId, string userId, MessageParameters messageParameters)
     {
         var conversationsRepo = _unitOfWork.GetRepository<IConversationsRepository>();
 
@@ -42,7 +43,7 @@ public class MessageService : IMessageService
         
         var messageRepo = _unitOfWork.GetRepository<IMessageRepository>();
 
-        var messages = await messageRepo.GetMessages(conversationId);
+        var messages = await messageRepo.GetMessages(conversationId, messageParameters);
 
         return new ServiceResult<List<Message>>(messages);
     }

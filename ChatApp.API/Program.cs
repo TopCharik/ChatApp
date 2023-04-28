@@ -1,5 +1,6 @@
 using ChatApp.API.Extensions;
 using ChatApp.API.Helpers;
+using ChatApp.API.Hubs;
 using ChatApp.API.Middlewares;
 using ChatApp.BLL;
 using ChatApp.DAL.App;
@@ -15,6 +16,7 @@ var config = builder.Configuration;
 
 
 builder.Services.AddControllers();
+builder.Services.AddSignalR();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerService();
 
@@ -74,5 +76,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<ConversationsHub>("/hub/conversations");
 
 app.Run();

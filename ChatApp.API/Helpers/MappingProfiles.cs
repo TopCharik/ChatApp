@@ -2,6 +2,7 @@ using AutoMapper;
 using ChatApp.Core.Entities;
 using ChatApp.Core.Entities.AppUserAggregate;
 using ChatApp.Core.Entities.ChatInfoAggregate;
+using ChatApp.Core.Entities.MessageArggregate;
 using ChatApp.Core.Helpers;
 using ChatApp.DAL.App.Helpers;
 using ChatApp.DAL.Identity;
@@ -63,5 +64,6 @@ public class MappingProfiles : Profile
                 opt => opt.MapFrom(src => DateTime.Now)
             );
         CreateMap<Message, MessageDto>();
+        CreateMap<MessageQueryParametersDto, MessageParameters>();
     }
 }

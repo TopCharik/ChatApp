@@ -1,4 +1,5 @@
 using ChatApp.Core.Entities.AppUserAggregate;
+using ChatApp.Core.Entities.MessageArggregate;
 
 namespace ChatApp.Core.Entities;
 

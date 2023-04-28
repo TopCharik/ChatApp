@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Avatar = ChatApp.Core.Entities.Avatar;
 using ChatInfo = ChatApp.Core.Entities.ChatInfoAggregate.ChatInfo;
 using Conversation = ChatApp.Core.Entities.Conversation;
-using Message = ChatApp.Core.Entities.Message;
+using Message = ChatApp.Core.Entities.MessageArggregate.Message;
 using Participation = ChatApp.Core.Entities.Participation;
 
 namespace ChatApp.DAL.App.AppContext;

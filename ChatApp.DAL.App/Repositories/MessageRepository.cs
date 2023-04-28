@@ -1,4 +1,5 @@
 using ChatApp.Core.Entities;
+using ChatApp.Core.Entities.MessageArggregate;
 using ChatApp.DAL.App.AppContext;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,14 +9,32 @@ public class MessageRepository : BaseRepository<Message>, IMessageRepository
 {
     public MessageRepository(AppDbContext context) : base(context) { }
 
-    public async Task<List<Message>> GetMessages(int conversationId)
+    public async Task<List<Message>> GetMessages(int conversationId, MessageParameters messageParameters)
     {
         var messages = GetAll()
             .Include(x => x.Participation)
             .ThenInclude(x => x.AppUser)
             .ThenInclude(x => x.Avatars)
             .Where(x => x.Participation.ConversationId == conversationId);
+        
+        BeforeTimeFilter(ref messages, messageParameters.Before);
+        AfterTimeFilter(ref messages, messageParameters.After);
 
         return await messages.ToListAsync();
+    }
+    
+    
+    private static void BeforeTimeFilter(ref IQueryable<Message> messages, DateTime? before)
+    {
+        messages = before == null
+            ? messages
+            : messages.Where(x => x.DateSent > before);
+    }
+    
+    private static void AfterTimeFilter(ref IQueryable<Message> messages, DateTime? after)
+    {
+        messages = after == null
+            ? messages
+            : messages.Where(x => x.DateSent > after);
     }
 }

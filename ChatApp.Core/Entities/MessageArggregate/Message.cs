@@ -1,4 +1,4 @@
-namespace ChatApp.Core.Entities;
+namespace ChatApp.Core.Entities.MessageArggregate;
 
 public class Message : BaseEntity
 {

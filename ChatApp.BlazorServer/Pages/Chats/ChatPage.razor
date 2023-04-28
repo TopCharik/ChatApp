@@ -1,82 +1,88 @@
 @page "/Chats/{ChatLink}"
+@using Microsoft.AspNetCore.SignalR.Client
 @inject IParticipationApiProvider ParticipationApiProvider
 @inject IMessagesApiProvider MessagesApiProvider
+@inject IJSRuntime JsRuntime
+@implements IDisposable;
 
 @if (_conversationParticipationDto is {ChatInfo: not null })
 {
     <div class="d-flex flex-grow-1 flex-row">
         <MudPaper Elevation="25" Class="py-4 flex-grow-1">
-            <MudToolBar Dense="true">
-                @if (_chatInfo?.Avatars is {Count: > 0 })
+            <MudToolBar Dense="true" Class="d-flex flex-row">
+                @if (_conversationParticipationDto.ChatInfo.Avatars is {Count: > 0 })
                 {
                     <MudAvatar Color="Color.Secondary">
-                        <MudImage Src="@_chatInfo.Avatars[0].PictureUrl"></MudImage>
+                        <MudImage Src="@_conversationParticipationDto.ChatInfo.Avatars[0].PictureUrl"></MudImage>
                     </MudAvatar>
                 }
                 else
                 {
-                    <MudAvatar Color="Color.Primary">@_chatInfo?.Title.Substring(0, 2).ToUpper()</MudAvatar>
+                    <MudAvatar Color="Color.Primary">@_conversationParticipationDto.ChatInfo?.Title.Substring(0, 2).ToUpper()</MudAvatar>
                 }
-                <MudText Typo="Typo.h6" Class="ms-5">@_chatInfo.Title</MudText>
-                @if (_conversationParticipationDto.Participation != null)
-                {
-                    <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="OnLeaveChat">Leave Chat</MudButton>
-                }
-                @if (_conversationParticipationDto.Participation == null)
-                {
-                    @if (_conversationParticipationDto.ChatInfo.IsPrivate)
+                <MudText Typo="Typo.h6" Class="ms-5">@_conversationParticipationDto.ChatInfo.Title</MudText>
+                <MudSpacer/>
+                <div>
+                    @if (_conversationParticipationDto?.Participation != null)
                     {
-                        <MudText>This is a private chat, you can't join it.</MudText>
+                        <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="OnLeaveChat">Leave Chat</MudButton>
                     }
-                    @if (!_conversationParticipationDto.ChatInfo.IsPrivate)
+                    @if (_conversationParticipationDto?.Participation == null)
                     {
-                        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="OnJoinChat">Join Chat</MudButton>
+                        @if (_conversationParticipationDto.ChatInfo.IsPrivate)
+                        {
+                            <MudText>This is a private chat, you can't join it.</MudText>
+                        }
+                        @if (!_conversationParticipationDto.ChatInfo.IsPrivate)
+                        {
+                            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="OnJoinChat">Join Chat</MudButton>
+                        }
                     }
-                }
+                </div>
             </MudToolBar>
-            <div class="d-flex flex-column px-4" style="max-height:65vh;min-height:65vh; overflow:scroll;" id="chatContainer">
-                @if (_messages != null)
-                {
+            <div>
+                <div class="d-flex flex-column px-4 mt-5" style="max-height:65vh;min-height:65vh; overflow:scroll;" id="chatContainer">
                     <div>
                         <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-3" Style="width: 100%; height: 50px">
                             Load more
                         </MudButton>
                     </div>
-                    @foreach (var message in _messages)
+                    @if (_messages != null)
                     {
-                        <div class="d-flex flex-row my-4">
-                            <div class="mr-4">
-                                @if (message.Participation.AppUser?.Avatars is {Count: > 0 })
-                                {
-                                    <MudAvatar Color="Color.Secondary">
-                                        <MudImage Src="@message.Participation.AppUser?.Avatars[0].PictureUrl"></MudImage>
-                                    </MudAvatar>
-                                }
-                                else
-                                {
-                                    <MudAvatar Color="Color.Secondary">@message.Participation.AppUser.UserName.Substring(0, 2).ToUpper()</MudAvatar>
-                                }
+                        foreach (var message in _messages)
+                        {
+                            <div class="d-flex flex-row my-4"
+                                 Style="">
+                                <div class="mr-4">
+                                    @if (message.Participation.AppUser?.Avatars is {Count: > 0 })
+                                    {
+                                        <MudAvatar Color="@Color.Secondary">
+                                            <MudImage Src="@message.Participation.AppUser?.Avatars[0].PictureUrl"></MudImage>
+                                        </MudAvatar>
+                                    }
+                                    else
+                                    {
+                                        <MudAvatar Color="@Color.Secondary">
+                                            @message.Participation.AppUser.UserName.Substring(0, 2).ToUpper()
+                                        </MudAvatar>
+                                    }
+                                </div>
+                                <div Style="overflow-wrap: anywhere;padding: 5px 40px 0 20px; background-color: rgba(13,202,240,0.34); border-radius: 5px">
+                                    <MudText Color="Color.Secondary" Typo="@Typo.body1" Style="font-weight: 500">
+                                        From: @message.Participation.AppUser.UserName
+                                    </MudText>
+                                    <MudText Color="Color.Primary" Typo="@Typo.caption" Style="font-size: xx-small!important;">
+                                        @message.DateSent.ToLongDateString()
+                                    </MudText>
+                                    <MudText Typo="@Typo.body2" Style="padding: 20px 20px 5px 5px;">
+                                        @message.MessageText
+                                    </MudText>
+                                </div>
+
                             </div>
-                            <div>
-                                <MudText Typo="Typo.body1">@message.Participation.AppUser.UserName</MudText>
-                                <MudText Typo="Typo.caption" Style="font-size: xx-small!important;">@message.DateSent.ToLongDateString()</MudText>
-                                <MudText Typo="Typo.body2"
-                                         Style="padding: 15px;background-color: var(--mud-palette-background-grey);border-radius: 5px;margin-top:5px">
-                                    @message.MessageText
-                                </MudText>
-                            </div>
-                        </div>
+                        }
                     }
-                }
-                
-                @if (_chatErrors != null)
-                {
-                    <MudText>@_chatErrors.StatusCode.ToString()</MudText>
-                    foreach (var kvp in _chatErrors.Errors)
-                    {
-                        <MudText>@kvp.Key: @kvp.Value</MudText>
-                    }
-                }
+                </div>
             </div>
             @if (_conversationParticipationDto.Participation != null)
             {
@@ -113,39 +119,74 @@
     </div>
 }
 
+@if (_chatErrors != null)
+{
+    foreach (var kvp in _chatErrors.Errors)
+    {
+        <MudText Color="Color.Error">@kvp.Key: @kvp.Value</MudText>
+    }
+}
+
 @code {
 
     [Parameter]
     public string? ChatLink { get; set; }
 
+    [CascadingParameter]
+    public HubConnection HubConnection { get; set; }
+
     private ConversationParticipationDto? _conversationParticipationDto;
-    private int _conversationId => _conversationParticipationDto.Id;
-    private ChatInfoDto? _chatInfo => _conversationParticipationDto?.ChatInfo;
-    private ParticipationDto? _participationDto => _conversationParticipationDto?.Participation;
-    private List<MessageDto> _messages;
+    private List<MessageDto>? _messages;
     private NewMessageDto _newMessageDto = new();
     private ApiError? _messagesError;
     private ApiError? _chatErrors;
+    private IDisposable _hubSubscription;
 
 
     protected override async Task OnInitializedAsync()
     {
         await UpdateChatParticipation();
         await LoadMessages();
+        if (HubConnection.State == HubConnectionState.Disconnected)
+        {
+            await HubConnection.StartAsync();
+        }
+
+        if (_conversationParticipationDto != null)
+        {
+            _hubSubscription = HubConnection.On($"{_conversationParticipationDto.Id.ToString()}/NewMessage", async () =>
+            {
+                await LoadMessages();
+            });
+        }
     }
 
     private async Task OnJoinChat()
     {
         var response = await ParticipationApiProvider.JoinChat(ChatLink);
 
-        await UpdateChatParticipation();
+        if (response.IsSuccessStatusCode)
+        {
+            await UpdateChatParticipation();
+        }
+        if (!response.IsSuccessStatusCode)
+        {
+            _chatErrors = await response.Content.ReadFromJsonAsync<ApiError>();
+        }
     }
 
     private async Task OnLeaveChat()
     {
         var response = await ParticipationApiProvider.LeaveChat(ChatLink);
 
-        await UpdateChatParticipation();
+        if (response.IsSuccessStatusCode)
+        {
+            await UpdateChatParticipation();
+        }
+        if (!response.IsSuccessStatusCode)
+        {
+            _chatErrors = await response.Content.ReadFromJsonAsync<ApiError>();
+        }
     }
 
     private async Task UpdateChatParticipation()
@@ -155,17 +196,23 @@
         {
             _conversationParticipationDto = await response.Content.ReadFromJsonAsync<ConversationParticipationDto>();
         }
+        if (!response.IsSuccessStatusCode)
+        {
+            _chatErrors = await response.Content.ReadFromJsonAsync<ApiError>();
+        }
     }
 
     private async Task LoadMessages()
     {
-        if (_chatInfo.IsPrivate && _participationDto == null) return;
+        if (_conversationParticipationDto == null) return;
 
-        var response = await MessagesApiProvider.LoadMessagesAsync(_conversationId);
+        var response = await MessagesApiProvider.LoadMessagesAsync(_conversationParticipationDto.Id);
 
         if (response.IsSuccessStatusCode)
         {
             _messages = await response.Content.ReadFromJsonAsync<List<MessageDto>>();
+            await InvokeAsync(StateHasChanged);
+            await JsRuntime.InvokeAsync<string>("ScrollToBottom", "chatContainer");
         }
         if (!response.IsSuccessStatusCode)
         {
@@ -175,17 +222,23 @@
 
     private async Task OnSendMessage()
     {
-        var result = await MessagesApiProvider.SendMessageAsync(_conversationId, _newMessageDto);
+        if (_conversationParticipationDto == null) return;
+
+        var result = await MessagesApiProvider.SendMessageAsync(_conversationParticipationDto.Id, _newMessageDto);
 
         if (result.IsSuccessStatusCode)
         {
             _newMessageDto = new NewMessageDto();
-            await LoadMessages();
         }
         else
         {
             _chatErrors = await result.Content.ReadFromJsonAsync<ApiError>();
         }
+    }
+
+    public void Dispose()
+    {
+        _hubSubscription.Dispose();
     }
 
 }
