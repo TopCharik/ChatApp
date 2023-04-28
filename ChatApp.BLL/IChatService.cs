@@ -8,7 +8,7 @@ namespace ChatApp.BLL;
 public interface IChatService
 {
     Task<ServiceResult> CreateNewChat(Conversation conversation);
-    Task<ServiceResult> JoinChat(string chatLink, Participation userId);
+    Task<ServiceResult> JoinChat(string chatLink, Participation newParticipation);
     Task<ServiceResult> LeaveChat(string chatLink, string userId);
     Task<PagedList<ChatInfoView>> GetChatsAsync(ChatInfoParameters parameters);
     Task<ServiceResult<Conversation>> GetChatByLink(string chatLink);

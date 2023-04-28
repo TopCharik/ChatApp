@@ -71,7 +71,7 @@
                 @if (@context.Avatars is {Count: > 0 })
                 {
                     <MudAvatar Color="Color.Secondary">
-                        <MudImage Src="@context.Avatars[0].PictureUrl"></MudImage>
+                        <MudImage Src="@context.Avatars[0].ImagePayload"></MudImage>
                     </MudAvatar>
                 }
                 else

@@ -21,6 +21,7 @@ public class MessageService : IMessageService
         var conversationsRepo = _unitOfWork.GetRepository<IConversationsRepository>();
 
         var chatWithUserParticipation = await conversationsRepo.GetChatWithUserParticipationById(conversationId, userId);
+        var currentParticipation = chatWithUserParticipation.Participations?.FirstOrDefault(x => x.AspNetUserId == userId);
         
         if (chatWithUserParticipation == null)
         {
@@ -32,7 +33,7 @@ public class MessageService : IMessageService
         }
         
         if (chatWithUserParticipation.ChatInfo!.IsPrivate 
-            && chatWithUserParticipation.Participations?.FirstOrDefault()?.AspNetUserId != userId)
+            && currentParticipation is {HasLeft: true})
         {
             var errors = new Dictionary<string, string>
             {
@@ -55,7 +56,7 @@ public class MessageService : IMessageService
             .GetByCondition(x => x.AspNetUserId == senderId)
             .FirstOrDefaultAsync(x => x.ConversationId == conversationId);
 
-        if (participation == null)
+        if (participation == null || participation.HasLeft)
         {
             var errors = new Dictionary<string, string>
             {

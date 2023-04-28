@@ -4,6 +4,7 @@ using ChatApp.Core.Entities.ChatInfoAggregate;
 using ChatApp.DAL.App.Helpers;
 using ChatApp.DAL.App.Interfaces;
 using ChatApp.DAL.App.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace ChatApp.BLL;
 
@@ -23,18 +24,21 @@ public class ChatService : IChatService
         return await repo.GetPublicChatsAsync(parameters);
     }
     
-    public async Task<ServiceResult> JoinChat(string chatLink, Participation participation)
+    public async Task<ServiceResult> JoinChat(string chatLink, Participation newParticipation)
     {
-        var conversationInfo = await GetParticipationByChatLink(chatLink, participation.AspNetUserId);
+        var conversationInfo = await GetParticipationByChatLink(chatLink, newParticipation.AspNetUserId);
         if (!conversationInfo.Succeeded)
         {
             return new ServiceResult(conversationInfo.Errors);
         }
+
+        var currentParticipation = conversationInfo.Value!.Participations
+            ?.FirstOrDefault(x => x.AspNetUserId == newParticipation.AspNetUserId);
         
         if (conversationInfo.Value.Participations != null 
-            && conversationInfo.Value.Participations.FirstOrDefault()?.AspNetUserId == participation.AspNetUserId)
+            && currentParticipation?.HasLeft == false)
         {
-            var errors = new Dictionary<string, string>()
+            var errors = new Dictionary<string, string>
             {
                 {"Joining chat failed", "User is already member of this chat."},
             };
@@ -43,18 +47,26 @@ public class ChatService : IChatService
 
         if (conversationInfo.Value!.ChatInfo!.IsPrivate)
         {
-            var errors = new Dictionary<string, string>()
+            var errors = new Dictionary<string, string>
             {
                 {"Joining chat failed", "This is a private chat. User can't join this chat."},
             };
             return new ServiceResult(errors);
         }
 
-        participation.ConversationId = conversationInfo.Value.Id;
-
         var repo = _unitOfWork.GetRepository<IParticipationRepository>();
-        repo.Create(participation);
-        
+        if (currentParticipation == null)
+        {
+            newParticipation.ConversationId = conversationInfo.Value.Id;
+            repo.Create(newParticipation);
+        }
+        else if (currentParticipation.HasLeft)
+        {
+            currentParticipation.HasLeft = false;
+            repo.Update(currentParticipation);
+            await _unitOfWork.SaveChangesAsync();
+        }
+
         await _unitOfWork.SaveChangesAsync();
 
         return new ServiceResult();
@@ -71,20 +83,22 @@ public class ChatService : IChatService
 
         var repo = _unitOfWork.GetRepository<IParticipationRepository>();
         
-        var participation = repo
+        var participation = await repo
             .GetByCondition(x => x.AspNetUserId == userId && x.ConversationId == chat.Value!.Id)
-            .FirstOrDefault();
+            .FirstOrDefaultAsync();
 
-        if (participation == null)
+        if (participation == null || participation.HasLeft)
         {
-            var errors = new Dictionary<string, string>()
+            var errors = new Dictionary<string, string>
             {
                 {"Chat leave failed", "User is not a member of this chat."},
             };
             return new ServiceResult(errors);
         }
+
+        participation.HasLeft = true;
         
-        repo.Delete(participation);
+        repo.Update(participation);
         await _unitOfWork.SaveChangesAsync();
         
         return new ServiceResult();

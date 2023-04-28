@@ -10,6 +10,5 @@ public class NewChatDto
     public string ChatLink { get; set; }
     [Required]
     public bool IsPrivate { get; set; }
-    public string? AvatarUrl { get; set; }
     public List<string> Usernames { get; set; }
 }

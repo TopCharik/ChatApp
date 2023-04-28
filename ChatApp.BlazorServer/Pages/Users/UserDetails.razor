@@ -12,7 +12,7 @@
             <MudAvatar style="height: 300px; width: 300px" Color="Color.Secondary">
                 @if (_appUserDto.Avatars.Count > 0)
                 {
-                    <MudImage Src="@_appUserDto.Avatars[0].PictureUrl"></MudImage>
+                    <MudImage Src="@_appUserDto.Avatars[0].ImagePayload"></MudImage>
                 }
                 else
                 {

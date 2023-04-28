@@ -11,7 +11,6 @@ public class AvatarConfiguration : IEntityTypeConfiguration<Avatar>
         builder.HasKey(e => e.Id).HasName("PK_Pictures");
 
         builder.Property(e => e.DateSet).HasColumnType("datetime");
-        builder.Property(e => e.PictureUrl).HasMaxLength(1024);
         builder.Property(e => e.UserId)
             .HasMaxLength(450)
             .HasColumnName("UserId");

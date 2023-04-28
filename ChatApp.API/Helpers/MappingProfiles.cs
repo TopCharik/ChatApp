@@ -63,6 +63,11 @@ public class MappingProfiles : Profile
                 dest => dest.DateSent,
                 opt => opt.MapFrom(src => DateTime.Now)
             );
+        CreateMap<NewAvatarDto, Avatar>()
+            .ForMember(
+                dest => dest.DateSet,
+                opt => opt.MapFrom(src => DateTime.Now)
+            );
         CreateMap<Message, MessageDto>();
         CreateMap<MessageQueryParametersDto, MessageParameters>();
     }

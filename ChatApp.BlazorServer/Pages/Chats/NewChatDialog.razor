@@ -17,8 +17,6 @@
                               @bind-Value="_newChatDto.Title" For="@(() => _newChatDto.Title)"/>
                 <MudTextField Label="Chat link" Class="mt-3"
                               @bind-Value="_newChatDto.ChatLink" For="@(() => _newChatDto.ChatLink)"/>
-                <MudTextField Label="Chat avatar url" Class="mt-3"
-                              @bind-Value="_newChatDto.AvatarUrl" For="@(() => _newChatDto.AvatarUrl)"/>
                 <MudSwitch Label="Is private chat" Class="mt-3"
                            @bind-Checked="_newChatDto.IsPrivate" For="@(() => _newChatDto.IsPrivate)"/>
                 @if (_apiError != null)

@@ -9,7 +9,7 @@ public class Avatar : BaseEntity
 
     public int? ChatInfoId { get; set; }
 
-    public string PictureUrl { get; set; }
+    public string ImagePayload { get; set; }
 
     public DateTime DateSet { get; set; }
 

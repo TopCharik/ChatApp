@@ -9,6 +9,8 @@ public class ParticipationDto
     public AppUserDto AppUser { get; set; }
 
     public int ConversationId { get; set; }
+
+    public bool HasLeft { get; set; }
     
     public bool CanWriteMessages { get; set; }
 

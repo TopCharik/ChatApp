@@ -1,7 +1,6 @@
 @page "/Chats/{ChatLink}"
 @using Microsoft.AspNetCore.SignalR.Client
 @using System.Data.SqlTypes
-@using System.Globalization
 @inject IParticipationApiProvider ParticipationApiProvider
 @inject IMessagesApiProvider MessagesApiProvider
 @inject IJSRuntime JsRuntime
@@ -15,7 +14,7 @@
                 @if (_conversationParticipationDto.ChatInfo.Avatars is {Count: > 0 })
                 {
                     <MudAvatar Color="Color.Secondary">
-                        <MudImage Src="@_conversationParticipationDto.ChatInfo.Avatars[0].PictureUrl"></MudImage>
+                        <MudImage Src="@_conversationParticipationDto.ChatInfo.Avatars[0].ImagePayload"></MudImage>
                     </MudAvatar>
                 }
                 else
@@ -25,11 +24,12 @@
                 <MudText Typo="Typo.h6" Class="ms-5">@_conversationParticipationDto.ChatInfo.Title</MudText>
                 <MudSpacer/>
                 <div>
-                    @if (_conversationParticipationDto?.Participation != null)
+                    @if (_conversationParticipationDto?.Participation is {HasLeft: false })
                     {
                         <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="OnLeaveChat">Leave Chat</MudButton>
                     }
-                    @if (_conversationParticipationDto?.Participation == null)
+                    @if (_conversationParticipationDto?.Participation == null
+                        || _conversationParticipationDto?.Participation.HasLeft == true)
                     {
                         @if (_conversationParticipationDto.ChatInfo.IsPrivate)
                         {
@@ -44,11 +44,6 @@
             </MudToolBar>
             <div>
                 <div class="d-flex flex-column px-4 mt-5" style="max-height:65vh;min-height:65vh; overflow:scroll;" id="chatContainer">
-                    <div>
-                        <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-3" Style="width: 100%; height: 50px">
-                            Load more
-                        </MudButton>
-                    </div>
                     @if (_messages != null)
                     {
                         foreach (var message in _messages)
@@ -59,7 +54,7 @@
                                     @if (message.Participation.AppUser?.Avatars is {Count: > 0 })
                                     {
                                         <MudAvatar Color="@Color.Secondary">
-                                            <MudImage Src="@message.Participation.AppUser?.Avatars[0].PictureUrl"></MudImage>
+                                            <MudImage Src="@message.Participation.AppUser?.Avatars[0].ImagePayload"></MudImage>
                                         </MudAvatar>
                                     }
                                     else
@@ -86,7 +81,7 @@
                     }
                 </div>
             </div>
-            @if (_conversationParticipationDto.Participation != null)
+            @if (_conversationParticipationDto?.Participation is {HasLeft: false })
             {
                 <MudPaper Elevation="25" Class="d-flex flex-row px-2 mx-4" Style="">
                     <EditForm Model="@_newMessageDto"

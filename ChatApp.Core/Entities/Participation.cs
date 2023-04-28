@@ -9,6 +9,8 @@ public class Participation : BaseEntity
 
     public int ConversationId { get; set; }
     
+    public bool HasLeft { get; set; }
+    
     public bool CanWriteMessages { get; set; }
 
     public bool CanDeleteMessages { get; set; }

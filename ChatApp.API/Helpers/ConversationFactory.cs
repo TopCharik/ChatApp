@@ -13,6 +13,7 @@ public static class ConversationFactory
 
         var Avatars = new List<Avatar>();
 
+        /*
         if (newChatDto.AvatarUrl != null)
         {
             Avatars.Add(new Avatar
@@ -21,6 +22,7 @@ public static class ConversationFactory
                 DateSet = DateTime.Now,
             });
         }
+        */
         
         participants.Add(ParticipationFactory.ChatOwner(ownerId));
         
