@@ -1,0 +1,193 @@
+@using SixLabors.ImageSharp
+@using SixLabors.ImageSharp.Formats.Png
+@using Color = MudBlazor.Color
+@using ResizeMode = SixLabors.ImageSharp.Processing.ResizeMode
+@using Size = SixLabors.ImageSharp.Size
+@using ChatApp.BlazorServer.Helpers
+@inject IAvatarApiProvider AvatarApiProvider
+
+<MudDialog Style="width: 550px">
+    <TitleContent>
+        @if (AppUserDto != null)
+        {
+            <MudText Typo="Typo.h6">
+                <MudIcon Icon="@Icons.Material.Filled.PermIdentity" Class="mr-3 mb-n1"/>
+                @AppUserDto.UserName
+            </MudText>
+        }
+        @if (ChatInfoDto != null)
+        {
+            <MudText Typo="Typo.h6">
+                <MudIcon Icon="@Icons.Material.Filled.Chat" Class="mr-3 mb-n1"/>
+                @ChatInfoDto.Title
+            </MudText>
+        }
+    </TitleContent>
+    <DialogContent>
+        @if (_avatars is {Count: > 0 })
+        {
+            <MudCarousel Class="mud-width-full" Style="height:500px; width: 500px"
+                         @ref="_carousel"
+                         ItemsSource="@_avatars"
+                         @bind-SelectedIndex="_selectedIndex"
+                         ArrowsPosition="Position.Center"
+                         AutoCycle="false"
+                         ShowBullets="false">
+                <ItemTemplate>
+                    <div class="d-flex flex-column flex-column justify-center">
+                        <MudAvatar Style="height: 500px; width: 500px">
+                            <MudImage Src="@context.ImagePayload"></MudImage>
+                        </MudAvatar>
+                    </div>
+                </ItemTemplate>
+            </MudCarousel>
+            <MudText>Date Set: @_avatars[_selectedIndex].DateSet.ToLongTimeString()</MudText>
+        }
+        else
+        {
+            <MudAvatar style="height: 500px; width: 500px" Color="Color.Secondary">
+                @_avatarPlaceholder.ToUpper()
+            </MudAvatar>
+        }
+        @if (CanEdit)
+        {
+            if (_selectedIndex != 0)
+            {
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Cancel" Style="width: 100%">
+                    Set as current
+                </MudButton>
+            }
+
+            <MudForm Model="@_model" @ref="@_form">
+                @if (_newAvatarDto.ImagePayload != null)
+                {
+                    <h2 Class="mt-5">New avatar preview:</h2>
+                    <MudAvatar style="height: 500px; width: 500px">
+                        <MudImage Src="@_newAvatarDto.ImagePayload"></MudImage>
+                    </MudAvatar>
+                }
+                <MudFileUpload T="IBrowserFile"
+                               For="@(() => _model.File)"
+                               @bind-Files="_model.File"
+                               Accept="image/*"
+                               OnFilesChanged="UploadAvatarPreview">
+                    <ButtonTemplate>
+                        @if (_newAvatarDto.ImagePayload == null)
+                        {
+                            <MudButton HtmlTag="label"
+                                       Variant="Variant.Filled"
+                                       Style="width: 100%"
+                                       Color="Color.Primary"
+                                       StartIcon="@Icons.Material.Filled.CloudUpload"
+                                       for="@context">
+                                Upload new avatar
+                            </MudButton>
+                        }
+                    </ButtonTemplate>
+                </MudFileUpload>
+                @if (_newAvatarDto.ImagePayload != null)
+                {
+                    <MudButtonGroup Style="width: 100%" OverrideStyles="false" Variant="Variant.Filled" Color="Color.Primary">
+                        <MudButton Style="width: 50%" Variant="Variant.Filled" Color="Color.Error" Class="ml-auto"
+                                   OnClick="ClearAvatar">
+                            Choose another avatar
+                        </MudButton>
+                        <MudButton Style="width: 50%" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto"
+                                   OnClick="UploadAvatar">
+                            Submit new avatar
+                        </MudButton>
+                    </MudButtonGroup>
+                }
+            </MudForm>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>
+
+
+@code {
+
+    [CascadingParameter]
+    MudDialogInstance MudDialog { get; set; }
+
+    [Parameter]
+    public AppUserDto? AppUserDto { get; set; }
+
+    [Parameter]
+    public ChatInfoDto? ChatInfoDto { get; set; }
+
+    [Parameter]
+    public bool CanEdit { get; set; }
+
+    private MudCarousel<AvatarDto> _carousel;
+    private List<AvatarDto> _avatars;
+    private string _avatarPlaceholder;
+    private int _selectedIndex;
+    private MudForm _form;
+    private FileModel _model = new();
+    private NewAvatarDto _newAvatarDto = new();
+    private ApiError? _apiError;
+
+    protected override void OnInitialized()
+    {
+        if (AppUserDto == null && ChatInfoDto == null)
+        {
+            throw new ArgumentException("Avatar component can't take both AppUserDto and ChatInfoDto");
+        }
+        if (AppUserDto != null && ChatInfoDto != null)
+        {
+            throw new ArgumentException("Avatar component must have AppUserDto or ChatInfoDto");
+        }
+
+        _avatars = AppUserDto != null
+            ? AppUserDto.Avatars
+            : ChatInfoDto.Avatars;
+
+        _avatarPlaceholder = AppUserDto != null
+            ? AppUserDto.UserName
+            : ChatInfoDto.Title;
+
+        _newAvatarDto.Username = AppUserDto?.UserName;
+        _newAvatarDto.ChatLink = ChatInfoDto?.ChatLink;
+    }
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+
+
+    public class FileModel
+    {
+        public string Name { get; set; }
+        public IBrowserFile File { get; set; }
+    }
+
+    private async Task UploadAvatarPreview(InputFileChangeEventArgs e)
+    {
+        await using var stream = e.File.OpenReadStream(e.File.Size);
+        var imageBase64 = await ImageHelper.StreamToAvaImageBase64(stream);
+        _newAvatarDto.ImagePayload = imageBase64;
+    }
+    
+    private void ClearAvatar()
+    {
+        _newAvatarDto.ImagePayload = null;
+    }
+
+    private async Task UploadAvatar()
+    {
+        var response = await AvatarApiProvider.UploadNewAvatar(_newAvatarDto);
+
+        if (response.IsSuccessStatusCode)
+        {
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        else
+        {
+            _apiError = await response.Content.ReadFromJsonAsync<ApiError>();
+        }
+    }
+}

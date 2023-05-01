@@ -1,8 +1,10 @@
 @page "/Chats/{ChatLink}"
 @using Microsoft.AspNetCore.SignalR.Client
 @using System.Data.SqlTypes
+@using ChatApp.BlazorServer.Components
 @inject IParticipationApiProvider ParticipationApiProvider
 @inject IMessagesApiProvider MessagesApiProvider
+@inject IDialogService DialogService
 @inject IJSRuntime JsRuntime
 @implements IDisposable;
 
@@ -11,16 +13,18 @@
     <div class="d-flex flex-grow-1 flex-row">
         <MudPaper Elevation="25" Class="py-4 flex-grow-1">
             <MudToolBar Dense="true" Class="d-flex flex-row">
-                @if (_conversationParticipationDto.ChatInfo.Avatars is {Count: > 0 })
-                {
-                    <MudAvatar Color="Color.Secondary">
-                        <MudImage Src="@_conversationParticipationDto.ChatInfo.Avatars[0].ImagePayload"></MudImage>
-                    </MudAvatar>
-                }
-                else
-                {
-                    <MudAvatar Color="Color.Primary">@_conversationParticipationDto.ChatInfo?.Title.Substring(0, 2).ToUpper()</MudAvatar>
-                }
+                <MudButton OnClick="@(() => AvatarDetails())">
+                    @if (_conversationParticipationDto.ChatInfo.Avatars is {Count: > 0 })
+                    {
+                        <MudAvatar Color="Color.Secondary">
+                            <MudImage Src="@_conversationParticipationDto.ChatInfo.Avatars[0].ImagePayload"></MudImage>
+                        </MudAvatar>
+                    }
+                    else
+                    {
+                        <MudAvatar Color="Color.Primary">@_conversationParticipationDto.ChatInfo?.Title.Substring(0, 2).ToUpper()</MudAvatar>
+                    }
+                </MudButton>
                 <MudText Typo="Typo.h6" Class="ms-5">@_conversationParticipationDto.ChatInfo.Title</MudText>
                 <MudSpacer/>
                 <div>
@@ -29,7 +33,7 @@
                         <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="OnLeaveChat">Leave Chat</MudButton>
                     }
                     @if (_conversationParticipationDto?.Participation == null
-                        || _conversationParticipationDto?.Participation.HasLeft == true)
+                         || _conversationParticipationDto?.Participation.HasLeft == true)
                     {
                         @if (_conversationParticipationDto.ChatInfo.IsPrivate)
                         {
@@ -142,8 +146,8 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await UpdateChatParticipation();
-        await UpdateMessages();
+        await UpdateChatParticipationAsync();
+        await UpdateMessagesAsync();
         if (HubConnection.State == HubConnectionState.Disconnected)
         {
             await HubConnection.StartAsync();
@@ -153,11 +157,11 @@
         {
             _hubSubscription = HubConnection.On($"{_conversationParticipationDto.Id.ToString()}/NewMessage", async () =>
             {
-                var date = _messages.Count == 0 
-                    ? SqlDateTime.MinValue.Value 
+                var date = _messages.Count == 0
+                    ? SqlDateTime.MinValue.Value
                     : _messages[^1].DateSent;
-                
-                await LoadNewMessages(date);
+
+                await LoadMessagesAfterAsync(date);
             });
         }
     }
@@ -168,7 +172,7 @@
 
         if (response.IsSuccessStatusCode)
         {
-            await UpdateChatParticipation();
+            await UpdateChatParticipationAsync();
         }
         if (!response.IsSuccessStatusCode)
         {
@@ -182,8 +186,8 @@
 
         if (response.IsSuccessStatusCode)
         {
-            await UpdateChatParticipation();
-            await UpdateMessages();
+            await UpdateChatParticipationAsync();
+            await UpdateMessagesAsync();
         }
         if (!response.IsSuccessStatusCode)
         {
@@ -191,7 +195,7 @@
         }
     }
 
-    private async Task UpdateChatParticipation()
+    private async Task UpdateChatParticipationAsync()
     {
         var response = await ParticipationApiProvider.GetChatParticipation(ChatLink);
         if (response.IsSuccessStatusCode)
@@ -204,7 +208,7 @@
         }
     }
 
-    private async Task UpdateMessages()
+    private async Task UpdateMessagesAsync()
     {
         if (_conversationParticipationDto == null) return;
 
@@ -221,8 +225,8 @@
             _messagesError = await response.Content.ReadFromJsonAsync<ApiError>();
         }
     }
-    
-    private async Task LoadNewMessages(DateTime after)
+
+    private async Task LoadMessagesAfterAsync(DateTime after)
     {
         if (_conversationParticipationDto == null) return;
 
@@ -254,6 +258,22 @@
         else
         {
             _chatErrors = await result.Content.ReadFromJsonAsync<ApiError>();
+        }
+    }
+
+    private async Task AvatarDetails()
+    {
+        var parameters = new DialogParameters
+        {
+            ["ChatInfoDto"] = _conversationParticipationDto.ChatInfo,
+            ["CanEdit"] = _conversationParticipationDto?.Participation?.CanChangeChatAvatar ?? false,
+        };
+        var options = new DialogOptions {DisableBackdropClick = true};
+        var dialog = await DialogService.ShowAsync<AvatarDetailsDialog>("", parameters, options);
+        var result = await dialog.Result;
+        if (!result.Canceled)
+        {
+            await UpdateChatParticipationAsync();
         }
     }
 

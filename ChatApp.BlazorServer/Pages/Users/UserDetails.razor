@@ -1,4 +1,5 @@
 @page "/users/{username}"
+@using ChatApp.BlazorServer.Components
 @attribute [Authorize] 
 @inject IUsersApiProvider UsersApiProvider
 @inject IDialogService DialogService
@@ -9,17 +10,19 @@
 {
     <MudGrid Class="mt-5">
         <MudItem lg="4">
-            <MudAvatar style="height: 300px; width: 300px" Color="Color.Secondary">
-                @if (_appUserDto.Avatars.Count > 0)
-                {
-                    <MudImage Src="@_appUserDto.Avatars[0].ImagePayload"></MudImage>
-                }
-                else
-                {
-                    @_appUserDto.UserName.ToUpper()
-                    ;
-                }
-            </MudAvatar>
+            <MudButton OnClick="@(() => AvatarDetails())">
+                <MudAvatar
+                    style="height: 300px; width: 300px" Color="Color.Secondary">
+                    @if (_appUserDto.Avatars.Count > 0)
+                    {
+                        <MudImage Src="@_appUserDto.Avatars[0].ImagePayload"></MudImage>
+                    }
+                    else
+                    {
+                        @_appUserDto.UserName.ToUpper()
+                    }
+                </MudAvatar>
+            </MudButton>
         </MudItem>
         <MudItem lg="8" class="mt-5">
             <MudGrid>
@@ -76,7 +79,7 @@
 @code {
 
     [Parameter]
-    public string? username { get; set; }
+    public string? Username { get; set; }
 
     private AppUserDto? _appUserDto;
     private ApiError? _apiError;
@@ -84,7 +87,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadUser(username);
+        await LoadUser(Username);
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         _canEdit = _appUserDto?.UserName == authState.User.Identity?.Name;
     }
@@ -97,11 +100,11 @@
         var result = await dialog.Result;
         if (!result.Canceled)
         {
-            await LoadUser(username);
+            await LoadUser(Username);
         }
     }
 
-    public async Task ChangeUsername()
+    private async Task ChangeUsername()
     {
         var parameters = new DialogParameters {["AppUserDto"] = _appUserDto};
         var options = new DialogOptions {DisableBackdropClick = true};
@@ -112,6 +115,22 @@
             var newUsername = result.Data.ToString();
             NavigationManager.NavigateTo($"/users/{newUsername}");
             await LoadUser(newUsername);
+        }
+    }
+
+    private async Task AvatarDetails()
+    {
+        var parameters = new DialogParameters
+        {
+            ["AppUserDto"] = _appUserDto,
+            ["CanEdit"] = _canEdit,
+        };
+        var options = new DialogOptions {DisableBackdropClick = true};
+        var dialog = await DialogService.ShowAsync<AvatarDetailsDialog>("", parameters, options);
+        var result = await dialog.Result;
+        if (!result.Canceled)
+        {
+            await LoadUser(Username);
         }
     }
 

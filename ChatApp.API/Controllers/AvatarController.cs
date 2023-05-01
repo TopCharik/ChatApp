@@ -31,6 +31,23 @@ public class AvatarController : ControllerBase
     [HttpPost]
     public async Task<ActionResult> AddAvatar(NewAvatarDto newAvatarDto)
     {
+        if (newAvatarDto.Username == null && newAvatarDto.ChatLink == null)
+        {
+            var errors = new Dictionary<string, string>
+            {
+                {"Avatar upload failed", "can't add avatar both for user and chat."},
+            };
+            return BadRequest(new ApiError(400, errors));
+        }
+        if (newAvatarDto.Username != null && newAvatarDto.ChatLink != null)
+        {
+            var errors = new Dictionary<string, string>
+            {
+                {"Avatar upload failed", "Username or ChatLink is required."},
+            };
+            return BadRequest(new ApiError(400, errors));
+        }
+        
         var claimsUsername = HttpContext.User.Identity!.Name!;
         var claimsUser = await _userService.GetUserByUsername(claimsUsername);
         if (!claimsUser.Succeeded)

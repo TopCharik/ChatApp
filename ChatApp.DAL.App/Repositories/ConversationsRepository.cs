@@ -16,7 +16,11 @@ public class ConversationsRepository : BaseRepository<Conversation>, IConversati
     public async Task<PagedList<ChatInfoView>> GetPublicChatsAsync(ChatInfoParameters parameters)
     {
         var chats = _context.Set<ChatInfoView>()
-            .Include(x => x.Avatars)
+            .Include(
+                x => x.Avatars
+                    .OrderByDescending(x => x.DateSet)
+                    .Take(1)
+            )
             .AsNoTracking();
 
         SortChats(ref chats, parameters.SortField, parameters.SortDirection);
@@ -31,9 +35,9 @@ public class ConversationsRepository : BaseRepository<Conversation>, IConversati
     {
         var chat = await GetByCondition(x => x.ChatInfoId != null)
             .Include(x => x.ChatInfo)
-            .ThenInclude(x => x.Avatars.OrderBy(x => x.DateSet))
+            .ThenInclude(x => x.Avatars.OrderByDescending(x => x.DateSet))
             .FirstOrDefaultAsync(x => EF.Functions.Like(x.ChatInfo.ChatLink, $"%{chatLink}%"));
-        
+
         return chat;
     }
 
@@ -41,9 +45,10 @@ public class ConversationsRepository : BaseRepository<Conversation>, IConversati
     {
         var conversation = await GetByCondition(x => x.ChatInfoId != null)
             .Include(x => x.ChatInfo)
+            .ThenInclude(x => x.Avatars.OrderByDescending(x => x.DateSet))
             .Include(x => x.Participations.Where(p => p.AspNetUserId == userId))
             .FirstOrDefaultAsync(x => x.ChatInfo.ChatLink == chatLink);
-        
+
         return conversation;
     }
 
@@ -53,13 +58,12 @@ public class ConversationsRepository : BaseRepository<Conversation>, IConversati
             .Include(x => x.ChatInfo)
             .Include(x => x.Participations.Where(p => p.AspNetUserId == userId))
             .FirstOrDefaultAsync(x => x.Id == chatId);
-        
+
         return conversation;
     }
 
     private static void SearchGlobal(ref IQueryable<ChatInfoView> chats, string? search)
     {
-
         chats = string.IsNullOrEmpty(search)
             ? chats
             : chats.Where(u =>
@@ -67,7 +71,7 @@ public class ConversationsRepository : BaseRepository<Conversation>, IConversati
                 EF.Functions.Like(u.ChatLink, $"%{search}%")
             );
     }
-    
+
     private static void SortChats(ref IQueryable<ChatInfoView> users, string? sortField, SortDirection? sortOrder)
     {
         var isAsc = sortOrder == SortDirection.Ascending;
@@ -104,6 +108,5 @@ public class ConversationsRepository : BaseRepository<Conversation>, IConversati
         chats = string.IsNullOrEmpty(link)
             ? chats
             : chats.Where(u => EF.Functions.Like(u.ChatLink, $"%{link}%"));
-
     }
 }

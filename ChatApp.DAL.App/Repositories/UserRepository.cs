@@ -27,7 +27,7 @@ public class UserRepository : BaseRepository<AppUser>, IUserRepository
 
         return await PagedList<AppUser>.ToPagedList(
             users
-                .Include(u => u.Avatars.OrderByDescending(a => a.DateSet))
+                .Include(u => u.Avatars.OrderByDescending(a => a.DateSet).Take(1))
             ,
             parameters.Page,
             parameters.PageSize
@@ -37,7 +37,7 @@ public class UserRepository : BaseRepository<AppUser>, IUserRepository
     public async Task<AppUser?> GetUserByUsernameAsync(string username)
     {
         return await GetAll()
-            .Include(x => x.Avatars)
+            .Include(x => x.Avatars.OrderByDescending(a => a.DateSet))
             .FirstOrDefaultAsync(x => x.NormalizedUserName == username.Normalize());
     }
 
