@@ -59,6 +59,12 @@
                                 Last Name: @_appUserDto.LastName
                             </MudListItem>
                         }
+                        @if (_appUserDto.Age != null)
+                        {
+                            <MudListItem Avatar="@Icons.Material.Filled.Phone">
+                                Age: @_appUserDto.Age
+                            </MudListItem>
+                        }
                         <MudListItem Avatar="@Icons.Material.Filled.AlternateEmail">
                             Email: @_appUserDto.Email
                         </MudListItem>
@@ -108,7 +114,7 @@
     {
         var parameters = new DialogParameters {["AppUserDto"] = _appUserDto};
         var options = new DialogOptions {DisableBackdropClick = true};
-        var dialog = await DialogService.ShowAsync<ChangeUsername>("", parameters, options);
+        var dialog = await DialogService.ShowAsync<ChangeUsernameDialog>("", parameters, options);
         var result = await dialog.Result;
         if (!result.Canceled)
         {

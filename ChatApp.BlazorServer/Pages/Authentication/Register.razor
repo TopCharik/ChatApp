@@ -1,55 +1,83 @@
 @page "/Register"
 @using System.ComponentModel.DataAnnotations
+@using ChatApp.DTO.Validators
+@using FluentValidation
+@inject IValidator<RegisterAppUserDto> RegisterValidator
 @inject IAuthenticationApiProvider AuthenticationApiProvider
 @inject IJwtProvider JwtProvider
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager NavigationManager
 
-<h3>Register</h3>
 
-
-<EditForm Model="@_registerAppUserModel" OnValidSubmit="OnRegister" Style="width: 100%">
-    <DataAnnotationsValidator/>
-    <MudCard>
+@if (_registerDtoValidator != null)
+{
+    <MudCard Class="mt-5">
+        <MudCardHeader>
+            <h2>
+                Register
+            </h2>
+        </MudCardHeader>
         <MudCardContent>
-            <MudTextField Label="Username"
-                          @bind-Value="_registerAppUserModel.UserName" For="@(() => _registerAppUserModel.UserName)"/>
-            <MudTextField Label="Email" Class="mt-3"
-                          @bind-Value="_registerAppUserModel.Email" For="@(() => _registerAppUserModel.Email)"/>
-            <MudTextField Label="First name" Class="mt-3"
-                          @bind-Value="_registerAppUserModel.FirstName" For="@(() => _registerAppUserModel.FirstName)"/>
-            <MudTextField Label="Last name" Class="mt-3"
-                          @bind-Value="_registerAppUserModel.LastName" For="@(() => _registerAppUserModel.LastName)"/>
-            <MudTextField Label="Phone Number" Class="mt-3"
-                          @bind-Value="_registerAppUserModel.PhoneNumber" For="@(() => _registerAppUserModel.PhoneNumber)"/>
-            <MudTextField Label="Password" Class="mt-3"
-                          @bind-Value="_registerAppUserModel.Password" For="@(() => _registerAppUserModel.Password)" InputType="InputType.Password"/>
-            <MudTextField Label="Confirm Password" Class="mt-3"
-                                      @bind-Value="_registerAppUserModel.ConfirmPassword" For="@(() => _registerAppUserModel.ConfirmPassword)" InputType="InputType.Password"/>
+            <MudForm Model="@_registerAppUserModel" @ref="@_form"
+                     Validation="@(_registerDtoValidator.ValidateValue)" ValidationDelay="0">
+                <MudTextField @bind-Value="_registerAppUserModel.UserName"
+                              For="@(() => _registerAppUserModel.UserName)"
+                              Immediate="true"
+                              Label="Username"/>
+                <MudTextField @bind-Value="_registerAppUserModel.FirstName"
+                              For="@(() => _registerAppUserModel.FirstName)"
+                              Immediate="true"
+                              Label="First Name"/>
+                <MudTextField @bind-Value="_registerAppUserModel.LastName"
+                              For="@(() => _registerAppUserModel.LastName)"
+                              Immediate="true"
+                              Label="Last Name"/>
+                <MudTextField @bind-Value="_registerAppUserModel.Email"
+                              For="@(() => _registerAppUserModel.Email)"
+                              Immediate="true"
+                              Label="Email"/>
+                <MudTextField @bind-Value="_registerAppUserModel.PhoneNumber"
+                              For="@(() => _registerAppUserModel.PhoneNumber)"
+                              Immediate="true"
+                              Label="Phone Number"/>
+                <MudTextField @bind-Value="_registerAppUserModel.Password"
+                              For="@(() => _registerAppUserModel.Password)"
+                              InputType="InputType.Password"
+                              Immediate="true"
+                              Label="Password"/>
+                <MudTextField @bind-Value="_registerAppUserModel.ConfirmPassword"
+                              For="@(() => _registerAppUserModel.ConfirmPassword)"
+                              InputType="InputType.Password"
+                              Immediate="true"
+                              Label="Confirm Password"/>
+            </MudForm>
             @if (_apiError != null)
             {
                 @foreach (var errorMessage in _apiError.Errors)
                 {
-                    <MudText Color="Color.Error" Class="mt-5">@errorMessage.Value</MudText>
+                    <MudText Color="Color.Error">
+                        @errorMessage.Value
+                    </MudText>
                 }
             }
         </MudCardContent>
         <MudCardActions>
             <MudButton
-                ButtonType="ButtonType.Submit"
-                Variant="Variant.Filled"
-                Color="Color.Primary"
-                Class="ml-auto">
+                Disabled="@(_form is null or {IsValid: false})"
+                Variant="Variant.Filled" Color="Color.Primary" Class="mt-5"
+                OnClick="@(async () => await OnRegister())">
                 Register
             </MudButton>
         </MudCardActions>
     </MudCard>
-</EditForm>
+}
 
 
 @code {
     private RegisterAppUserModel _registerAppUserModel = new();
     private ApiError? _apiError;
+    private MudForm _form;
+    private MudBlazorFormValidator<RegisterAppUserModel>? _registerDtoValidator;
 
     protected override async Task OnInitializedAsync()
     {
@@ -58,10 +86,18 @@
         {
             NavigationManager.NavigateTo("/");
         }
+
+        _registerDtoValidator = new MudBlazorFormValidator<RegisterAppUserModel>(RegisterValidator);
     }
 
     private async Task OnRegister()
     {
+        await _form.Validate();
+        if (!_form.IsValid)
+        {
+            return;
+        }
+
         var response = await AuthenticationApiProvider.Register(_registerAppUserModel);
 
         if (response.IsSuccessStatusCode)
@@ -77,11 +113,12 @@
         }
     }
 
-    
+
     private class RegisterAppUserModel : RegisterAppUserDto
     {
         [Compare("Password")]
         [Required(ErrorMessage = "Password is required")]
         public string ConfirmPassword { get; set; }
     }
+
 }

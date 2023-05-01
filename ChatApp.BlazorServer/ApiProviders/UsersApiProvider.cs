@@ -27,21 +27,20 @@ public class UsersApiProvider : IUsersApiProvider
         return await _jwtHttpClient.GetAsync($"{_apiUrl}/api/Users/{username}");
     }
 
-    public async Task<HttpResponseMessage> UpdateUserAsync(UpdateUserDto updateUserDto, string username)
+    public async Task<HttpResponseMessage> UpdateUserAsync(EditUserDto editUserDto, string username)
     {
         var response = await _jwtHttpClient.PatchAsJsonAsync(
             $"{_apiUrl}/api/Users/update-user/{username}",
-            updateUserDto, false
+            editUserDto
         );
         return response;
     }
 
-    public async Task<HttpResponseMessage> ChangeUsernameAsync(string oldUsername, string newUsername)
+    public async Task<HttpResponseMessage> ChangeUsernameAsync(string oldUsername, NewUsernameDto newUsername)
     {
         var response = await _jwtHttpClient.PatchAsJsonAsync(
             $"{_apiUrl}/api/Users/change-username/{oldUsername}",
-            newUsername,
-            false
+            newUsername
         );
         return response;
     }

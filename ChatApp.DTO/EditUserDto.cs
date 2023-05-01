@@ -1,6 +1,6 @@
 namespace ChatApp.DTO;
 
-public class UpdateUserDto
+public class EditUserDto
 {
     public string Email { get; set; }
 

@@ -1,11 +1,11 @@
-@using AutoMapper
-@using ChatApp.DTO.Validators
 @using FluentValidation
-@inject IMapper Mapper
+@using ChatApp.DTO.Validators
+@inject IJwtStorage JwtStorage
 @inject IUsersApiProvider UsersApiProvider 
-@inject IValidator<EditUserDto> EditUserValidator 
+@inject IValidator<NewUsernameDto> NewUsernameValidator 
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
-@if (_editUserValidator != null)
+@if (_newUsernameValidator != null)
 {
     <MudCard Style="width: 500px">
         <MudCardHeader>
@@ -14,26 +14,14 @@
             </h2>
         </MudCardHeader>
         <MudCardContent>
-            <MudForm Model="@_editUserDto" @ref="@_form" Validation="@(_editUserValidator.ValidateValue)" ValidationDelay="0">
+            <MudForm Model="@_newUsernameDto" @ref="@_form" Validation="@(_newUsernameValidator.ValidateValue)" ValidationDelay="0">
                 <MudTextField Label="Old username" Class="mt-3"
                               @bind-Value="AppUserDto.UserName"
                               ReadOnly="true"/>
-                <MudTextField @bind-Value="_editUserDto.FirstName"
-                              For="@(() => _editUserDto.FirstName)"
+                <MudTextField @bind-Value="_newUsernameDto.NewUsername"
+                              For="@(() => _newUsernameDto.NewUsername)"
                               Immediate="true"
-                              Label="New First Name"/>
-                <MudTextField @bind-Value="_editUserDto.LastName"
-                              For="@(() => _editUserDto.LastName)"
-                              Immediate="true"
-                              Label="New Last Name"/>
-                <MudTextField @bind-Value="_editUserDto.Email"
-                              For="@(() => _editUserDto.Email)"
-                              Immediate="true"
-                              Label="New Email"/>
-                <MudTextField @bind-Value="_editUserDto.PhoneNumber"
-                              For="@(() => _editUserDto.PhoneNumber)"
-                              Immediate="true"
-                              Label="New Phone Number"/>
+                              Label="New Username"/>
             </MudForm>
             @if (_apiError != null)
             {
@@ -57,7 +45,6 @@
     </MudCard>
 }
 
-
 @code {
 
     [CascadingParameter]
@@ -66,15 +53,14 @@
     [Parameter]
     public AppUserDto AppUserDto { get; set; } = new();
 
-    private EditUserDto _editUserDto;
+    private NewUsernameDto _newUsernameDto = new();
     private ApiError? _apiError;
     private MudForm _form;
-    private MudBlazorFormValidator<EditUserDto>? _editUserValidator;
+    private MudBlazorFormValidator<NewUsernameDto>? _newUsernameValidator;
 
     protected override void OnInitialized()
     {
-        _editUserDto = Mapper.Map<EditUserDto>(AppUserDto);
-        _editUserValidator = new MudBlazorFormValidator<EditUserDto>(EditUserValidator);
+        _newUsernameValidator = new MudBlazorFormValidator<NewUsernameDto>(NewUsernameValidator);
     }
 
     private async Task OnSubmitEdit()
@@ -85,11 +71,13 @@
             return;
         }
 
-        var response = await UsersApiProvider.UpdateUserAsync(_editUserDto, AppUserDto.UserName);
+        var response = await UsersApiProvider.ChangeUsernameAsync(AppUserDto.UserName, _newUsernameDto);
         if (response.IsSuccessStatusCode)
         {
-            var updatedUser = await response.Content.ReadFromJsonAsync<AppUserDto>();
-            MudDialog.Close(DialogResult.Ok(updatedUser));
+            var token = await response.Content.ReadAsStringAsync();
+            await JwtStorage.SaveJwtTokenAsync(token);
+            await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            MudDialog.Close(DialogResult.Ok(_newUsernameDto.NewUsername));
         }
         if (!response.IsSuccessStatusCode)
         {

@@ -7,5 +7,6 @@ public class AppUserDto
     public string? LastName { get; set; }
     public string Email { get; set; }
     public string? PhoneNumber { get; set; }
+    public string? Age { get; set; }
     public List<AvatarDto> Avatars { get; set; }
 }

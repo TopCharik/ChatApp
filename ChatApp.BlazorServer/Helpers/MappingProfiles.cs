@@ -7,6 +7,6 @@ public class MappingProfiles : Profile
 {
     public MappingProfiles()
     {
-        CreateMap<AppUserDto, UpdateUserDto>();
+        CreateMap<AppUserDto, EditUserDto>();
     }
 }

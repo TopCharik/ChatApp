@@ -26,7 +26,14 @@ public class MappingProfiles : Profile
                 opt => opt.MapFrom(src => src.Phone)
             );
         CreateMap<Avatar, AvatarDto>();
-        CreateMap<AppUser, AppUserDto>();
+        CreateMap<AppUser, AppUserDto>()
+            .ForMember(
+                dest => dest.Age,
+                opt => opt.MapFrom(
+                    x => x.Birthday == null || x.Birthday > DateTime.Now 
+                        ? null
+                        : new DateTime((DateTime.Now - x.Birthday).Value.Ticks).Year.ToString())
+                );
         CreateMap<ExtendedIdentityUser, AppUserDto>();
         CreateMap<PagedList<AppUser>, PagedResponseDto<AppUserDto>>()
             .ForMember(

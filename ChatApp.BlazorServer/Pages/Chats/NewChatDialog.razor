@@ -1,22 +1,28 @@
+@using FluentValidation
+@using ChatApp.DTO.Validators
 @inject IChatsApiProvider ChatsApiProvider
 @inject IUsersApiProvider UsersApiProvider
-@inject AuthenticationStateProvider AuthenticationStateProvider 
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IValidator<NewChatDto> NewChatValidator
 
-<MudDialog Style="width: 500px">
-    <TitleContent>
-        <MudText Typo="Typo.h6">
-            <MudIcon Icon="@Icons.Material.Filled.Edit" Class="mr-3"/>
-            Create new chat: @_newChatDto.ChatLink
-        </MudText>
-    </TitleContent>
-    <DialogContent>
-        <EditForm Model="@_newChatDto" OnValidSubmit="OnSubmitEdit" Style="width: 100%">
-            <DataAnnotationsValidator/>
-            <MudCardContent>
-                <MudTextField Label="Chat title"
-                              @bind-Value="_newChatDto.Title" For="@(() => _newChatDto.Title)"/>
-                <MudTextField Label="Chat link" Class="mt-3"
-                              @bind-Value="_newChatDto.ChatLink" For="@(() => _newChatDto.ChatLink)"/>
+@if (_newChatValidator != null)
+{
+    <MudCard Style="width: 500px">
+        <MudCardHeader>
+            <h2>
+                Create New Chat
+            </h2>
+        </MudCardHeader>
+        <MudCardContent>
+            <MudForm Model="@_newChatDto" @ref="@_form" Validation="@(_newChatValidator.ValidateValue)" ValidationDelay="0">
+                <MudTextField @bind-Value="_newChatDto.Title"
+                              For="@(() => _newChatDto.Title)"
+                              Immediate="true"
+                              Label="Title"/>
+                <MudTextField @bind-Value="_newChatDto.ChatLink"
+                              For="@(() => _newChatDto.ChatLink)"
+                              Immediate="true"
+                              Label="Title"/>
                 <MudSwitch Label="Is private chat" Class="mt-3"
                            @bind-Checked="_newChatDto.IsPrivate" For="@(() => _newChatDto.IsPrivate)"/>
                 @if (_apiError != null)
@@ -31,7 +37,7 @@
                     <MudChip Color="Color.Primary" Text="@_currentUsername"></MudChip>
                     @foreach (var username in _selectedUsernames)
                     {
-                        <MudChip  OnClose="DeselectUsername" Text="@username"></MudChip>
+                        <MudChip OnClose="DeselectUsername" Text="@username"></MudChip>
                     }
                 </MudChipSet>
                 <MudExpansionPanel Text="Users">
@@ -47,27 +53,26 @@
                         @foreach (var user in _searchUsers.Take(5))
                         {
                             <MudListItem OnClick="() => AddUser(user)">
-                                <MudHighlighter 
+                                <MudHighlighter
                                     Text="@($"{user.UserName} | {user.FirstName} {user.LastName} | {user.Email} | {user.PhoneNumber};")"
                                     HighlightedText="@_searchString"/>
                             </MudListItem>
                         }
                     </MudList>
                 </MudExpansionPanel>
-            </MudCardContent>
-            <MudCardActions>
-                <MudButton OnClick="Cancel">Cancel</MudButton>
-                <MudButton
-                    ButtonType="ButtonType.Submit"
-                    Variant="Variant.Filled"
-                    Color="Color.Primary"
-                    Class="ml-auto">
-                    Create chat
-                </MudButton>
-            </MudCardActions>
-        </EditForm>
-    </DialogContent>
-</MudDialog>
+            </MudForm>
+        </MudCardContent>
+        <MudCardActions>
+            <MudButton OnClick="Cancel">Cancel</MudButton>
+            <MudButton
+                Disabled="@(_form is null or {IsValid: false})"
+                Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto"
+                OnClick="@(async () => await OnSubmitEdit())">
+                Create new chat
+            </MudButton>
+        </MudCardActions>
+    </MudCard>
+}
 
 @code {
 
@@ -80,12 +85,15 @@
     private List<AppUserDto> _searchUsers = new();
     private ApiError? _apiError;
     private string _currentUsername = string.Empty;
+    private MudForm _form;
+    private MudBlazorFormValidator<NewChatDto>? _newChatValidator;
 
     protected override async Task OnInitializedAsync()
     {
         await LoadUsers();
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         _currentUsername = authState.User.Identity?.Name;
+        _newChatValidator = new MudBlazorFormValidator<NewChatDto>(NewChatValidator);
     }
 
     private async Task OnSubmitEdit()
@@ -124,7 +132,7 @@
             if (response.IsSuccessStatusCode)
             {
                 var pagedList = await response.Content.ReadFromJsonAsync<PagedResponseDto<AppUserDto>>();
-                _searchUsers.AddRange(pagedList.Items.Where(x => !_selectedUsernames.Contains(x.UserName) 
+                _searchUsers.AddRange(pagedList.Items.Where(x => !_selectedUsernames.Contains(x.UserName)
                                                                  && x.UserName != _currentUsername));
 
                 if (_searchUsers.Count > 5 || !pagedList.HasNext) break;

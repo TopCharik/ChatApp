@@ -3,9 +3,9 @@ using FluentValidation;
 
 namespace ChatApp.DTO.Validators;
 
-public class UpdateUserDtoValidator : AbstractValidator<UpdateUserDto>
+public class EditUserDtoValidator : AbstractValidator<EditUserDto>
 {
-    public UpdateUserDtoValidator()
+    public EditUserDtoValidator()
     {
         RuleFor(x => x.FirstName)
             .NotEmpty()
@@ -18,8 +18,7 @@ public class UpdateUserDtoValidator : AbstractValidator<UpdateUserDto>
             .NotEmpty()
             .EmailAddress();
         RuleFor(x => x.PhoneNumber)
-            .MinimumLength(6).WithMessage("PhoneNumber must not be less than 6 characters.")
-            .MaximumLength(20).WithMessage("PhoneNumber must not exceed 20 characters.")
-            .Matches(new Regex(@"((\(\d{3}\) ?)|(\d{3}-))?\d{3}-\d{4}")).WithMessage("PhoneNumber not valid");
+            .Matches(new Regex(@"((\(\d{3}\) ?)|(\d{3}-))?\d{3}-\d{4}")).WithMessage("PhoneNumber not valid")
+            .When(x => !string.IsNullOrEmpty(x.PhoneNumber));
     }
 }

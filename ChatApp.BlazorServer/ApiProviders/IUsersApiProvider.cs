@@ -6,6 +6,6 @@ public interface IUsersApiProvider
 {
     public Task<HttpResponseMessage> LoadUsersAsync(Dictionary<string, string> queryParams);
     public Task<HttpResponseMessage> LoadSingleUserAsync(string username);
-    public Task<HttpResponseMessage> UpdateUserAsync(UpdateUserDto updateUserDto, string username);
-    public Task<HttpResponseMessage> ChangeUsernameAsync(string oldUsername, string newUsername);
+    public Task<HttpResponseMessage> UpdateUserAsync(EditUserDto editUserDto, string username);
+    public Task<HttpResponseMessage> ChangeUsernameAsync(string oldUsername, NewUsernameDto newUsername);
 }

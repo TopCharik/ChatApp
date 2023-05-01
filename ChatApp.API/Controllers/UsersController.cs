@@ -25,7 +25,7 @@ public class UsersController : ControllerBase
     private readonly IMapper _mapper;
     private readonly IValidator<LoginDto> _loginValidator;
     private readonly IValidator<RegisterAppUserDto> _registerValidator;
-    private readonly IValidator<UpdateUserDto> _updateUserValidator;
+    private readonly IValidator<EditUserDto> _updateUserValidator;
     private readonly IValidator<ChangePasswordDto> _changePasswordValidator;
     private readonly IValidator<NewUsernameDto> _newUsernameValidator;
 
@@ -37,7 +37,7 @@ public class UsersController : ControllerBase
         IMapper mapper,
         IValidator<LoginDto> loginValidator,
         IValidator<RegisterAppUserDto> registerValidator,
-        IValidator<UpdateUserDto> updateUserValidator,
+        IValidator<EditUserDto> updateUserValidator,
         IValidator<ChangePasswordDto> changePasswordValidator,
         IValidator<NewUsernameDto> newUsernameValidator
     )
@@ -171,9 +171,9 @@ public class UsersController : ControllerBase
     [HttpPatch]
     [Authorize]
     [Route("update-user/{username}")]
-    public async Task<ActionResult<AppUserDto>> UpdateUser(UpdateUserDto updateUserDto, string username)
+    public async Task<ActionResult<AppUserDto>> UpdateUser(EditUserDto editUserDto, string username)
     {
-        var validationResult = await _updateUserValidator.ValidateAsync(updateUserDto);
+        var validationResult = await _updateUserValidator.ValidateAsync(editUserDto);
         if (!validationResult.IsValid)
         {
             var errors = validationResult.Errors.ToDictionary(k => k.PropertyName, v => v.ErrorMessage);
@@ -197,10 +197,10 @@ public class UsersController : ControllerBase
         }
 
         user.UserName = username;
-        user.FirstName = updateUserDto.FirstName;
-        user.LastName = updateUserDto.LastName;
-        user.Email = updateUserDto.Email;
-        user.PhoneNumber = updateUserDto.PhoneNumber;
+        user.FirstName = editUserDto.FirstName;
+        user.LastName = editUserDto.LastName;
+        user.Email = editUserDto.Email;
+        user.PhoneNumber = editUserDto.PhoneNumber;
 
         var result = await _userManager.UpdateAsync(user);
 

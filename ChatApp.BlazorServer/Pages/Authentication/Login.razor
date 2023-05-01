@@ -1,38 +1,61 @@
 @page "/Login"
-@using ChatApp.DTO
+@using ChatApp.DTO.Validators
+@using FluentValidation
 @inject IAuthenticationApiProvider AuthenticationApiProvider
 @inject IJwtStorage JwtStorage
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IValidator<LoginDto> LoginValidator
 
 
-<h3>Login</h3>
-<EditForm Model="@_loginDto" OnValidSubmit="OnLogin" Style="width: 100%">
-    <DataAnnotationsValidator/>
-    <MudCard>
+
+@if (_loginDtoValidator != null)
+{
+    <MudCard Class="mt-5">
+        <MudCardHeader>
+            <h2>
+                Login
+            </h2>
+        </MudCardHeader>
         <MudCardContent>
-            <MudTextField Label="Username"
-                          @bind-Value="_loginDto.UserName" For="@(() => _loginDto.UserName)"/>
-            <MudTextField Label="Password" Class="mt-3"
-                          @bind-Value="_loginDto.Password" For="@(() => _loginDto.Password)" InputType="InputType.Password"/>
+            <MudForm Model="@_loginDto" @ref="@_form" Validation="@(_loginDtoValidator.ValidateValue)" ValidationDelay="0">
+                <MudTextField @bind-Value="_loginDto.UserName"
+                              For="@(() => _loginDto.UserName)"
+                              Immediate="true"
+                              Label="Username"/>
+
+                <MudTextField @bind-Value="_loginDto.Password"
+                              For="@(() => _loginDto.Password)"
+                              InputType="InputType.Password"
+                              Immediate="true"
+                              Label="Password"/>
+            </MudForm>
             @if (_apiError != null)
             {
                 @foreach (var errorMessage in _apiError.Errors)
                 {
-                    <MudText Color="Color.Error" Class="mt-5">@errorMessage.Value</MudText>   
+                    <MudText Color="Color.Error">
+                        @errorMessage.Value
+                    </MudText>
                 }
             }
         </MudCardContent>
         <MudCardActions>
-            <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Login</MudButton>
+            <MudButton
+                Disabled="@(_form is null or {IsValid: false})"
+                Variant="Variant.Filled" Color="Color.Primary" Class="mt-5"
+                OnClick="@(async () => await OnLogin())">
+                Login
+            </MudButton>
         </MudCardActions>
     </MudCard>
-</EditForm>
-
+}
 
 @code {
     private LoginDto _loginDto = new();
     private ApiError? _apiError;
+    private MudForm _form;
+    private MudBlazorFormValidator<LoginDto>? _loginDtoValidator;
 
     protected override async Task OnInitializedAsync()
     {
@@ -41,10 +64,17 @@
         {
             NavigationManager.NavigateTo("/");
         }
+        _loginDtoValidator = new MudBlazorFormValidator<LoginDto>(LoginValidator);
     }
 
     private async Task OnLogin()
     {
+        await _form.Validate();
+        if (!_form.IsValid)
+        {
+            return;
+        }
+
         var response = await AuthenticationApiProvider.Login(_loginDto);
         if (response.IsSuccessStatusCode)
         {
@@ -56,7 +86,6 @@
         if (!response.IsSuccessStatusCode)
         {
             _apiError = await response.Content.ReadFromJsonAsync<ApiError>();
-            _loginDto.Password = string.Empty;
         }
     }
 
