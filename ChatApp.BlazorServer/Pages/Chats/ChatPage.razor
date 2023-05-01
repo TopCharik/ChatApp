@@ -2,11 +2,13 @@
 @using Microsoft.AspNetCore.SignalR.Client
 @using System.Data.SqlTypes
 @using ChatApp.BlazorServer.Components
+@using ChatApp.DTO.Validators
+@using FluentValidation
 @inject IParticipationApiProvider ParticipationApiProvider
 @inject IMessagesApiProvider MessagesApiProvider
 @inject IDialogService DialogService
 @inject IJSRuntime JsRuntime
-@inject NavigationManager NavigationManager
+@inject IValidator<NewMessageDto> NewMessageValidator
 @implements IDisposable;
 
 @if (_conversationParticipationDto is {ChatInfo: not null })
@@ -86,35 +88,36 @@
                     }
                 </div>
             </div>
-            @if (_conversationParticipationDto?.Participation is {HasLeft: false })
+            @if (_conversationParticipationDto?.Participation is {HasLeft: false } && _newMessageValidator != null)
             {
-                <MudPaper Elevation="25" Class="d-flex flex-row px-2 mx-4" Style="">
-                    <EditForm Model="@_newMessageDto"
-                              OnValidSubmit="OnSendMessage"
-                              Class="d-flex flex-row mx-4"
-                              Style="min-width: 100%">
-                        <DataAnnotationsValidator/>
+                <MudPaper Elevation="25" Class="d-flex flex-row px-2 mx-4">
+                    <div Style="min-width: 100%">
                         <MudCardContent Style="min-width: 80%">
-                            <MudTextField
-                                Label="Enter your message..."
-                                @bind-Value="_newMessageDto.MessageText"
-                                For="@(() => _newMessageDto.MessageText)"/>
-                            @if (_messagesError != null)
+                            <MudForm Model="@_newMessageDto" @ref="@_form" Validation="@(_newMessageValidator.ValidateValue)" ValidationDelay="0">
+                                <MudTextField
+                                    @bind-Value="_newMessageDto.MessageText"
+                                    For="@(() => _newMessageDto.MessageText)"
+                                    Immediate="true"
+                                    Label="New Username"/>
+                            </MudForm>
+                            @if (_messageError != null)
                             {
-                                @foreach (var errorMessage in _messagesError.Errors)
+                                @foreach (var errorMessage in _messageError.Errors)
                                 {
-                                    <MudText Color="Color.Error">@errorMessage.Value</MudText>
+                                    <MudText Color="Color.Error">
+                                        @errorMessage.Value
+                                    </MudText>
                                 }
                             }
                         </MudCardContent>
-                        <MudCardActions Style="min-width: 20%">
+                        <MudCardActions>
                             <MudButton
-                                ButtonType="ButtonType.Submit"
+                                OnClick="OnSendMessage"
                                 StartIcon="@Icons.Material.Outlined.Send" Color="Color.Secondary">
                                 Send
                             </MudButton>
                         </MudCardActions>
-                    </EditForm>
+                    </div>
                 </MudPaper>
             }
         </MudPaper>
@@ -140,15 +143,19 @@
     private ConversationParticipationDto? _conversationParticipationDto;
     private List<MessageDto>? _messages;
     private NewMessageDto _newMessageDto = new();
-    private ApiError? _messagesError;
+    private ApiError? _messageError;
     private ApiError? _chatErrors;
     private List<IDisposable> _hubSubscriptions = new();
+    private MudForm _form;
+    private MudBlazorFormValidator<NewMessageDto>? _newMessageValidator;
 
 
     protected override async Task OnInitializedAsync()
     {
         await UpdateChatParticipationAsync();
         await UpdateMessagesAsync();
+        _newMessageValidator = new MudBlazorFormValidator<NewMessageDto>(NewMessageValidator);
+
         if (HubConnection.State == HubConnectionState.Disconnected)
         {
             await HubConnection.StartAsync();
@@ -170,10 +177,7 @@
 
             _hubSubscriptions.Add
                 (
-                    HubConnection.On($"{_conversationParticipationDto.Id.ToString()}/ConversationInfoChanged", async () =>
-                    {
-                        await UpdateChatParticipationAsync();
-                    })
+                    HubConnection.On($"{_conversationParticipationDto.Id.ToString()}/ConversationInfoChanged", async () => { await UpdateChatParticipationAsync(); })
                 );
         }
     }
@@ -234,7 +238,7 @@
         }
         if (!response.IsSuccessStatusCode)
         {
-            _messagesError = await response.Content.ReadFromJsonAsync<ApiError>();
+            _messageError = await response.Content.ReadFromJsonAsync<ApiError>();
         }
         await InvokeAsync(StateHasChanged);
     }
@@ -254,12 +258,18 @@
         }
         if (!response.IsSuccessStatusCode)
         {
-            _messagesError = await response.Content.ReadFromJsonAsync<ApiError>();
+            _messageError = await response.Content.ReadFromJsonAsync<ApiError>();
         }
     }
 
     private async Task OnSendMessage()
     {
+        await _form.Validate();
+        if (!_form.IsValid)
+        {
+            return;
+        }
+
         if (_conversationParticipationDto == null) return;
 
         var result = await MessagesApiProvider.SendMessageAsync(_conversationParticipationDto.Id, _newMessageDto);

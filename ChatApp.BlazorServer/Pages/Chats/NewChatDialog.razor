@@ -98,6 +98,12 @@
 
     private async Task OnSubmitEdit()
     {
+        await _form.Validate();
+        if (!_form.IsValid)
+        {
+            return;
+        }
+        
         _newChatDto.Usernames = _selectedUsernames;
         var response = await ChatsApiProvider.CreateNewChatAsync(_newChatDto);
         if (response.IsSuccessStatusCode)
