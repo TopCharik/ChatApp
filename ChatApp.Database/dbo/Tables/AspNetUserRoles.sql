@@ -13,4 +13,4 @@
 )
     GO
 create index IX_AspNetUserRoles_RoleId
-    on dbo.AspNetUserRoles (RoleId)
+    on AspNetUserRoles (RoleId)

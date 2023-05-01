@@ -7,8 +7,8 @@
         constraint FK_AspNetRoleClaims_AspNetRoles_RoleId
         references dbo.AspNetRoles
         on delete cascade,
-    ClaimType  nvarchar( max),
-    ClaimValue nvarchar( max)
+    ClaimType  nvarchar(max),
+    ClaimValue nvarchar(max)
 )
     GO
 create index IX_AspNetRoleClaims_RoleId

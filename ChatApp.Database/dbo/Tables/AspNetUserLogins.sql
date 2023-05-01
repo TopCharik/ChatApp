@@ -2,7 +2,7 @@
 (
     LoginProvider       nvarchar(450) not null,
     ProviderKey         nvarchar(450) not null,
-    ProviderDisplayName nvarchar( max),
+    ProviderDisplayName nvarchar(max),
     UserId              nvarchar(450) not null
         constraint FK_AspNetUserLogins_AspNetUsers_UserId
         references dbo.AspNetUsers
