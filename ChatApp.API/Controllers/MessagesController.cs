@@ -1,9 +1,9 @@
 using AutoMapper;
 using ChatApp.API.Hubs;
 using ChatApp.BLL;
-using ChatApp.Core.Entities;
 using ChatApp.Core.Entities.MessageArggregate;
 using ChatApp.DTO;
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
@@ -19,14 +19,21 @@ public class MessagesController : ControllerBase
     private readonly IUserService _userService;
     private readonly IMapper _mapper;
     private readonly IHubContext<ConversationsHub> _hubContext;
+    private readonly IValidator<NewMessageDto> _newMessageValidator;
 
-    public MessagesController(IMessageService messageService, IUserService userService, IMapper mapper,
-        IHubContext<ConversationsHub> hubContext)
+    public MessagesController(
+        IMessageService messageService,
+        IUserService userService,
+        IMapper mapper,
+        IHubContext<ConversationsHub> hubContext,
+        IValidator<NewMessageDto> newMessageValidator 
+        )
     {
         _messageService = messageService;
         _userService = userService;
         _mapper = mapper;
         _hubContext = hubContext;
+        _newMessageValidator = newMessageValidator;
     }
     
     [HttpGet]
@@ -55,6 +62,12 @@ public class MessagesController : ControllerBase
     [Route("{conversationId}")]
     public async Task<ActionResult> SendMessage(int conversationId, [FromBody] NewMessageDto newMessageDto)
     {
+        var validationResult = await _newMessageValidator.ValidateAsync(newMessageDto);
+        if (!validationResult.IsValid)
+        {
+            return BadRequest(validationResult.Errors);
+        }
+        
         var username = HttpContext.User.Identity!.Name!;
         var sender = await _userService.GetUserByUsername(username);
         if (!sender.Succeeded)

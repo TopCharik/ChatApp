@@ -6,5 +6,5 @@ namespace ChatApp.BLL;
 public interface IAvatarService
 {
     Task<ServiceResult> AddUserAvatar(Avatar avatar);
-    Task<ServiceResult> AddChatAvatar(Avatar avatar, string chatLink, string uploaderId);
+    Task<ServiceResult<Conversation>> AddChatAvatar(Avatar avatar, string chatLink, string uploaderId);
 }

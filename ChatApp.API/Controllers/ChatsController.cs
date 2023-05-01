@@ -3,6 +3,7 @@ using ChatApp.API.Helpers;
 using ChatApp.BLL;
 using ChatApp.Core.Entities.ChatInfoAggregate;
 using ChatApp.DTO;
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,16 +18,19 @@ public class ChatsController : ControllerBase
     private readonly IChatService _chatService;
     private readonly IMapper _mapper;
     private readonly IUserService _userService;
+    private readonly IValidator<NewChatDto> _newChatValidator;
 
     public ChatsController(
         IChatService chatService,
         IMapper mapper,
-        IUserService userService
+        IUserService userService,
+        IValidator<NewChatDto> newChatValidator
     )
     {
         _chatService = chatService;
         _mapper = mapper;
         _userService = userService;
+        _newChatValidator = newChatValidator;
     }
 
     [HttpGet]
@@ -55,6 +59,12 @@ public class ChatsController : ControllerBase
     [HttpPost]
     public async Task<ActionResult> CreateChat([FromBody] NewChatDto newChatDto)
     {
+        var validationResult = await _newChatValidator.ValidateAsync(newChatDto);
+        if (!validationResult.IsValid)
+        {
+            return BadRequest(validationResult.Errors);
+        }
+        
         var ownerName = HttpContext.User.Identity!.Name!;
         
         var ownerId = await _userService.GetUserByUsername(ownerName);

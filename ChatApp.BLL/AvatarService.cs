@@ -22,7 +22,7 @@ public class AvatarService : IAvatarService
         return new ServiceResult();
     }
 
-    public async Task<ServiceResult> AddChatAvatar(Avatar avatar, string chatLink, string uploaderId)
+    public async Task<ServiceResult<Conversation>> AddChatAvatar(Avatar avatar, string chatLink, string uploaderId)
     {
         var participationRepo = _unitOfWork.GetRepository<IConversationsRepository>();
         var chatWithUserParticipation = await participationRepo.GetChatWithUserParticipationByLink(chatLink, uploaderId);
@@ -33,7 +33,7 @@ public class AvatarService : IAvatarService
             {
                 {"Avatar upload failed", "Chat with this link doesn't exist."},
             };
-            return new ServiceResult(errors);
+            return new ServiceResult<Conversation>(errors);
         }
         
         var currentParticipation = chatWithUserParticipation.Participations
@@ -45,7 +45,7 @@ public class AvatarService : IAvatarService
             {
                 {"Avatar upload failed", "You don't have permission for upload avatar to this chat"},
             };
-            return new ServiceResult(errors);
+            return new ServiceResult<Conversation>(errors);
         }
 
         var repo = _unitOfWork.GetRepository<IAvatarRepository>();
@@ -54,6 +54,6 @@ public class AvatarService : IAvatarService
         repo.Create(avatar);
         await _unitOfWork.SaveChangesAsync();
         
-        return new ServiceResult();
+        return new ServiceResult<Conversation>(chatWithUserParticipation);
     }
 }

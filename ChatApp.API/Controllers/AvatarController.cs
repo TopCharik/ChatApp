@@ -1,9 +1,11 @@
 using AutoMapper;
+using ChatApp.API.Hubs;
 using ChatApp.BLL;
 using ChatApp.Core.Entities;
 using ChatApp.DTO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 
 namespace ChatApp.API.Controllers;
 
@@ -15,16 +17,19 @@ public class AvatarController : ControllerBase
     private readonly IAvatarService _avatarService;
     private readonly IMapper _mapper;
     private readonly IUserService _userService;
+    private readonly IHubContext<ConversationsHub> _hubContext;
 
     public AvatarController(
         IAvatarService avatarService,
         IMapper mapper,
-        IUserService userService
+        IUserService userService,
+        IHubContext<ConversationsHub> hubContext
     )
     {
         _avatarService = avatarService;
         _mapper = mapper;
         _userService = userService;
+        _hubContext = hubContext;
     }
 
 
@@ -83,6 +88,7 @@ public class AvatarController : ControllerBase
             {
                 return BadRequest(new ApiError(400, result.Errors));
             }
+            await _hubContext.Clients.All.SendAsync($"{result.Value!.Id}/ConversationInfoChanged");
         }
 
         return Ok();

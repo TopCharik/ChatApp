@@ -8,6 +8,8 @@ using ChatApp.DAL.App.AppContext;
 using ChatApp.DAL.App.Interfaces;
 using ChatApp.DAL.App.Repositories;
 using ChatApp.DAL.Identity;
+using ChatApp.DTO.Validators;
+using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -59,6 +61,7 @@ builder.Services.AddScoped<IChatService, ChatService>();
 builder.Services.AddScoped<IMessageService, MessageService>();
 
 builder.Services.AddAutoMapper(typeof(MappingProfiles));
+builder.Services.AddValidatorsFromAssemblyContaining<IValidation>();
 
 var app = builder.Build();
 

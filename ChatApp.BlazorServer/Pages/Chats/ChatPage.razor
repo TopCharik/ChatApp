@@ -6,6 +6,7 @@
 @inject IMessagesApiProvider MessagesApiProvider
 @inject IDialogService DialogService
 @inject IJSRuntime JsRuntime
+@inject NavigationManager NavigationManager
 @implements IDisposable;
 
 @if (_conversationParticipationDto is {ChatInfo: not null })
@@ -141,7 +142,7 @@
     private NewMessageDto _newMessageDto = new();
     private ApiError? _messagesError;
     private ApiError? _chatErrors;
-    private IDisposable _hubSubscription;
+    private List<IDisposable> _hubSubscriptions = new();
 
 
     protected override async Task OnInitializedAsync()
@@ -155,14 +156,25 @@
 
         if (_conversationParticipationDto != null)
         {
-            _hubSubscription = HubConnection.On($"{_conversationParticipationDto.Id.ToString()}/NewMessage", async () =>
-            {
-                var date = _messages.Count == 0
-                    ? SqlDateTime.MinValue.Value
-                    : _messages[^1].DateSent;
+            _hubSubscriptions.Add
+                (
+                    HubConnection.On($"{_conversationParticipationDto.Id.ToString()}/NewMessage", async () =>
+                    {
+                        var date = _messages.Count == 0
+                            ? SqlDateTime.MinValue.Value
+                            : _messages[^1].DateSent;
 
-                await LoadMessagesAfterAsync(date);
-            });
+                        await LoadMessagesAfterAsync(date);
+                    })
+                );
+
+            _hubSubscriptions.Add
+                (
+                    HubConnection.On($"{_conversationParticipationDto.Id.ToString()}/ConversationInfoChanged", async () =>
+                    {
+                        await UpdateChatParticipationAsync();
+                    })
+                );
         }
     }
 
@@ -206,6 +218,7 @@
         {
             _chatErrors = await response.Content.ReadFromJsonAsync<ApiError>();
         }
+        await InvokeAsync(StateHasChanged);
     }
 
     private async Task UpdateMessagesAsync()
@@ -217,13 +230,13 @@
         if (response.IsSuccessStatusCode)
         {
             _messages = await response.Content.ReadFromJsonAsync<List<MessageDto>>();
-            await InvokeAsync(StateHasChanged);
             await JsRuntime.InvokeAsync<string>("ScrollToBottom", "chatContainer");
         }
         if (!response.IsSuccessStatusCode)
         {
             _messagesError = await response.Content.ReadFromJsonAsync<ApiError>();
         }
+        await InvokeAsync(StateHasChanged);
     }
 
     private async Task LoadMessagesAfterAsync(DateTime after)
@@ -279,7 +292,7 @@
 
     public void Dispose()
     {
-        _hubSubscription.Dispose();
+        _hubSubscriptions.ForEach(x => x.Dispose());
     }
 
 }
