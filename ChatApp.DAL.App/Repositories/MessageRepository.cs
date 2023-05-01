@@ -14,7 +14,7 @@ public class MessageRepository : BaseRepository<Message>, IMessageRepository
         var messages = GetAll()
             .Include(x => x.Participation)
             .ThenInclude(x => x.AppUser)
-            .ThenInclude(x => x.Avatars)
+            .ThenInclude(x => x.Avatars.OrderByDescending(x => x.DateSet).Take(1))
             .Where(x => x.Participation.ConversationId == conversationId);
         
         AfterTimeFilter(ref messages, messageParameters.After);

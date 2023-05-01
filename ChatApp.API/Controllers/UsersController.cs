@@ -28,7 +28,6 @@ public class UsersController : ControllerBase
     private readonly IValidator<UpdateUserDto> _updateUserValidator;
     private readonly IValidator<ChangePasswordDto> _changePasswordValidator;
     private readonly IValidator<NewUsernameDto> _newUsernameValidator;
-    private readonly IValidator _validator;
 
     public UsersController(
         IUserService userService,
@@ -64,23 +63,23 @@ public class UsersController : ControllerBase
 
         return _mapper.Map<PagedResponseDto<AppUserDto>>(users);
     }
-    
+
     [HttpGet]
     [Route("{username}")]
     public async Task<ActionResult<AppUserDto>> GetUser(string username)
     {
         var result = await _userService.GetUserByUsername(username);
-        
+
         if (!result.Succeeded)
         {
             return NotFound(new ApiError(404, result.Errors));
         }
-        
+
         var userDetailsDto = _mapper.Map<AppUserDto>(result.Value);
-        
+
         return userDetailsDto;
     }
-    
+
     [HttpPost]
     [Route("login")]
     [AllowAnonymous]
@@ -89,9 +88,10 @@ public class UsersController : ControllerBase
         var validationResult = await _loginValidator.ValidateAsync(loginDto);
         if (!validationResult.IsValid)
         {
-            return BadRequest(validationResult.Errors);
+            var errors = validationResult.Errors.ToDictionary(k => k.PropertyName, v => v.ErrorMessage);
+            return BadRequest(new ApiError(400, errors));
         }
-        
+
         var user = await _userManager.FindByNameAsync(loginDto.UserName);
 
         if (user == null)
@@ -121,9 +121,10 @@ public class UsersController : ControllerBase
         var validationResult = await _registerValidator.ValidateAsync(registerDto);
         if (!validationResult.IsValid)
         {
-            return BadRequest(validationResult.Errors);
+            var errors = validationResult.Errors.ToDictionary(k => k.PropertyName, v => v.ErrorMessage);
+            return BadRequest(new ApiError(400, errors));
         }
-        
+
         var user = _mapper.Map<ExtendedIdentityUser>(registerDto);
 
         var result = await _userManager.CreateAsync(user, registerDto.Password);
@@ -144,9 +145,10 @@ public class UsersController : ControllerBase
         var validationResult = await _changePasswordValidator.ValidateAsync(changePasswordDto);
         if (!validationResult.IsValid)
         {
-            return BadRequest(validationResult.Errors);
+            var errors = validationResult.Errors.ToDictionary(k => k.PropertyName, v => v.ErrorMessage);
+            return BadRequest(new ApiError(400, errors));
         }
-        
+
         var name = HttpContext.User.Identity?.Name;
         var user = await _userManager.FindByNameAsync(name);
         if (user == null)
@@ -154,7 +156,8 @@ public class UsersController : ControllerBase
             return Unauthorized();
         }
 
-        var result = await _userManager.ChangePasswordAsync(user, changePasswordDto.OldPassword, changePasswordDto.NewPassword);
+        var result =
+            await _userManager.ChangePasswordAsync(user, changePasswordDto.OldPassword, changePasswordDto.NewPassword);
 
         if (!result.Succeeded)
         {
@@ -164,7 +167,7 @@ public class UsersController : ControllerBase
 
         return _jwtTokenBuilder.CreateToken(user);
     }
-    
+
     [HttpPatch]
     [Authorize]
     [Route("update-user/{username}")]
@@ -173,18 +176,19 @@ public class UsersController : ControllerBase
         var validationResult = await _updateUserValidator.ValidateAsync(updateUserDto);
         if (!validationResult.IsValid)
         {
-            return BadRequest(validationResult.Errors);
+            var errors = validationResult.Errors.ToDictionary(k => k.PropertyName, v => v.ErrorMessage);
+            return BadRequest(new ApiError(400, errors));
         }
-        
+
         if (!string.Equals(username, HttpContext.User.Identity?.Name, StringComparison.CurrentCultureIgnoreCase))
         {
             var errors = new Dictionary<string, string>();
             errors.Add("User update failed", "You can't change this user information.");
             return Unauthorized(new ApiError(401, errors));
         }
-        
+
         var user = await _userManager.FindByNameAsync(username);
-        
+
         if (user == null)
         {
             var errors = new Dictionary<string, string>();
@@ -205,19 +209,20 @@ public class UsersController : ControllerBase
             var errors = result.Errors.ToDictionary(error => error.Code, error => error.Description);
             return BadRequest(new ApiError(400, errors));
         }
-        
+
         return _mapper.Map<AppUserDto>(user);
     }
-    
+
     [HttpPatch]
     [Authorize]
     [Route("change-username/{username}")]
-    public async Task<ActionResult<string>> ChangeUsername(string username,[FromBody] NewUsernameDto newUsernameDto)
-    {        
+    public async Task<ActionResult<string>> ChangeUsername(string username, [FromBody] NewUsernameDto newUsernameDto)
+    {
         var validationResult = await _newUsernameValidator.ValidateAsync(newUsernameDto);
         if (!validationResult.IsValid)
         {
-            return BadRequest(validationResult.Errors);
+            var errors = validationResult.Errors.ToDictionary(k => k.PropertyName, v => v.ErrorMessage);
+            return BadRequest(new ApiError(400, errors));
         }
 
         if (!string.Equals(username, HttpContext.User.Identity?.Name, StringComparison.CurrentCultureIgnoreCase))
@@ -227,16 +232,16 @@ public class UsersController : ControllerBase
             return Unauthorized(new ApiError(401, errors));
         }
 
-        
+
         var user = await _userManager.FindByNameAsync(username);
-        
+
         if (user == null)
         {
             var errors = new Dictionary<string, string>();
             errors.Add("Username change failed", "User with this username is not registered.");
             return BadRequest(new ApiError(400, errors));
         }
-        
+
         user.UserName = newUsernameDto.NewUsername;
 
         var result = await _userManager.UpdateAsync(user);
@@ -246,9 +251,8 @@ public class UsersController : ControllerBase
             var errors = result.Errors.ToDictionary(error => error.Code, error => error.Description);
             return BadRequest(new ApiError(400, errors));
         }
-        
-        
-        
+
+
         return _jwtTokenBuilder.CreateToken(user);
     }
 }

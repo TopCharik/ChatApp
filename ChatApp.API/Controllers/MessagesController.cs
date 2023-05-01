@@ -65,7 +65,8 @@ public class MessagesController : ControllerBase
         var validationResult = await _newMessageValidator.ValidateAsync(newMessageDto);
         if (!validationResult.IsValid)
         {
-            return BadRequest(validationResult.Errors);
+            var errors = validationResult.Errors.ToDictionary(k => k.PropertyName, v => v.ErrorMessage);
+            return BadRequest(new ApiError(400, errors));
         }
         
         var username = HttpContext.User.Identity!.Name!;

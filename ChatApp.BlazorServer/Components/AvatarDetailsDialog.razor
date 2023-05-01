@@ -46,10 +46,16 @@
         }
         @if (CanEdit)
         {
-            if (_selectedIndex != 0)
+            @if (_avatars is {Count: > 0 })
             {
-                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Cancel" Style="width: 100%">
-                    Set as current
+                <MudButton Variant="Variant.Filled" Color="Color.Error" Style="width: 100%">
+                    Remove this avatar
+                </MudButton>
+            }
+            @if (_selectedIndex != 0)
+            {
+                <MudButton Variant="Variant.Filled" Class="mt-1" Color="Color.Primary" Style="width: 100%">
+                    Set this avatar as current
                 </MudButton>
             }
 
@@ -83,11 +89,11 @@
                 @if (_newAvatarDto.ImagePayload != null)
                 {
                     <MudButtonGroup Style="width: 100%" OverrideStyles="false" Variant="Variant.Filled" Color="Color.Primary">
-                        <MudButton Style="width: 50%" Variant="Variant.Filled" Color="Color.Error" Class="ml-auto"
+                        <MudButton Style="width: 50%" Variant="Variant.Filled" Color="Color.Error" Class="mt-auto"
                                    OnClick="ClearAvatar">
                             Choose another avatar
                         </MudButton>
-                        <MudButton Style="width: 50%" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto"
+                        <MudButton Style="width: 50%" Variant="Variant.Filled" Color="Color.Primary" Class="mt-auto"
                                    OnClick="UploadAvatar">
                             Submit new avatar
                         </MudButton>
@@ -124,6 +130,7 @@
     private FileModel _model = new();
     private NewAvatarDto _newAvatarDto = new();
     private ApiError? _apiError;
+    private string _test;
 
     protected override void OnInitialized()
     {

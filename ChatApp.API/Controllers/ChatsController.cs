@@ -62,7 +62,8 @@ public class ChatsController : ControllerBase
         var validationResult = await _newChatValidator.ValidateAsync(newChatDto);
         if (!validationResult.IsValid)
         {
-            return BadRequest(validationResult.Errors);
+            var errors = validationResult.Errors.ToDictionary(k => k.PropertyName, v => v.ErrorMessage);
+            return BadRequest(new ApiError(400, errors));
         }
         
         var ownerName = HttpContext.User.Identity!.Name!;

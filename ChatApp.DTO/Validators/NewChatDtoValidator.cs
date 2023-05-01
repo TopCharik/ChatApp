@@ -9,12 +9,10 @@ public class NewChatDtoValidator : AbstractValidator<NewChatDto>
         RuleFor(x => x.Title)
             .NotEmpty()
             .MinimumLength(2)
-            .MinimumLength(128);
+            .MaximumLength(128);
         RuleFor(x => x.ChatLink)
             .NotEmpty()
             .MinimumLength(2)
-            .MinimumLength(128);
-        RuleFor(x => x.IsPrivate)
-            .NotEmpty();
+            .MaximumLength(128);
     }
 }
