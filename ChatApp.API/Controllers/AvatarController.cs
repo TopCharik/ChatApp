@@ -41,17 +41,17 @@ public class AvatarController : ControllerBase
     {
         if (newAvatarDto.Username == null && newAvatarDto.ChatLink == null)
         {
-            var errors = new Dictionary<string, string>
+            var errors = new List<KeyValuePair<string, string>>
             {
-                {"Avatar upload failed", "can't add avatar both for user and chat."},
+                new ("Avatar upload failed", "can't add avatar both for user and chat."),
             };
             return BadRequest(new ApiError(400, errors));
         }
         if (newAvatarDto.Username != null && newAvatarDto.ChatLink != null)
         {
-            var errors = new Dictionary<string, string>
+            var errors = new List<KeyValuePair<string, string>>
             {
-                {"Avatar upload failed", "Username or ChatLink is required."},
+                new ("Avatar upload failed", "Username or ChatLink is required."),
             };
             return BadRequest(new ApiError(400, errors));
         }
@@ -69,9 +69,9 @@ public class AvatarController : ControllerBase
         {
             if (claimsUser.Value.UserName != newAvatarDto.Username)
             {
-                var errors = new Dictionary<string, string>
+                var errors = new List<KeyValuePair<string, string>>
                 {
-                    {"Avatar upload failed", "You don't have permission for uploading avatar to this user"},
+                    new ("Avatar upload failed", "You don't have permission for uploading avatar to this user"),
                 };
                 return Unauthorized(new ApiError(401, errors));
             }

@@ -38,18 +38,18 @@ public class ChatService : IChatService
         if (conversationInfo.Value.Participations != null 
             && currentParticipation?.HasLeft == false)
         {
-            var errors = new Dictionary<string, string>
+            var errors = new List<KeyValuePair<string, string>>
             {
-                {"Joining chat failed", "User is already member of this chat."},
+                new ("Joining chat failed", "User is already member of this chat."),
             };
             return new ServiceResult(errors);
         }
 
         if (conversationInfo.Value!.ChatInfo!.IsPrivate)
         {
-            var errors = new Dictionary<string, string>
+            var errors = new List<KeyValuePair<string, string>>
             {
-                {"Joining chat failed", "This is a private chat. User can't join this chat."},
+                new ("Joining chat failed", "This is a private chat. User can't join this chat."),
             };
             return new ServiceResult(errors);
         }
@@ -89,9 +89,9 @@ public class ChatService : IChatService
 
         if (participation == null || participation.HasLeft)
         {
-            var errors = new Dictionary<string, string>
+            var errors = new List<KeyValuePair<string, string>>
             {
-                {"Chat leave failed", "User is not a member of this chat."},
+                new ("Chat leave failed", "User is not a member of this chat."),
             };
             return new ServiceResult(errors);
         }
@@ -111,9 +111,9 @@ public class ChatService : IChatService
         var chat = await repo.GetChatByLink(conversation.ChatInfo.ChatLink);
         if (chat != null)
         {
-            var errors = new Dictionary<string, string>()
+            var errors = new List<KeyValuePair<string, string>>
             {
-                {"Chat creation failed", "Chat with this link already exist."},
+                new ("Chat creation failed", "Chat with this link already exist."),
             };
             return new ServiceResult(errors);
         }
@@ -131,9 +131,9 @@ public class ChatService : IChatService
         var chat = await repo.GetChatByLink(chatLink);
         if (chat == null)
         {
-            var errors = new Dictionary<string, string>()
+            var errors = new List<KeyValuePair<string, string>>
             {
-                {"Chat not found", "Chat with this link doesn't exist."},
+                new ("Chat not found", "Chat with this link doesn't exist."),
             };
             return new ServiceResult<Conversation>(errors);
         }
@@ -148,9 +148,9 @@ public class ChatService : IChatService
         var chatWithUserParticipation = await repo.GetChatWithUserParticipationByLink(chatLink, userId);
         if (chatWithUserParticipation == null)
         {
-            var errors = new Dictionary<string, string>()
+            var errors = new List<KeyValuePair<string, string>>
             {
-                {"Chat not found", "Chat with this link doesn't exist."},
+                new ("Chat not found", "Chat with this link doesn't exist."),
             };
             return new ServiceResult<Conversation>(errors);
         }

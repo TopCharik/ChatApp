@@ -1,4 +1,5 @@
 using AutoMapper;
+using ChatApp.API.Extensions;
 using ChatApp.API.Helpers;
 using ChatApp.BLL;
 using ChatApp.Core.Entities.ChatInfoAggregate;
@@ -62,13 +63,13 @@ public class ChatsController : ControllerBase
         var validationResult = await _newChatValidator.ValidateAsync(newChatDto);
         if (!validationResult.IsValid)
         {
-            var errors = validationResult.Errors.ToDictionary(k => k.PropertyName, v => v.ErrorMessage);
+            var errors = validationResult.Errors.ToKeyValuePairs();
             return BadRequest(new ApiError(400, errors));
         }
         
         var ownerName = HttpContext.User.Identity!.Name!;
         
-        var ownerId = await _userService.GetUserByUsername(ownerName);
+        var ownerId = await _userService.GetUserByUsernameAsync(ownerName);
         if (!ownerId.Succeeded)
         {
             return BadRequest(new ApiError(400, ownerId.Errors));

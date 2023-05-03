@@ -25,9 +25,9 @@ public class MessageService : IMessageService
         
         if (chatWithUserParticipation == null)
         {
-            var errors = new Dictionary<string, string>
+            var errors = new List<KeyValuePair<string, string>>
             {
-                {"Get messages failed", "Chat with this link doesn't exist."},
+                new ("Get messages failed", "Chat with this link doesn't exist."),
             };
             return new ServiceResult<List<Message>>(errors);
         }
@@ -35,9 +35,9 @@ public class MessageService : IMessageService
         if (chatWithUserParticipation.ChatInfo!.IsPrivate 
             && currentParticipation is {HasLeft: true})
         {
-            var errors = new Dictionary<string, string>
+            var errors = new List<KeyValuePair<string, string>>
             {
-                {"Get messages failed", "This is a private chat. Only participants can read messages."},
+                new ("Get messages failed", "This is a private chat. Only participants can read messages."),
             };
             return new ServiceResult<List<Message>>(errors);
         }
@@ -58,27 +58,27 @@ public class MessageService : IMessageService
 
         if (participation == null || participation.HasLeft)
         {
-            var errors = new Dictionary<string, string>
+            var errors = new List<KeyValuePair<string, string>>
             {
-                {"Message creation failed", $"User is not a member of this conversation."},
+                new ("Message creation failed", $"User is not a member of this conversation."),
             };
             return new ServiceResult(errors);
         }
         
         if (!participation.CanWriteMessages)
         {
-            var errors = new Dictionary<string, string>()
+            var errors = new List<KeyValuePair<string, string>>
             {
-                {"Message creation failed", $"User can't write messages in this chat."},
+                new ("Message creation failed", $"User can't write messages in this chat."),
             };
             return new ServiceResult(errors);
         }
         
         if (participation.MutedUntil > DateTime.Now)
         {
-            var errors = new Dictionary<string, string>()
+            var errors = new List<KeyValuePair<string, string>>
             {
-                {"Message creation failed", $"User muted until {participation.MutedUntil}."},
+                new ("Message creation failed", $"User muted until {participation.MutedUntil}."),
             };
             return new ServiceResult(errors);
         }

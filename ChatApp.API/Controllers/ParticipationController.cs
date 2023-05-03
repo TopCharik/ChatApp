@@ -32,7 +32,7 @@ public class ParticipationController : ControllerBase
     public async Task<ActionResult<ConversationParticipationDto>> GetParticipationByChatLink(string chatLink)
     {
         var username = HttpContext.User.Identity!.Name!;
-        var user = await _userService.GetUserByUsername(username);
+        var user = await _userService.GetUserByUsernameAsync(username);
         if (!user.Succeeded)
         {
             return BadRequest(new ApiError(400, user.Errors));
@@ -52,7 +52,7 @@ public class ParticipationController : ControllerBase
     public async Task<ActionResult> JoinChat(string chatLink)
     {
         var username = HttpContext.User.Identity!.Name!;
-        var user = await _userService.GetUserByUsername(username);
+        var user = await _userService.GetUserByUsernameAsync(username);
         if (!user.Succeeded)
         {
             return BadRequest(new ApiError(400, user.Errors));
@@ -74,7 +74,7 @@ public class ParticipationController : ControllerBase
     public async Task<ActionResult<ConversationDto>> LeaveChat(string chatLink)
     {
         var username = HttpContext.User.Identity!.Name!;
-        var user = await _userService.GetUserByUsername(username);
+        var user = await _userService.GetUserByUsernameAsync(username);
         if (!user.Succeeded)
         {
             return BadRequest(new ApiError(400, user.Errors));

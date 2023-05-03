@@ -12,8 +12,4 @@
     <ProjectReference Include="..\ChatApp.DAL.Identity\ChatApp.DAL.Identity.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Models\" />
-  </ItemGroup>
-
 </Project>

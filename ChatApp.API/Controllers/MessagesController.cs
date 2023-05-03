@@ -1,4 +1,5 @@
 using AutoMapper;
+using ChatApp.API.Extensions;
 using ChatApp.API.Hubs;
 using ChatApp.BLL;
 using ChatApp.Core.Entities.MessageArggregate;
@@ -65,7 +66,7 @@ public class MessagesController : ControllerBase
         var validationResult = await _newMessageValidator.ValidateAsync(newMessageDto);
         if (!validationResult.IsValid)
         {
-            var errors = validationResult.Errors.ToDictionary(k => k.PropertyName, v => v.ErrorMessage);
+            var errors = validationResult.Errors.ToKeyValuePairs();
             return BadRequest(new ApiError(400, errors));
         }
         

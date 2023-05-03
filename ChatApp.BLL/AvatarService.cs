@@ -29,9 +29,9 @@ public class AvatarService : IAvatarService
         
         if (chatWithUserParticipation == null)
         {
-            var errors = new Dictionary<string, string>
+            var errors = new List<KeyValuePair<string, string>>
             {
-                {"Avatar upload failed", "Chat with this link doesn't exist."},
+                new ("Avatar upload failed", "Chat with this link doesn't exist."),
             };
             return new ServiceResult<Conversation>(errors);
         }
@@ -41,9 +41,9 @@ public class AvatarService : IAvatarService
 
         if (currentParticipation is {CanChangeChatAvatar: false})
         {
-            var errors = new Dictionary<string, string>
+            var errors = new List<KeyValuePair<string, string>>
             {
-                {"Avatar upload failed", "You don't have permission for upload avatar to this chat"},
+                new ("Avatar upload failed", "You don't have permission for upload avatar to this chat"),
             };
             return new ServiceResult<Conversation>(errors);
         }

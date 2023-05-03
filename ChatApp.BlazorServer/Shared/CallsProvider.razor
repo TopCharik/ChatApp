@@ -25,16 +25,19 @@
         await _callHubConnection.InvokeAsync("Join", _username);
 
         _hubSubscriptions.Add(
-            _callHubConnection.On("IncomingCall", OpenCall)
+            _callHubConnection.On("IncomingCall", (NewCallDto newCallDto) =>
+            {
+                OpenCall(newCallDto);
+            })
             );
     }
 
-    private void OpenCall()
+    private void OpenCall(NewCallDto newCallDto)
     {
         var parameters = new DialogParameters();
         parameters.Add("CallHubConnection", _callHubConnection);
         
-        var options = new DialogOptions() {FullScreen = true, CloseButton = true};
+        var options = new DialogOptions {FullScreen = true, CloseButton = true};
         DialogService.Show<CallScreenDialog>("Custom Options Dialog", parameters, options);
     }
 

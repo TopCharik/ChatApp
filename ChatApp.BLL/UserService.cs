@@ -29,9 +29,9 @@ public class UserService : IUserService
         var user = await repo.GetUserByUsernameAsync(username);
         if (user == null)
         {
-            var errors = new Dictionary<string, string>
+            var errors = new List<KeyValuePair<string, string>>
             {
-                {"Get User By Username failed", $"user with username \"{username}\" not found."},
+                new ("Get User By Username failed", $"user with username \"{username}\" not found."),
             };
             return new ServiceResult<AppUser>(errors);
         }
@@ -49,9 +49,9 @@ public class UserService : IUserService
             var user = await repo.GetUserByUsernameAsync(username);
             if (user == null)
             {
-                var errors = new Dictionary<string, string>
+                var errors = new List<KeyValuePair<string, string>>
                 {
-                    {"Chat creation failed", $"user with username \"{username}\" not found."},
+                    new ("Chat creation failed", $"user with username \"{username}\" not found."),
                 };
                 return new ServiceResult<List<string>>(errors);
             }
@@ -86,9 +86,9 @@ public class UserService : IUserService
         var user = await repo.GetAll().AsTracking().FirstOrDefaultAsync(x => x.CallHubConnectionId == contextConnectionId);
         if (user == null)
         {
-            var errors = new Dictionary<string, string>
+            var errors = new List<KeyValuePair<string, string>>
             {
-                {"Remove CallHubConnectionId failed", $"user with username \"{contextConnectionId}\" not found."},
+                new ("Remove CallHubConnectionId failed", $"user with username \"{contextConnectionId}\" not found."),
             };
             return new ServiceResult<AppUser>(errors);
         }

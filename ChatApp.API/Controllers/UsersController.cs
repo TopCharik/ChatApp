@@ -1,19 +1,16 @@
-using System.Net;
 using AutoMapper;
+using ChatApp.API.Extensions;
 using ChatApp.API.Helpers;
 using ChatApp.API.Hubs;
 using ChatApp.BLL;
-using ChatApp.Core.Entities;
 using ChatApp.Core.Entities.AppUserAggregate;
 using ChatApp.DAL.Identity;
 using ChatApp.DTO;
-using ChatApp.DTO.Validators;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.OpenApi.Extensions;
 
 namespace ChatApp.API.Controllers;
 
@@ -95,7 +92,7 @@ public class UsersController : ControllerBase
         var validationResult = await _loginValidator.ValidateAsync(loginDto);
         if (!validationResult.IsValid)
         {
-            var errors = validationResult.Errors.ToDictionary(k => k.PropertyName, v => v.ErrorMessage);
+            var errors = validationResult.Errors.ToKeyValuePairs();
             return BadRequest(new ApiError(400, errors));
         }
 
@@ -103,8 +100,10 @@ public class UsersController : ControllerBase
 
         if (user == null)
         {
-            var errors = new Dictionary<string, string>();
-            errors.Add("Login failed", "Wrong password or username.");
+            var errors = new List<KeyValuePair<string, string>>
+            {
+                new( "Login failed", "Wrong password or username."),
+            };
             return Unauthorized(new ApiError(401, errors));
         }
 
@@ -112,8 +111,10 @@ public class UsersController : ControllerBase
 
         if (!result.Succeeded)
         {
-            var errors = new Dictionary<string, string>();
-            errors.Add("Login failed", "Wrong password or username.");
+            var errors = new List<KeyValuePair<string, string>>
+            {
+                new( "Login failed", "Wrong password or username."),
+            };
             return Unauthorized(new ApiError(401, errors));
         }
 
@@ -128,7 +129,7 @@ public class UsersController : ControllerBase
         var validationResult = await _registerValidator.ValidateAsync(registerDto);
         if (!validationResult.IsValid)
         {
-            var errors = validationResult.Errors.ToDictionary(k => k.PropertyName, v => v.ErrorMessage);
+            var errors = validationResult.Errors.ToKeyValuePairs();
             return BadRequest(new ApiError(400, errors));
         }
 
@@ -137,7 +138,7 @@ public class UsersController : ControllerBase
         var result = await _userManager.CreateAsync(user, registerDto.Password);
         if (!result.Succeeded)
         {
-            var errors = result.Errors.ToDictionary(error => error.Code, error => error.Description);
+            var errors = result.Errors.ToKeyValuePairs();
             return BadRequest(new ApiError(400, errors));
         }
 
@@ -151,7 +152,7 @@ public class UsersController : ControllerBase
         var validationResult = await _changePasswordValidator.ValidateAsync(changePasswordDto);
         if (!validationResult.IsValid)
         {
-            var errors = validationResult.Errors.ToDictionary(k => k.PropertyName, v => v.ErrorMessage);
+            var errors = validationResult.Errors.ToKeyValuePairs();
             return BadRequest(new ApiError(400, errors));
         }
 
@@ -167,7 +168,7 @@ public class UsersController : ControllerBase
 
         if (!result.Succeeded)
         {
-            var errors = result.Errors.ToDictionary(error => error.Code, error => error.Description);
+            var errors = result.Errors.ToKeyValuePairs();
             return BadRequest(new ApiError(400, errors));
         }
 
@@ -181,14 +182,16 @@ public class UsersController : ControllerBase
         var validationResult = await _updateUserValidator.ValidateAsync(editUserDto);
         if (!validationResult.IsValid)
         {
-            var errors = validationResult.Errors.ToDictionary(k => k.PropertyName, v => v.ErrorMessage);
+            var errors = validationResult.Errors.ToKeyValuePairs();
             return BadRequest(new ApiError(400, errors));
         }
 
         if (!string.Equals(username, HttpContext.User.Identity?.Name, StringComparison.CurrentCultureIgnoreCase))
         {
-            var errors = new Dictionary<string, string>();
-            errors.Add("User update failed", "You can't change this user information.");
+            var errors = new List<KeyValuePair<string, string>>
+            {
+                new("User update failed", "You can't change this user information."),
+            };
             return Unauthorized(new ApiError(401, errors));
         }
 
@@ -196,8 +199,10 @@ public class UsersController : ControllerBase
 
         if (user == null)
         {
-            var errors = new Dictionary<string, string>();
-            errors.Add("User update failed", "User with this username is not found.");
+            var errors = new List<KeyValuePair<string, string>>
+            {
+                new("User update failed", "User with this username is not found."),
+            };
             return BadRequest(new ApiError(400, errors));
         }
 
@@ -211,7 +216,7 @@ public class UsersController : ControllerBase
 
         if (!result.Succeeded)
         {
-            var errors = result.Errors.ToDictionary(error => error.Code, error => error.Description);
+            var errors = result.Errors.ToKeyValuePairs();
             return BadRequest(new ApiError(400, errors));
         }
 
@@ -226,14 +231,15 @@ public class UsersController : ControllerBase
         var validationResult = await _newUsernameValidator.ValidateAsync(newUsernameDto);
         if (!validationResult.IsValid)
         {
-            var errors = validationResult.Errors.ToDictionary(k => k.PropertyName, v => v.ErrorMessage);
+            var errors = validationResult.Errors.ToKeyValuePairs();
             return BadRequest(new ApiError(400, errors));
         }
 
         if (!string.Equals(username, HttpContext.User.Identity?.Name, StringComparison.CurrentCultureIgnoreCase))
         {
-            var errors = new Dictionary<string, string>();
-            errors.Add("User update failed", "You can't change this user information.");
+            var errors = new List<KeyValuePair<string, string>>{
+                new ("User update failed", "You can't change this user information."),
+            };
             return Unauthorized(new ApiError(401, errors));
         }
 
@@ -242,8 +248,9 @@ public class UsersController : ControllerBase
 
         if (user == null)
         {
-            var errors = new Dictionary<string, string>();
-            errors.Add("Username change failed", "User with this username is not registered.");
+            var errors = new List<KeyValuePair<string, string>>{
+                new ("Username change failed", "User with this username is not registered."),
+            };
             return BadRequest(new ApiError(400, errors));
         }
 
@@ -253,7 +260,7 @@ public class UsersController : ControllerBase
 
         if (!result.Succeeded)
         {
-            var errors = result.Errors.ToDictionary(error => error.Code, error => error.Description);
+            var errors = result.Errors.ToKeyValuePairs();
             return BadRequest(new ApiError(400, errors));
         }
 
@@ -278,12 +285,19 @@ public class UsersController : ControllerBase
             return BadRequest(new ApiError(400, callReceiverUser.Errors));
         }
 
-        var clienst = new List<string>
+        var newCallDto = new NewCallDto
         {
-            callInitiatorUser.Value.CallHubConnectionId,
-            callReceiverUser.Value.CallHubConnectionId,
+            callInitiatorUsername = callInitiatorUser.Value!.UserName!,
+            callReceiverUser = callReceiverUser.Value!.UserName!,
         };
-        _usersHubContext.Clients.Clients(clienst).SendAsync("NewCall");
+
+        var clients = new List<string>
+        {
+            callInitiatorUser.Value.CallHubConnectionId!,
+            callReceiverUser.Value.CallHubConnectionId!,
+        };
+        
+        await _usersHubContext.Clients.Clients(clients).SendAsync("IncomingCall", newCallDto);
         
         return Ok();
     }
