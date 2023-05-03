@@ -1,6 +1,6 @@
 using FluentValidation;
 
-namespace ChatApp.DTO.Validators;
+namespace ChatApp.BlazorServer.Helpers;
 
 public class MudBlazorFormValidator<T>
 {
