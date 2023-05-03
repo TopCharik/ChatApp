@@ -1,10 +1,13 @@
 @page "/users/{username}"
 @using ChatApp.BlazorServer.Components
+@using Microsoft.AspNetCore.SignalR.Client
 @attribute [Authorize] 
 @inject IUsersApiProvider UsersApiProvider
 @inject IDialogService DialogService
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+@implements IDisposable
 
 @if (_appUserDto != null)
 {
@@ -26,7 +29,7 @@
         </MudItem>
         <MudItem lg="8" class="mt-5">
             <MudGrid>
-                @if (_canEdit)
+                @if (_isCurrentUserPage)
                 {
                     <MudItem lg="12">
                         <MudButton OnClick="@((e) => ChangeUsername())" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit">
@@ -37,7 +40,7 @@
                 <MudItem lg="12">
                     <h1>Username: @_appUserDto.UserName</h1>
                 </MudItem>
-                @if (_canEdit)
+                @if (_isCurrentUserPage)
                 {
                     <MudItem lg="12">
                         <MudButton OnClick="@((e) => EditUser())" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit">
@@ -47,6 +50,15 @@
                 }
                 <MudItem lg="12">
                     <MudList>
+                        @if (!_isCurrentUserPage)
+                        {
+                            <MudListItem Avatar="@Icons.Material.Filled.PermIdentity">
+                                Is online: @_appUserDto.isOnline.ToString()
+                            </MudListItem>
+                            <MudListItem Avatar="@Icons.Material.Filled.PermIdentity">
+                                In Call: @_appUserDto.isInCall.ToString()
+                            </MudListItem>
+                        }
                         @if (_appUserDto.FirstName != null)
                         {
                             <MudListItem Avatar="@Icons.Material.Filled.PermIdentity">
@@ -86,28 +98,51 @@
 
     [Parameter]
     public string? Username { get; set; }
+    
+    [CascadingParameter(Name = "UsersHubConnection")]
+    public HubConnection UsersHubConnection { get; set; }
+    private List<IDisposable> _hubSubscriptions = new();
 
     private AppUserDto? _appUserDto;
     private ApiError? _apiError;
-    private bool _canEdit;
+    private bool _isCurrentUserPage;
 
     protected override async Task OnInitializedAsync()
     {
         await LoadUser(Username);
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        _canEdit = _appUserDto?.UserName == authState.User.Identity?.Name;
+        _isCurrentUserPage = _appUserDto?.UserName == authState.User.Identity?.Name;
+
+        if (UsersHubConnection.State == HubConnectionState.Disconnected)
+        {
+            await UsersHubConnection.StartAsync();
+        }
+        
+        _hubSubscriptions.Add
+            (
+                UsersHubConnection.On($"{Username.ToLower()}/UserInfoChanged", async () =>
+                {
+                    await LoadUser(Username);
+                })
+            );
+        if (!_isCurrentUserPage)
+        {
+            _hubSubscriptions.Add
+                (
+                    UsersHubConnection.On($"{Username.ToLower()}/UsernameChanged", async (string newUsername) =>
+                    {
+                        NavigationManager.NavigateTo($"/users/{newUsername}", true);
+                        await LoadUser(newUsername);
+                    })
+                );   
+        }
     }
 
-    public async Task EditUser()
+    private async Task EditUser()
     {
         var parameters = new DialogParameters {["AppUserDto"] = _appUserDto};
         var options = new DialogOptions {DisableBackdropClick = true};
-        var dialog = await DialogService.ShowAsync<EditUserDialog>("", parameters, options);
-        var result = await dialog.Result;
-        if (!result.Canceled)
-        {
-            await LoadUser(Username);
-        }
+        await DialogService.ShowAsync<EditUserDialog>("", parameters, options);
     }
 
     private async Task ChangeUsername()
@@ -129,15 +164,10 @@
         var parameters = new DialogParameters
         {
             ["AppUserDto"] = _appUserDto,
-            ["CanEdit"] = _canEdit,
+            ["CanEdit"] = _isCurrentUserPage,
         };
         var options = new DialogOptions {DisableBackdropClick = true};
-        var dialog = await DialogService.ShowAsync<AvatarDetailsDialog>("", parameters, options);
-        var result = await dialog.Result;
-        if (!result.Canceled)
-        {
-            await LoadUser(Username);
-        }
+        await DialogService.ShowAsync<AvatarDetailsDialog>("", parameters, options);
     }
 
     private async Task LoadUser(string username)
@@ -152,6 +182,12 @@
         {
             _apiError = await response.Content.ReadFromJsonAsync<ApiError>();
         }
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        _hubSubscriptions.ForEach(x => x.Dispose());
     }
 
 }

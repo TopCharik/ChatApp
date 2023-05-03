@@ -33,6 +33,10 @@ public class MappingProfiles : Profile
                     x => x.Birthday == null || x.Birthday > DateTime.Now 
                         ? null
                         : new DateTime((DateTime.Now - x.Birthday).Value.Ticks).Year.ToString())
+                )
+            .ForMember(
+                dest => dest.isOnline,
+                opt => opt.MapFrom(src => src.CallHubConnectionId != null)
                 );
         CreateMap<ExtendedIdentityUser, AppUserDto>();
         CreateMap<PagedList<AppUser>, PagedResponseDto<AppUserDto>>()

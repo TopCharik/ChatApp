@@ -7,6 +7,8 @@ namespace ChatApp.BLL;
 public interface IUserService
 {
     Task<PagedList<AppUser>> GetUsersAsync(AppUserParameters parameters);
-    Task<ServiceResult<AppUser>> GetUserByUsername(string username);
+    Task<ServiceResult<AppUser>> GetUserByUsernameAsync(string username);
     Task<ServiceResult<List<string>>> GetUserIdsByUsernames(IEnumerable<string> usernames);
+    Task<ServiceResult> SetCallHubConnectionId(string username, string? callHubConnectionId);
+    Task<ServiceResult<AppUser>> RemoveCallHubConnectionId(string contextConnectionId);
 }

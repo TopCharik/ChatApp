@@ -1,0 +1,47 @@
+@using Microsoft.AspNetCore.SignalR.Client
+@using ChatApp.BlazorServer.Components
+@inject IConfiguration Configuration
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IDialogService DialogService
+@implements IDisposable
+
+
+@code {
+    private HubConnection _callHubConnection { get; set; }
+
+    private string _username;
+    private bool _joined;
+    private List<IDisposable> _hubSubscriptions = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        _username = authState.User.Identity.Name;
+
+        var apiUrl = Configuration["ApiUrl"];
+        _callHubConnection = new HubConnectionBuilder().WithUrl($"{apiUrl}/hub/calls").Build();
+        await _callHubConnection.StartAsync();
+
+        await _callHubConnection.InvokeAsync("Join", _username);
+
+        _hubSubscriptions.Add(
+            _callHubConnection.On("IncomingCall", OpenCall)
+            );
+    }
+
+    private void OpenCall()
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("CallHubConnection", _callHubConnection);
+        
+        var options = new DialogOptions() {FullScreen = true, CloseButton = true};
+        DialogService.Show<CallScreenDialog>("Custom Options Dialog", parameters, options);
+    }
+
+    public void Dispose()
+    {
+        _hubSubscriptions.ForEach(x => x.Dispose());
+        _callHubConnection.StopAsync();
+    }
+
+}

@@ -19,7 +19,9 @@
     AccessFailedCount    int           not null,
     FirstName            varchar(256),
     LastName             varchar(256),
-    Birthday             datetime
+    Birthday             datetime,
+    CallHubConnectionId  nvarchar(450),
+    InCall               bit default 0 not null
 )
     GO
 create index EmailIndex

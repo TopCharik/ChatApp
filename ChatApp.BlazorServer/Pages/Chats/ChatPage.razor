@@ -90,9 +90,8 @@
             </div>
             @if (_conversationParticipationDto?.Participation is {HasLeft: false } && _newMessageValidator != null)
             {
-                <MudPaper Elevation="25" Class="d-flex flex-row px-2 mx-4">
-                    <div Style="min-width: 100%">
-                        <MudCardContent Style="min-width: 80%">
+                <MudPaper Elevation="25" Class="d-flex flex-row px-2 mx-4" Style="width: 100%;" >
+                        <MudCardContent Style="min-width: 85%">
                             <MudForm Model="@_newMessageDto" @ref="@_form" Validation="@(_newMessageValidator.ValidateValue)" ValidationDelay="0">
                                 <MudTextField
                                     @bind-Value="_newMessageDto.MessageText"
@@ -110,14 +109,15 @@
                                 }
                             }
                         </MudCardContent>
-                        <MudCardActions>
-                            <MudButton
-                                OnClick="OnSendMessage"
-                                StartIcon="@Icons.Material.Outlined.Send" Color="Color.Secondary">
-                                Send
-                            </MudButton>
-                        </MudCardActions>
-                    </div>
+                    <MudCardActions >
+                        <MudButton
+                            Style="min-width: 15%"
+                            Disabled="@(_form is null or {IsValid: false})"
+                            OnClick="OnSendMessage"
+                            StartIcon="@Icons.Material.Outlined.Send" Color="Color.Secondary">
+                            Send
+                        </MudButton>
+                    </MudCardActions>
                 </MudPaper>
             }
         </MudPaper>
@@ -137,8 +137,8 @@
     [Parameter]
     public string? ChatLink { get; set; }
 
-    [CascadingParameter]
-    public HubConnection HubConnection { get; set; }
+    [CascadingParameter(Name = "ChatHubConnection")]
+    public HubConnection ChatHubConnection { get; set; }
 
     private ConversationParticipationDto? _conversationParticipationDto;
     private List<MessageDto>? _messages;
@@ -156,16 +156,16 @@
         await UpdateMessagesAsync();
         _newMessageValidator = new MudBlazorFormValidator<NewMessageDto>(NewMessageValidator);
 
-        if (HubConnection.State == HubConnectionState.Disconnected)
+        if (ChatHubConnection.State == HubConnectionState.Disconnected)
         {
-            await HubConnection.StartAsync();
+            await ChatHubConnection.StartAsync();
         }
 
         if (_conversationParticipationDto != null)
         {
             _hubSubscriptions.Add
                 (
-                    HubConnection.On($"{_conversationParticipationDto.Id.ToString()}/NewMessage", async () =>
+                    ChatHubConnection.On($"{_conversationParticipationDto.Id.ToString()}/NewMessage", async () =>
                     {
                         var date = _messages.Count == 0
                             ? SqlDateTime.MinValue.Value
@@ -177,7 +177,10 @@
 
             _hubSubscriptions.Add
                 (
-                    HubConnection.On($"{_conversationParticipationDto.Id.ToString()}/ConversationInfoChanged", async () => { await UpdateChatParticipationAsync(); })
+                    ChatHubConnection.On($"{_conversationParticipationDto.Id.ToString()}/ConversationInfoChanged", async () =>
+                    {
+                        await UpdateChatParticipationAsync();
+                    })
                 );
         }
     }

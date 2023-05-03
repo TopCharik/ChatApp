@@ -18,21 +18,21 @@ public class MessagesController : ControllerBase
     private readonly IMessageService _messageService;
     private readonly IUserService _userService;
     private readonly IMapper _mapper;
-    private readonly IHubContext<ConversationsHub> _hubContext;
+    private readonly IHubContext<ConversationsHub> _conversationHubContext;
     private readonly IValidator<NewMessageDto> _newMessageValidator;
 
     public MessagesController(
         IMessageService messageService,
         IUserService userService,
         IMapper mapper,
-        IHubContext<ConversationsHub> hubContext,
+        IHubContext<ConversationsHub> conversationHubContext,
         IValidator<NewMessageDto> newMessageValidator 
         )
     {
         _messageService = messageService;
         _userService = userService;
         _mapper = mapper;
-        _hubContext = hubContext;
+        _conversationHubContext = conversationHubContext;
         _newMessageValidator = newMessageValidator;
     }
     
@@ -42,7 +42,7 @@ public class MessagesController : ControllerBase
         GetMessages(int conversationId, [FromQuery] MessageQueryParametersDto? messageQueryParametersDto)
     {
         var username = HttpContext.User.Identity!.Name!;
-        var user = await _userService.GetUserByUsername(username);
+        var user = await _userService.GetUserByUsernameAsync(username);
         if (!user.Succeeded)
         {
             return BadRequest(new ApiError(400, user.Errors));
@@ -70,7 +70,7 @@ public class MessagesController : ControllerBase
         }
         
         var username = HttpContext.User.Identity!.Name!;
-        var sender = await _userService.GetUserByUsername(username);
+        var sender = await _userService.GetUserByUsernameAsync(username);
         if (!sender.Succeeded)
         {
             return BadRequest(new ApiError(400, sender.Errors));
@@ -84,7 +84,7 @@ public class MessagesController : ControllerBase
             return BadRequest(new ApiError(400, result.Errors));
         }
         
-        await _hubContext.Clients.All.SendAsync($"{conversationId}/NewMessage");
+        await _conversationHubContext.Clients.All.SendAsync($"{conversationId}/NewMessage");
         return Ok();
     }
 }

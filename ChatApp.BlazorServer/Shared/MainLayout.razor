@@ -3,6 +3,7 @@
 @inject NavigationManager NavigationManager
 @inject IJwtProvider JwtProvider
 @inject IConfiguration Configuration
+@implements IDisposable
 
 <PageTitle>ChatApp.BlazorServer</PageTitle>
 
@@ -14,6 +15,7 @@
         <MudAppBar Elevation="1">
             <AuthorizeView>
                 <Authorized>
+                    <CallsProvider></CallsProvider>
                     <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@ToggleDrawer"/>
                     <MudSpacer/>
                     <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="OnLogOut">Logout</MudButton>
@@ -39,17 +41,19 @@
             <AuthorizeView>
                 <Authorized>
                     <MudNavMenu>
-                        <MudNavLink Match="NavLinkMatch.All" Href="users" >Users</MudNavLink>
-                        <MudNavLink Match="NavLinkMatch.All" Href="chats" >Chats</MudNavLink>
-                        <MudNavLink Match="NavLinkMatch.All" Href="change-password" >Change password</MudNavLink>
+                        <MudNavLink Match="NavLinkMatch.All" Href="users">Users</MudNavLink>
+                        <MudNavLink Match="NavLinkMatch.All" Href="chats">Chats</MudNavLink>
+                        <MudNavLink Match="NavLinkMatch.All" Href="change-password">Change password</MudNavLink>
                     </MudNavMenu>
                 </Authorized>
             </AuthorizeView>
         </MudDrawer>
         <MudMainContent Class="pt-16 px-16">
             <MudContainer MaxWidth="MaxWidth.Large">
-                <CascadingValue Value="_hubConnection">
-                    @Body
+                <CascadingValue Name="ChatHubConnection" Value="@_chatHubConnection">
+                    <CascadingValue Name="UsersHubConnection" Value="@_usersHubConnection">
+                        @Body
+                    </CascadingValue>
                 </CascadingValue>
             </MudContainer>
         </MudMainContent>
@@ -58,14 +62,17 @@
 
 @code{
     private bool _open = false;
-    private HubConnection? _hubConnection;
-    public bool IsConnected => _hubConnection is {State: HubConnectionState.Connected };
+    private HubConnection? _chatHubConnection;
+    private HubConnection? _usersHubConnection;
+    public bool IsConnected => _chatHubConnection is {State: HubConnectionState.Connected };
     
     protected override async Task OnInitializedAsync()
     {
         var apiUrl = Configuration["ApiUrl"];
-        _hubConnection = new HubConnectionBuilder().WithUrl($"{apiUrl}/hub/conversations").Build();
-        await _hubConnection.StartAsync();
+        _chatHubConnection = new HubConnectionBuilder().WithUrl($"{apiUrl}/hub/conversations").Build();
+        await _chatHubConnection.StartAsync();
+        _usersHubConnection = new HubConnectionBuilder().WithUrl($"{apiUrl}/hub/users").Build();
+        await _usersHubConnection.StartAsync();
     }
 
     void ToggleDrawer()
@@ -86,6 +93,12 @@
     private async Task OnLogOut()
     {
         await JwtProvider.DeleteTokenAsync();
+    }
+
+    public void Dispose()
+    {
+        _chatHubConnection?.DisposeAsync();
+        _usersHubConnection?.DisposeAsync();
     }
 
 }

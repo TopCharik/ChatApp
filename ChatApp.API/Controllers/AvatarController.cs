@@ -17,19 +17,22 @@ public class AvatarController : ControllerBase
     private readonly IAvatarService _avatarService;
     private readonly IMapper _mapper;
     private readonly IUserService _userService;
-    private readonly IHubContext<ConversationsHub> _hubContext;
+    private readonly IHubContext<ConversationsHub> _conversationsHubContext;
+    private readonly IHubContext<UsersHub> _usersHubContext;
 
     public AvatarController(
         IAvatarService avatarService,
         IMapper mapper,
         IUserService userService,
-        IHubContext<ConversationsHub> hubContext
+        IHubContext<ConversationsHub> conversationsHubContext,
+        IHubContext<UsersHub> usersHubContext
     )
     {
         _avatarService = avatarService;
         _mapper = mapper;
         _userService = userService;
-        _hubContext = hubContext;
+        _conversationsHubContext = conversationsHubContext;
+        _usersHubContext = usersHubContext;
     }
 
 
@@ -54,7 +57,7 @@ public class AvatarController : ControllerBase
         }
         
         var claimsUsername = HttpContext.User.Identity!.Name!;
-        var claimsUser = await _userService.GetUserByUsername(claimsUsername);
+        var claimsUser = await _userService.GetUserByUsernameAsync(claimsUsername);
         if (!claimsUser.Succeeded)
         {
             return BadRequest(new ApiError(400, claimsUser.Errors));
@@ -79,6 +82,7 @@ public class AvatarController : ControllerBase
             {
                 return BadRequest(new ApiError(400, result.Errors));
             }
+            await _usersHubContext.Clients.All.SendAsync($"{newAvatarDto.Username.ToLower()}/UserInfoChanged");
         }
         
         if (newAvatarDto.ChatLink != null)
@@ -88,7 +92,7 @@ public class AvatarController : ControllerBase
             {
                 return BadRequest(new ApiError(400, result.Errors));
             }
-            await _hubContext.Clients.All.SendAsync($"{result.Value!.Id}/ConversationInfoChanged");
+            await _conversationsHubContext.Clients.All.SendAsync($"{result.Value!.Id}/ConversationInfoChanged");
         }
 
         return Ok();

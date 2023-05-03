@@ -1,5 +1,7 @@
+using System.Net;
 using AutoMapper;
 using ChatApp.API.Helpers;
+using ChatApp.API.Hubs;
 using ChatApp.BLL;
 using ChatApp.Core.Entities;
 using ChatApp.Core.Entities.AppUserAggregate;
@@ -10,6 +12,8 @@ using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.OpenApi.Extensions;
 
 namespace ChatApp.API.Controllers;
 
@@ -21,6 +25,7 @@ public class UsersController : ControllerBase
     private readonly IUserService _userService;
     private readonly UserManager<ExtendedIdentityUser> _userManager;
     private readonly SignInManager<ExtendedIdentityUser> _signInManager;
+    private readonly IHubContext<UsersHub> _usersHubContext;
     private readonly IJwtTokenBuilder _jwtTokenBuilder;
     private readonly IMapper _mapper;
     private readonly IValidator<LoginDto> _loginValidator;
@@ -33,6 +38,7 @@ public class UsersController : ControllerBase
         IUserService userService,
         UserManager<ExtendedIdentityUser> userManager,
         SignInManager<ExtendedIdentityUser> signInManager,
+        IHubContext<UsersHub> usersHubContext,
         IJwtTokenBuilder jwtTokenBuilder,
         IMapper mapper,
         IValidator<LoginDto> loginValidator,
@@ -45,6 +51,7 @@ public class UsersController : ControllerBase
         _userService = userService;
         _userManager = userManager;
         _signInManager = signInManager;
+        _usersHubContext = usersHubContext;
         _jwtTokenBuilder = jwtTokenBuilder;
         _mapper = mapper;
         _loginValidator = loginValidator;
@@ -68,7 +75,7 @@ public class UsersController : ControllerBase
     [Route("{username}")]
     public async Task<ActionResult<AppUserDto>> GetUser(string username)
     {
-        var result = await _userService.GetUserByUsername(username);
+        var result = await _userService.GetUserByUsernameAsync(username);
 
         if (!result.Succeeded)
         {
@@ -138,7 +145,6 @@ public class UsersController : ControllerBase
     }
 
     [HttpPatch]
-    [Authorize]
     [Route("change-password")]
     public async Task<ActionResult<string>> ChangePassword(ChangePasswordDto changePasswordDto)
     {
@@ -169,7 +175,6 @@ public class UsersController : ControllerBase
     }
 
     [HttpPatch]
-    [Authorize]
     [Route("update-user/{username}")]
     public async Task<ActionResult<AppUserDto>> UpdateUser(EditUserDto editUserDto, string username)
     {
@@ -210,11 +215,11 @@ public class UsersController : ControllerBase
             return BadRequest(new ApiError(400, errors));
         }
 
+        await _usersHubContext.Clients.All.SendAsync($"{username.ToLower()}/UserInfoChanged");
         return _mapper.Map<AppUserDto>(user);
     }
 
     [HttpPatch]
-    [Authorize]
     [Route("change-username/{username}")]
     public async Task<ActionResult<string>> ChangeUsername(string username, [FromBody] NewUsernameDto newUsernameDto)
     {
@@ -252,7 +257,34 @@ public class UsersController : ControllerBase
             return BadRequest(new ApiError(400, errors));
         }
 
-
+        await _usersHubContext.Clients.All.SendAsync($"{username.ToLower()}/UsernameChanged", newUsernameDto.NewUsername);
         return _jwtTokenBuilder.CreateToken(user);
+    }
+
+    [HttpPost]
+    [Route("call/{username}")]
+    public async Task<ActionResult> CallUser(string receiverUsername)
+    {
+        var username = HttpContext.User.Identity.Name;
+        var callInitiatorUser = await _userService.GetUserByUsernameAsync(username);
+        if (!callInitiatorUser.Succeeded)
+        {
+            return BadRequest(new ApiError(400, callInitiatorUser.Errors));
+        }
+        
+        var callReceiverUser = await _userService.GetUserByUsernameAsync(receiverUsername);
+        if (!callReceiverUser.Succeeded)
+        {
+            return BadRequest(new ApiError(400, callReceiverUser.Errors));
+        }
+
+        var clienst = new List<string>
+        {
+            callInitiatorUser.Value.CallHubConnectionId,
+            callReceiverUser.Value.CallHubConnectionId,
+        };
+        _usersHubContext.Clients.Clients(clienst).SendAsync("NewCall");
+        
+        return Ok();
     }
 }
