@@ -23,6 +23,7 @@ public class UsersController : ControllerBase
     private readonly UserManager<ExtendedIdentityUser> _userManager;
     private readonly SignInManager<ExtendedIdentityUser> _signInManager;
     private readonly IHubContext<UsersHub> _usersHubContext;
+    private readonly IHubContext<CallsHub> _callsHub;
     private readonly IJwtTokenBuilder _jwtTokenBuilder;
     private readonly IMapper _mapper;
     private readonly IValidator<LoginDto> _loginValidator;
@@ -36,6 +37,7 @@ public class UsersController : ControllerBase
         UserManager<ExtendedIdentityUser> userManager,
         SignInManager<ExtendedIdentityUser> signInManager,
         IHubContext<UsersHub> usersHubContext,
+        IHubContext<CallsHub> callsHub,
         IJwtTokenBuilder jwtTokenBuilder,
         IMapper mapper,
         IValidator<LoginDto> loginValidator,
@@ -49,6 +51,7 @@ public class UsersController : ControllerBase
         _userManager = userManager;
         _signInManager = signInManager;
         _usersHubContext = usersHubContext;
+        _callsHub = callsHub;
         _jwtTokenBuilder = jwtTokenBuilder;
         _mapper = mapper;
         _loginValidator = loginValidator;
@@ -102,7 +105,7 @@ public class UsersController : ControllerBase
         {
             var errors = new List<KeyValuePair<string, string>>
             {
-                new( "Login failed", "Wrong password or username."),
+                new("Login failed", "Wrong password or username."),
             };
             return Unauthorized(new ApiError(401, errors));
         }
@@ -113,7 +116,7 @@ public class UsersController : ControllerBase
         {
             var errors = new List<KeyValuePair<string, string>>
             {
-                new( "Login failed", "Wrong password or username."),
+                new("Login failed", "Wrong password or username."),
             };
             return Unauthorized(new ApiError(401, errors));
         }
@@ -237,8 +240,9 @@ public class UsersController : ControllerBase
 
         if (!string.Equals(username, HttpContext.User.Identity?.Name, StringComparison.CurrentCultureIgnoreCase))
         {
-            var errors = new List<KeyValuePair<string, string>>{
-                new ("User update failed", "You can't change this user information."),
+            var errors = new List<KeyValuePair<string, string>>
+            {
+                new("User update failed", "You can't change this user information."),
             };
             return Unauthorized(new ApiError(401, errors));
         }
@@ -248,8 +252,9 @@ public class UsersController : ControllerBase
 
         if (user == null)
         {
-            var errors = new List<KeyValuePair<string, string>>{
-                new ("Username change failed", "User with this username is not registered."),
+            var errors = new List<KeyValuePair<string, string>>
+            {
+                new("Username change failed", "User with this username is not registered."),
             };
             return BadRequest(new ApiError(400, errors));
         }
@@ -269,36 +274,22 @@ public class UsersController : ControllerBase
     }
 
     [HttpPost]
-    [Route("call/{username}")]
-    public async Task<ActionResult> CallUser(string receiverUsername)
+    [Route("call/")]
+    public async Task<ActionResult<CallUsernamesDto>> CallUser(CallUsernamesDto callUsernamesDto)
     {
-        var username = HttpContext.User.Identity.Name;
-        var callInitiatorUser = await _userService.GetUserByUsernameAsync(username);
-        if (!callInitiatorUser.Succeeded)
+        var callParticipants = await _userService.SetInCall(callUsernamesDto, true);
+        if (!callParticipants.Succeeded)
         {
-            return BadRequest(new ApiError(400, callInitiatorUser.Errors));
-        }
-        
-        var callReceiverUser = await _userService.GetUserByUsernameAsync(receiverUsername);
-        if (!callReceiverUser.Succeeded)
-        {
-            return BadRequest(new ApiError(400, callReceiverUser.Errors));
+            return BadRequest(new ApiError(400, callParticipants.Errors));
         }
 
-        var newCallDto = new NewCallDto
-        {
-            callInitiatorUsername = callInitiatorUser.Value!.UserName!,
-            callReceiverUser = callReceiverUser.Value!.UserName!,
-        };
+        await _usersHubContext.Clients.All.SendAsync($"{callUsernamesDto.callInitiatorUsername.ToLower()}/UserInfoChanged");
+        await _usersHubContext.Clients.All.SendAsync($"{callUsernamesDto.callReceiverUsername.ToLower()}/UserInfoChanged");
+        
+        await _callsHub.Clients
+            .Client(callParticipants.Value.CallReceiver.CallHubConnectionId)
+            .SendAsync("IncomingCall", callUsernamesDto);
 
-        var clients = new List<string>
-        {
-            callInitiatorUser.Value.CallHubConnectionId!,
-            callReceiverUser.Value.CallHubConnectionId!,
-        };
-        
-        await _usersHubContext.Clients.Clients(clients).SendAsync("IncomingCall", newCallDto);
-        
-        return Ok();
+        return Ok(callParticipants.Value);
     }
 }

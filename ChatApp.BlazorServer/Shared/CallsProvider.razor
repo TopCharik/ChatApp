@@ -3,48 +3,93 @@
 @inject IConfiguration Configuration
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IDialogService DialogService
+@inject ISnackbar Snackbar
 @implements IDisposable
 
 
 @code {
-    private HubConnection _callHubConnection { get; set; }
+    [CascadingParameter(Name = "CallsHubConnection")]
+    public HubConnection CallsHubConnection { get; set; }
 
     private string _username;
+    private Snackbar snackbar;
     private bool _joined;
     private List<IDisposable> _hubSubscriptions = new();
 
     protected override async Task OnInitializedAsync()
     {
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+
         _username = authState.User.Identity.Name;
 
-        var apiUrl = Configuration["ApiUrl"];
-        _callHubConnection = new HubConnectionBuilder().WithUrl($"{apiUrl}/hub/calls").Build();
-        await _callHubConnection.StartAsync();
+        await CallsHubConnection.InvokeAsync("Join", _username);
 
-        await _callHubConnection.InvokeAsync("Join", _username);
 
-        _hubSubscriptions.Add(
-            _callHubConnection.On("IncomingCall", (NewCallDto newCallDto) =>
+        CallsHubConnection.On("IncomingCall", (CallUsernamesDto callUsernamesDto) =>
+        {
+            if (callUsernamesDto.callInitiatorUsername != _username)
             {
-                OpenCall(newCallDto);
-            })
-            );
+                snackbar = Snackbar.Add
+                    (
+                        @<div>
+                            <h3>Hi from a RenderFragment</h3>
+                            <ul>
+                                <MudButton 
+                                    Variant="Variant.Filled" Color="Color.Error"
+                                    OnClick="() => HangUp(callUsernamesDto)"
+                                    >
+                                    Decline
+                                </MudButton>
+                                <MudButton
+                                    Variant="Variant.Filled" Color="Color.Success"
+                                    OnClick="() => OpenCall(callUsernamesDto)">
+                                    Accept
+                                </MudButton>
+                            </ul>
+                        </div>,
+                        Severity.Normal,
+                        options =>
+                        {
+                            options.ShowCloseIcon = false;
+                            options.CloseAfterNavigation = true;
+                            options.VisibleStateDuration = 2000;
+                        }
+                    );
+                
+            }
+        });
     }
 
-    private void OpenCall(NewCallDto newCallDto)
+    private void OpenCall(CallUsernamesDto callUsernamesDto)
     {
-        var parameters = new DialogParameters();
-        parameters.Add("CallHubConnection", _callHubConnection);
-        
-        var options = new DialogOptions {FullScreen = true, CloseButton = true};
-        DialogService.Show<CallScreenDialog>("Custom Options Dialog", parameters, options);
+        var parameters = new DialogParameters
+        {
+            {"CallsHubConnection", CallsHubConnection},
+            {"CallUsernames", callUsernamesDto},
+            {"IsReceiver", true},
+        };
+
+        var options = new DialogOptions
+        {
+            CloseButton = false,
+            CloseOnEscapeKey = false,
+            DisableBackdropClick = true,
+        };
+
+
+        var dialog = DialogService.ShowAsync<CallScreenDialog>("Call Screen Dialog", parameters, options);
     }
 
+    
+    private async Task HangUp(CallUsernamesDto callUsernamesDto)
+    {
+        await CallsHubConnection.InvokeAsync("HangUp", callUsernamesDto);
+    }
+    
     public void Dispose()
     {
         _hubSubscriptions.ForEach(x => x.Dispose());
-        _callHubConnection.StopAsync();
+        CallsHubConnection.StopAsync();
     }
 
 }

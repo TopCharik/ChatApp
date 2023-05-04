@@ -6,14 +6,13 @@
 @inject IDialogService DialogService
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager NavigationManager
-@inject ISnackbar Snackbar
 @implements IDisposable
 
 @if (_appUserDto != null)
 {
     <MudGrid Class="mt-5">
         <MudItem lg="4">
-            <MudButton OnClick="@(() => AvatarDetails())">
+            <MudButton OnClick="@(AvatarDetails)">
                 <MudAvatar
                     style="height: 300px; width: 300px" Color="Color.Secondary">
                     @if (_appUserDto.Avatars.Count > 0)
@@ -52,11 +51,18 @@
                     <MudList>
                         @if (!_isCurrentUserPage)
                         {
+                            <MudButton
+                                Disabled="@(!_appUserDto.isOnline || _appUserDto.InCall)"
+                                OnClick="CallUser"
+                                StartIcon="@Icons.Material.Filled.Call"
+                                Variant="Variant.Filled" Color="Color.Success">
+                                Call user
+                            </MudButton>
                             <MudListItem Avatar="@Icons.Material.Filled.PermIdentity">
                                 Is online: @_appUserDto.isOnline.ToString()
                             </MudListItem>
                             <MudListItem Avatar="@Icons.Material.Filled.PermIdentity">
-                                In Call: @_appUserDto.isInCall.ToString()
+                                In Call: @_appUserDto.InCall.ToString()
                             </MudListItem>
                         }
                         @if (_appUserDto.FirstName != null)
@@ -101,6 +107,9 @@
     
     [CascadingParameter(Name = "UsersHubConnection")]
     public HubConnection UsersHubConnection { get; set; }
+    [CascadingParameter(Name = "CallsHubConnection")]
+    public HubConnection CallsHubConnection { get; set; }
+    
     private List<IDisposable> _hubSubscriptions = new();
 
     private AppUserDto? _appUserDto;
@@ -153,6 +162,7 @@
         var result = await dialog.Result;
         if (!result.Canceled)
         {
+            Console.WriteLine("test");
             var newUsername = result.Data.ToString();
             NavigationManager.NavigateTo($"/users/{newUsername}");
             await LoadUser(newUsername);
@@ -188,6 +198,40 @@
     public void Dispose()
     {
         _hubSubscriptions.ForEach(x => x.Dispose());
+    }
+
+    private async Task CallUser()
+    {
+        if (_isCurrentUserPage) return;
+        
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var _currentUser =  authState.User.Identity?.Name;
+        var callUsername = new CallUsernamesDto
+        {
+            callInitiatorUsername = _currentUser,
+            callReceiverUsername = _appUserDto.UserName,
+        };
+        var result = await UsersApiProvider.StartCall(callUsername);
+        if (result.IsSuccessStatusCode)
+        {
+            var callUsernamesDto = await result.Content.ReadFromJsonAsync<CallUsernamesDto>();
+            
+            var parameters = new DialogParameters
+            {
+                {"CallsHubConnection", CallsHubConnection},
+                {"CallUsernames", callUsernamesDto},
+                {"IsReceiver", false},
+            };
+        
+            var options = new DialogOptions
+            {
+                CloseButton = false,
+                CloseOnEscapeKey = false,
+                DisableBackdropClick = true,
+            };
+            
+            await DialogService.ShowAsync<CallScreenDialog>("" , parameters, options); 
+        }
     }
 
 }

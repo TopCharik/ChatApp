@@ -1,0 +1,61 @@
+@page "/Test"
+@inject IJSRuntime JsRuntime
+@implements IDisposable
+<h3>Test</h3>
+
+<MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="CreatePeer">Create peer object</MudButton>
+<MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SubscribeToCall">Subscribe to calls</MudButton>
+<MudTextField T="string"
+              @bind-Value="@RecieverPeerId"
+              Placeholder="connect to"
+              Adornment="Adornment.Start"
+              AdornmentIcon="@Icons.Material.Filled.Search"
+              IconSize="Size.Medium"/>
+<MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ConnectToPeer">Connect to peer</MudButton>
+<MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="EndCall">End call</MudButton>
+
+<div>
+    <video id="my_video"></video>
+</div>
+<div>
+    <video id="remote_video"></video>
+</div>
+
+<MudText>
+    @RecieverPeerId
+</MudText>
+<MudText>
+    @SubscriberPeerId
+</MudText>
+
+
+@code {
+
+    public string RecieverPeerId { get; set; }
+    public string SubscriberPeerId { get; set; }
+
+    private async Task CreatePeer()
+    {
+        await JsRuntime.InvokeVoidAsync("newPeer");
+    }
+
+    private async Task SubscribeToCall()
+    {
+        SubscriberPeerId = await JsRuntime.InvokeAsync<string>("subscribeToCalls");
+    }
+
+    private async Task ConnectToPeer()
+    {
+        await JsRuntime.InvokeVoidAsync("makePeerjsCall", RecieverPeerId);
+    }
+
+    private async Task EndCall()
+    {
+        await JsRuntime.InvokeVoidAsync("endCall");
+    }
+
+    public async void Dispose()
+    {
+        await JsRuntime.InvokeVoidAsync("endCall");
+    }
+}

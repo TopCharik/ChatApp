@@ -1,4 +1,5 @@
 using ChatApp.BLL;
+using ChatApp.DTO;
 using Microsoft.AspNetCore.SignalR;
 
 namespace ChatApp.API.Hubs;
@@ -34,5 +35,19 @@ public class CallsHub : Hub
 
         await base.OnDisconnectedAsync(exception);
     }
-    
+
+    public async Task HangUp(CallUsernamesDto callUsernamesDto)
+    {
+        var result = await _userService.SetInCall(callUsernamesDto, false);
+        if (result.Succeeded)
+        {
+            var connectionIds = new List<string>
+            {
+                result.Value.CallReceiver.CallHubConnectionId,
+                result.Value.CallInitiator.CallHubConnectionId,
+            };
+
+            await Clients.Clients(connectionIds).SendAsync("CallEnded");
+        }
+    }
 }

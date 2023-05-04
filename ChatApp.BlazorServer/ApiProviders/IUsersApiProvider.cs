@@ -8,4 +8,5 @@ public interface IUsersApiProvider
     public Task<HttpResponseMessage> LoadSingleUserAsync(string username);
     public Task<HttpResponseMessage> UpdateUserAsync(EditUserDto editUserDto, string username);
     public Task<HttpResponseMessage> ChangeUsernameAsync(string oldUsername, NewUsernameDto newUsername);
+    public Task<HttpResponseMessage> StartCall(CallUsernamesDto callUsernamesDto);
 }

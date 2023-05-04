@@ -1,8 +1,10 @@
 ﻿@using Microsoft.AspNetCore.SignalR.Client
 @inherits LayoutComponentBase
 @inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IJwtProvider JwtProvider
 @inject IConfiguration Configuration
+@inject IDialogService DialogService
 @implements IDisposable
 
 <PageTitle>ChatApp.BlazorServer</PageTitle>
@@ -15,7 +17,6 @@
         <MudAppBar Elevation="1">
             <AuthorizeView>
                 <Authorized>
-                    <CallsProvider></CallsProvider>
                     <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@ToggleDrawer"/>
                     <MudSpacer/>
                     <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="OnLogOut">Logout</MudButton>
@@ -50,11 +51,22 @@
         </MudDrawer>
         <MudMainContent Class="pt-16 px-16">
             <MudContainer MaxWidth="MaxWidth.Large">
-                <CascadingValue Name="ChatHubConnection" Value="@_chatHubConnection">
-                    <CascadingValue Name="UsersHubConnection" Value="@_usersHubConnection">
+                <AuthorizeView>
+                    <Authorized>
+                        <CascadingValue Name="ChatHubConnection" Value="@_chatHubConnection">
+                            <CascadingValue Name="UsersHubConnection" Value="@_usersHubConnection">
+                                <CascadingValue Name="CallsHubConnection" Value="@_callsHubConnection">
+                                    <CallsProvider></CallsProvider>
+                                    <CallsScreen></CallsScreen>
+                                    @Body
+                                </CascadingValue>
+                            </CascadingValue>
+                        </CascadingValue>
+                    </Authorized>
+                    <NotAuthorized>
                         @Body
-                    </CascadingValue>
-                </CascadingValue>
+                    </NotAuthorized>
+                </AuthorizeView>
             </MudContainer>
         </MudMainContent>
     </MudLayout>
@@ -64,8 +76,9 @@
     private bool _open = false;
     private HubConnection? _chatHubConnection;
     private HubConnection? _usersHubConnection;
+    private HubConnection? _callsHubConnection;
     public bool IsConnected => _chatHubConnection is {State: HubConnectionState.Connected };
-    
+
     protected override async Task OnInitializedAsync()
     {
         var apiUrl = Configuration["ApiUrl"];
@@ -73,6 +86,8 @@
         await _chatHubConnection.StartAsync();
         _usersHubConnection = new HubConnectionBuilder().WithUrl($"{apiUrl}/hub/users").Build();
         await _usersHubConnection.StartAsync();
+        _callsHubConnection = new HubConnectionBuilder().WithUrl($"{apiUrl}/hub/calls").Build();
+        await _callsHubConnection.StartAsync();
     }
 
     void ToggleDrawer()

@@ -44,4 +44,13 @@ public class UsersApiProvider : IUsersApiProvider
         );
         return response;
     }
+
+    public async Task<HttpResponseMessage> StartCall(CallUsernamesDto callUsernamesDto)
+    {
+        var response = await _jwtHttpClient.PostAsJsonAsync(
+            $"{_apiUrl}/api/Users/call",
+            callUsernamesDto
+        );
+        return response;
+    }
 }

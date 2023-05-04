@@ -1,8 +1,8 @@
+@page "/Call"
+<h3>Call</h3>
 @using Microsoft.AspNetCore.SignalR.Client
 @implements IDisposable
 @inject IDialogService DialogService
-@inject AuthenticationStateProvider AuthenticationStateProvider
-@inject ISnackbar Snackbar
 
 <MudDialog>
     <DialogContent>
@@ -25,16 +25,11 @@
     </DialogActions>
 </MudDialog>
 
-@_isAccepted
 
 @code {
-    [CascadingParameter] 
-    MudDialogInstance MudDialog { get; set; }
-    
     [Parameter]
     public HubConnection CallsHubConnection { get; set; }
     private List<IDisposable> _hubSubscriptions = new();
-    
     
     [Parameter]
     public CallUsernamesDto CallUsernames { get; set; }
@@ -44,18 +39,13 @@
 
     private bool _isAccepted;
 
-    private string _username;
-
     private string _fakePeerJsId;
 
     private string currentUsername => IsReceiver ? CallUsernames.callReceiverUsername : CallUsernames.callInitiatorUsername;
     private string remoteUsername => IsReceiver ? CallUsernames.callInitiatorUsername : CallUsernames.callReceiverUsername;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        _username = authState.User.Identity.Name;
-        
         _hubSubscriptions.Add(SubscribeToCallEnd());
         if (IsReceiver)
         {
@@ -73,9 +63,7 @@
     {
         return CallsHubConnection.On("CallEnded", () =>
         {
-            Snackbar.Add("CallEnded");
             _isAccepted = true;
-            MudDialog.StateHasChanged();
         });
     }
     
@@ -86,7 +74,6 @@
 
     public void Dispose()
     {
-        MudDialog.Dispose();
         _hubSubscriptions.ForEach(x => x.Dispose());
     }
 }
