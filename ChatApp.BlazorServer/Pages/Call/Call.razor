@@ -3,28 +3,33 @@
 @using Microsoft.AspNetCore.SignalR.Client
 @inject IJSRuntime JsRuntime
 @inject NavigationManager NavigationManager
-@inject ISnackbar Snackbar
+@inject IConfiguration Configuration
 @implements IDisposable
 
 <h3>Call</h3>
-@if (CallStateContainer.CurrentCall != null && CallStateContainer.IsInCall && _isAccepted) 
+@if (CallStateContainer.CurrentCall != null && CallStateContainer.IsInCall)
 {
-    <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="HangUp">HangUp</MudButton>   
-    <div>
-        <MudText>
-            @CallStateContainer.currentUsername:
-        </MudText>
-        <video id="my_video"></video>
-    </div>
-    <div>
-        @CallStateContainer.remoteUsername:
-        <video id="remote_video"></video>
-    </div>
+    <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="HangUp">HangUp</MudButton>
+    <MudGrid>
+        <MudItem lg="6">
+            <MudText >
+                @CallStateContainer.currentUsername:
+            </MudText>
+            <video id="my_video"></video>
+        </MudItem>
+        <MudItem lg="6">
+            <MudText >
+                @CallStateContainer.remoteUsername:
+            </MudText>
+            <video id="remote_video"></video>
+        </MudItem>
+    </MudGrid>
 }
 
 @code {
     [CascadingParameter(Name = "CallsHubConnection")]
-    public HubConnection CallsHubConnection { get; set; }
+    public HubConnection? CallsHubConnection { get; set; }
+
     private string SubscriberPeerId { get; set; }
     private readonly List<IDisposable> _hubSubscriptions = new();
     private bool _isAccepted = false;
@@ -32,7 +37,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        if (!CallStateContainer.IsInCall)
+        if (CallStateContainer.CurrentCall == null)
         {
             NavigationManager.NavigateTo("/");
             return;
@@ -44,15 +49,24 @@
         {
             _isAccepted = true;
             SubscriberPeerId = await JsRuntime.InvokeAsync<string>("initPeer");
-            Snackbar.Add($"peerJsId: {SubscriberPeerId}");
             await JsRuntime.InvokeVoidAsync("subscribeToCalls");
             await CallsHubConnection.SendAsync("AcceptCall", CallStateContainer.CurrentCall.CallUsernames, SubscriberPeerId);
         }
+        
 
+        
         if (CallStateContainer.CurrentCall is {IsReceiver: false })
         {
             _hubSubscriptions.Add(SubscribeToCallAccept());
         }
+        
+        _hubSubscriptions.Add
+            (
+                CallsHubConnection.On($"{CallStateContainer.remoteUsername.ToLower()}/Disconnected", async () =>
+                {
+                    await HangUp();
+                })
+            );
     }
 
     private async Task HangUp()
@@ -62,12 +76,9 @@
 
     private IDisposable SubscribeToCallEnded()
     {
-        return CallsHubConnection.On("CallEnded", async () =>
-        {
-            NavigationManager.NavigateTo("/");
-        });
+        return CallsHubConnection.On("CallEnded", async () => { NavigationManager.NavigateTo("/"); });
     }
-    
+
     private IDisposable SubscribeToCallAccept()
     {
         return CallsHubConnection.On("CallAccepted", async (string peerJsId) =>
@@ -77,11 +88,11 @@
             await JsRuntime.InvokeVoidAsync("makePeerjsCall", peerJsId);
         });
     }
-    
+
     public void Dispose()
     {
-        InvokeAsync(async () => await CallsHubConnection.InvokeAsync("HangUp", CallStateContainer.CurrentCall?.CallUsernames));
         InvokeAsync(async () => await JsRuntime.InvokeVoidAsync("endCall"));
+        InvokeAsync(async () => await CallsHubConnection.InvokeAsync("HangUp", CallStateContainer.CurrentCall?.CallUsernames));
         _hubSubscriptions.ForEach(x => x.Dispose());
         CallStateContainer.CurrentCall = new CallState();
     }

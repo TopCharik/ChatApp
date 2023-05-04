@@ -11,7 +11,7 @@
 
 @code {
     [CascadingParameter(Name = "CallsHubConnection")]
-    public HubConnection CallsHubConnection { get; set; }
+    public HubConnection? CallsHubConnection { get; set; }
     private List<IDisposable> _hubSubscriptions = new();
 
     private string _username;
@@ -23,10 +23,9 @@
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
 
         _username = authState.User.Identity.Name;
-
+        
         await CallsHubConnection.InvokeAsync("Join", _username);
-
-
+        
         CallsHubConnection.On("IncomingCall", (CallUsernamesDto callUsernamesDto) =>
         {
             if (callUsernamesDto.callInitiatorUsername != _username)

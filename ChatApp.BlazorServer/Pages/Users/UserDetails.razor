@@ -223,23 +223,6 @@
             };
             CallStateContainer.CurrentCall = AcceptedCall;
             NavigationManager.NavigateTo("/call");
-            
-            /*var parameters = new DialogParameters
-            {
-                {"CallsHubConnection", CallsHubConnection},
-                {"CallUsernames", callUsernamesDto},
-                {"IsReceiver", false},
-            };
-        
-            var options = new DialogOptions
-            {
-                CloseButton = false,
-                CloseOnEscapeKey = false,
-                DisableBackdropClick = true,
-            };
-            
-            await DialogService.ShowAsync<CallScreenDialog>("" , parameters, options);
-            await LoadUser(Username);*/
         }
     }
 

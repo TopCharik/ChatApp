@@ -4,6 +4,7 @@
 @inject IJwtProvider JwtProvider
 @inject IConfiguration Configuration
 @implements IDisposable
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <PageTitle>ChatApp.BlazorServer</PageTitle>
 
@@ -51,14 +52,17 @@
             <MudContainer MaxWidth="MaxWidth.Large">
                 <AuthorizeView>
                     <Authorized>
-                        <CascadingValue Name="ChatHubConnection" Value="@_chatHubConnection">
-                            <CascadingValue Name="UsersHubConnection" Value="@_usersHubConnection">
-                                <CascadingValue Name="CallsHubConnection" Value="@_callsHubConnection">
-                                    <CallsProvider></CallsProvider>
-                                    @Body
+                        @if (_chatHubConnection is not null && _usersHubConnection is not null && _callsHubConnection is not null)
+                        {
+                            <CascadingValue Name="ChatHubConnection" Value="@_chatHubConnection">
+                                <CascadingValue Name="UsersHubConnection" Value="@_usersHubConnection">
+                                    <CascadingValue Name="CallsHubConnection" Value="@_callsHubConnection">
+                                        <CallsProvider></CallsProvider>
+                                        @Body
+                                    </CascadingValue>
                                 </CascadingValue>
-                            </CascadingValue>
-                        </CascadingValue>
+                            </CascadingValue>   
+                        }
                     </Authorized>
                     <NotAuthorized>
                         @Body

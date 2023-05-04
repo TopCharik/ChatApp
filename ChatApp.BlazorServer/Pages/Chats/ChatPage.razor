@@ -9,6 +9,7 @@
 @inject IMessagesApiProvider MessagesApiProvider
 @inject IDialogService DialogService
 @inject IJSRuntime JsRuntime
+@inject IConfiguration Configuration
 @inject IValidator<NewMessageDto> NewMessageValidator
 @implements IDisposable;
 
@@ -139,7 +140,7 @@
     public string? ChatLink { get; set; }
 
     [CascadingParameter(Name = "ChatHubConnection")]
-    public HubConnection ChatHubConnection { get; set; }
+    public HubConnection? ChatHubConnection { get; set; }
 
     private ConversationParticipationDto? _conversationParticipationDto;
     private List<MessageDto>? _messages;
@@ -157,6 +158,12 @@
         await UpdateMessagesAsync();
         _newMessageValidator = new MudBlazorFormValidator<NewMessageDto>(NewMessageValidator);
 
+        if (ChatHubConnection == null)
+        {
+            var apiUrl = Configuration["ApiUrl"];
+            ChatHubConnection = new HubConnectionBuilder().WithUrl($"{apiUrl}/hub/calls").Build();
+        }
+        
         if (ChatHubConnection.State == HubConnectionState.Disconnected)
         {
             await ChatHubConnection.StartAsync();

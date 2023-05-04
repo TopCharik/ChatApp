@@ -147,22 +147,25 @@ public class UserService : IUserService
             return new ServiceResult<CallParticipants>(error);
         }
 
-        if (callInitiator.InCall == newValue)
+        if (newValue)
         {
-            var error = new List<KeyValuePair<string, string>>
+            if (callInitiator.InCall == newValue)
             {
-                new("Call failed", $"{callInitiator} InCall has same value"),
-            };
-            return new ServiceResult<CallParticipants>(error);
-        }
+                var error = new List<KeyValuePair<string, string>>
+                {
+                    new("Call failed", $"{callInitiator} InCall has same value"),
+                };
+                return new ServiceResult<CallParticipants>(error);
+            }
 
-        if (callReceiver.InCall == newValue)
-        {
-            var error = new List<KeyValuePair<string, string>>
+            if (callReceiver.InCall == newValue)
             {
-                new("Call failed", $"{callReceiver} InCall has same value"),
-            };
-            return new ServiceResult<CallParticipants>(error);
+                var error = new List<KeyValuePair<string, string>>
+                {
+                    new("Call failed", $"{callReceiver} InCall has same value"),
+                };
+                return new ServiceResult<CallParticipants>(error);
+            }
         }
 
         callInitiator.InCall = newValue;

@@ -24,13 +24,13 @@ public class CallsHub : Hub
         }
     }
     
-
     public override async Task OnDisconnectedAsync(Exception exception)
     {
         var result = await _userService.RemoveCallHubConnectionId(Context.ConnectionId);
         if (result.Succeeded)
         {
             await _usersHubContext.Clients.All.SendAsync($"{result.Value.UserName.ToLower()}/UserInfoChanged");
+            await Clients.All.SendAsync($"{result.Value.UserName.ToLower()}/Disconnected");
         }
 
         await base.OnDisconnectedAsync(exception);
