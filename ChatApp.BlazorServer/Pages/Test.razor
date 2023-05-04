@@ -1,5 +1,6 @@
 @page "/Test"
 @inject IJSRuntime JsRuntime
+@inject ISnackbar Snackbar
 @implements IDisposable
 <h3>Test</h3>
 
@@ -32,7 +33,7 @@
 @code {
 
     public string RecieverPeerId { get; set; }
-    public string SubscriberPeerId { get; set; }
+    private string SubscriberPeerId { get; set; }
 
     private async Task CreatePeer()
     {
@@ -43,6 +44,7 @@
     {
         await JsRuntime.InvokeVoidAsync("subscribeToCalls");
         SubscriberPeerId = await JsRuntime.InvokeAsync<string>("getPeerJsId");
+        Snackbar.Add($"peerJsId: {SubscriberPeerId}");
     }
 
     private async Task ConnectToPeer()

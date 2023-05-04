@@ -2,6 +2,7 @@ using Blazored.LocalStorage;
 using ChatApp.BlazorServer.ApiProviders;
 using ChatApp.BlazorServer.Helpers;
 using ChatApp.BlazorServer.Services.Authentication;
+using ChatApp.BlazorServer.StateContainers;
 using ChatApp.DTO.Validators;
 using FluentValidation;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -26,7 +27,9 @@ builder.Services.AddScoped<IAvatarApiProvider, AvatarApiProvider>();
 builder.Services.AddScoped<IMessagesApiProvider, MessagesApiProvider>();
 builder.Services.AddScoped<IJwtHelper, JwtHelper>();
 builder.Services.AddScoped<IJwtHttpClient, JwtHttpClient>();
+builder.Services.AddScoped<CallStateContainer>();
 builder.Services.AddScoped<AuthenticationStateProvider, JwtAuthenticationStateProvider>();
+
 builder.Services.AddBlazoredLocalStorage();
 
 builder.Services.AddAutoMapper(typeof(MappingProfiles));

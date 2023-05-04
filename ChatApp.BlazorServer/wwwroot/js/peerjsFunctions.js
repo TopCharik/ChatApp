@@ -4,6 +4,19 @@ let ownMediaStream;
 
 function newPeer() {
      peerInstance = new Peer();
+     return new Promise((resolve, reject) => {
+          peerInstance.on('open', (id) => {
+               resolve(id);
+          });
+          peerInstance.on('error', (err) => {
+               reject(err);
+          });
+     });
+}
+
+async function initPeer() {
+     await newPeer();
+     return peerInstance.id;
 }
 
 function subscribeToCalls() {

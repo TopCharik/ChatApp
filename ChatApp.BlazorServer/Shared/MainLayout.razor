@@ -1,10 +1,8 @@
 ﻿@using Microsoft.AspNetCore.SignalR.Client
 @inherits LayoutComponentBase
 @inject NavigationManager NavigationManager
-@inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IJwtProvider JwtProvider
 @inject IConfiguration Configuration
-@inject IDialogService DialogService
 @implements IDisposable
 
 <PageTitle>ChatApp.BlazorServer</PageTitle>
@@ -33,7 +31,7 @@
                 </NotAuthorized>
             </AuthorizeView>
         </MudAppBar>
-        <MudDrawer @bind-Open="@_open" Elevation="1">
+        <MudDrawer @bind-Open="@_isDrawerOpen" Elevation="1">
             <MudDrawerHeader>
                 <MudButton Variant="Variant.Text" Color="Color.Primary" Class="me-3" Href="/">
                     Chat App
@@ -42,10 +40,10 @@
             <AuthorizeView>
                 <Authorized>
                     <MudNavMenu>
-                        <MudNavLink Match="NavLinkMatch.All" Href="users">Users</MudNavLink>
-                        <MudNavLink Match="NavLinkMatch.All" Href="chats">Chats</MudNavLink>
+                            <MudNavLink Match="NavLinkMatch.All" Href="users">Users</MudNavLink>
+                            <MudNavLink Match="NavLinkMatch.All" Href="chats">Chats</MudNavLink>
                         <MudNavLink Match="NavLinkMatch.All" Href="change-password">Change password</MudNavLink>
-                    </MudNavMenu>
+                        </MudNavMenu>
                 </Authorized>
             </AuthorizeView>
         </MudDrawer>
@@ -72,11 +70,10 @@
 </div>
 
 @code{
-    private bool _open = false;
+    private bool _isDrawerOpen = false;
     private HubConnection? _chatHubConnection;
     private HubConnection? _usersHubConnection;
     private HubConnection? _callsHubConnection;
-    public bool IsConnected => _chatHubConnection is {State: HubConnectionState.Connected };
 
     protected override async Task OnInitializedAsync()
     {
@@ -91,7 +88,7 @@
 
     void ToggleDrawer()
     {
-        _open = !_open;
+        _isDrawerOpen = !_isDrawerOpen;
     }
 
     private void OnLogin()

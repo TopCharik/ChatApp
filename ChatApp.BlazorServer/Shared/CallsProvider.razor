@@ -2,6 +2,8 @@
 @using ChatApp.BlazorServer.Components
 @inject IConfiguration Configuration
 @inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavigationManager
+@inject CallStateContainer CallStateContainer
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
 @implements IDisposable
@@ -10,11 +12,11 @@
 @code {
     [CascadingParameter(Name = "CallsHubConnection")]
     public HubConnection CallsHubConnection { get; set; }
+    private List<IDisposable> _hubSubscriptions = new();
 
     private string _username;
     private Snackbar snackbar;
     private bool _joined;
-    private List<IDisposable> _hubSubscriptions = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -32,14 +34,8 @@
                 snackbar = Snackbar.Add
                     (
                         @<div>
-                            <h3>Hi from a RenderFragment</h3>
+                            <h3>@callUsernamesDto.callInitiatorUsername is calling!!!</h3>
                             <ul>
-                                <MudButton 
-                                    Variant="Variant.Filled" Color="Color.Error"
-                                    OnClick="() => HangUp(callUsernamesDto)"
-                                    >
-                                    Decline
-                                </MudButton>
                                 <MudButton
                                     Variant="Variant.Filled" Color="Color.Success"
                                     OnClick="() => OpenCall(callUsernamesDto)">
@@ -50,12 +46,15 @@
                         Severity.Normal,
                         options =>
                         {
-                            options.ShowCloseIcon = false;
+                            options.ShowCloseIcon = true;
                             options.CloseAfterNavigation = true;
-                            options.VisibleStateDuration = 2000;
+                            options.VisibleStateDuration = 1000;
+                            options.HideTransitionDuration = 0;
+                            options.VisibleStateDuration = 10000;
                         }
                     );
                 
+                snackbar.OnClose += snackbar => HangUp(callUsernamesDto);
             }
         });
         
@@ -64,22 +63,13 @@
 
     private async Task OpenCall(CallUsernamesDto callUsernamesDto)
     {
-        var parameters = new DialogParameters
+        var AcceptedCall = new CallState
         {
-            {"CallsHubConnection", CallsHubConnection},
-            {"CallUsernames", callUsernamesDto},
-            {"IsReceiver", true},
+            CallUsernames = callUsernamesDto,
+            IsReceiver = true,
         };
-
-        var options = new DialogOptions
-        {
-            CloseButton = false,
-            CloseOnEscapeKey = false,
-            DisableBackdropClick = true,
-        };
-
-
-        var dialog = DialogService.ShowAsync<CallScreenDialog>("Call Screen Dialog", parameters, options);
+        CallStateContainer.CurrentCall = AcceptedCall;
+        NavigationManager.NavigateTo("/call");
     }
 
     

@@ -4,6 +4,7 @@
 @attribute [Authorize] 
 @inject IUsersApiProvider UsersApiProvider
 @inject IDialogService DialogService
+@inject CallStateContainer CallStateContainer
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager NavigationManager
 @implements IDisposable
@@ -215,8 +216,15 @@
         var result = await UsersApiProvider.StartCall(callUsernamesDto);
         if (result.IsSuccessStatusCode)
         {
+            var AcceptedCall = new CallState
+            {
+                CallUsernames = callUsernamesDto,
+                IsReceiver = false,
+            };
+            CallStateContainer.CurrentCall = AcceptedCall;
+            NavigationManager.NavigateTo("/call");
             
-            var parameters = new DialogParameters
+            /*var parameters = new DialogParameters
             {
                 {"CallsHubConnection", CallsHubConnection},
                 {"CallUsernames", callUsernamesDto},
@@ -231,7 +239,7 @@
             };
             
             await DialogService.ShowAsync<CallScreenDialog>("" , parameters, options);
-            await LoadUser(Username);
+            await LoadUser(Username);*/
         }
     }
 
