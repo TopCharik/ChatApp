@@ -206,15 +206,15 @@
         
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var _currentUser =  authState.User.Identity?.Name;
-        var callUsername = new CallUsernamesDto
+        var callUsernamesDto = new CallUsernamesDto
         {
             callInitiatorUsername = _currentUser,
             callReceiverUsername = _appUserDto.UserName,
         };
-        var result = await UsersApiProvider.StartCall(callUsername);
+        
+        var result = await UsersApiProvider.StartCall(callUsernamesDto);
         if (result.IsSuccessStatusCode)
         {
-            var callUsernamesDto = await result.Content.ReadFromJsonAsync<CallUsernamesDto>();
             
             var parameters = new DialogParameters
             {
@@ -230,7 +230,8 @@
                 DisableBackdropClick = true,
             };
             
-            await DialogService.ShowAsync<CallScreenDialog>("" , parameters, options); 
+            await DialogService.ShowAsync<CallScreenDialog>("" , parameters, options);
+            await LoadUser(Username);
         }
     }
 

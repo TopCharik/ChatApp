@@ -58,9 +58,11 @@
                 
             }
         });
+        
+        
     }
 
-    private void OpenCall(CallUsernamesDto callUsernamesDto)
+    private async Task OpenCall(CallUsernamesDto callUsernamesDto)
     {
         var parameters = new DialogParameters
         {
@@ -89,7 +91,6 @@
     public void Dispose()
     {
         _hubSubscriptions.ForEach(x => x.Dispose());
-        CallsHubConnection.StopAsync();
+        InvokeAsync(async () => await CallsHubConnection.StopAsync());
     }
-
 }

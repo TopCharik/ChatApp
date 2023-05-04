@@ -14,16 +14,18 @@ function subscribeToCalls() {
           getUserMedia({video: true, audio: false}, (mediaStream) => {
                mediaConnectionInstance.answer(mediaStream)
                ownMediaStream = mediaStream;
+               my_video.srcObject = mediaStream;
+               my_video.play();
 
                mediaConnectionInstance.on('stream', function (remoteStream) {
                     remote_video.srcObject = remoteStream
                     remote_video.play();
-                    my_video.srcObject = mediaStream;
-                    my_video.play();
                });
           });
      });
-     
+}
+
+function getPeerJsId(){
      return peerInstance.id;
 }
 

@@ -50,4 +50,13 @@ public class CallsHub : Hub
             await Clients.Clients(connectionIds).SendAsync("CallEnded");
         }
     }
+
+    public async Task AcceptCall(CallUsernamesDto callUsernamesDto, string peerJsId)
+    {
+        var callInitiator = await _userService.GetUserByUsernameAsync(callUsernamesDto.callInitiatorUsername);
+        if (callInitiator.Succeeded)
+        {
+            await Clients.All.SendAsync("CallAccepted", peerJsId);
+        }
+    }
 }

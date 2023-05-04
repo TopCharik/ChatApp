@@ -275,7 +275,7 @@ public class UsersController : ControllerBase
 
     [HttpPost]
     [Route("call/")]
-    public async Task<ActionResult<CallUsernamesDto>> CallUser(CallUsernamesDto callUsernamesDto)
+    public async Task<ActionResult> CallUser(CallUsernamesDto callUsernamesDto)
     {
         var callParticipants = await _userService.SetInCall(callUsernamesDto, true);
         if (!callParticipants.Succeeded)
@@ -290,6 +290,6 @@ public class UsersController : ControllerBase
             .Client(callParticipants.Value.CallReceiver.CallHubConnectionId)
             .SendAsync("IncomingCall", callUsernamesDto);
 
-        return Ok(callParticipants.Value);
+        return Ok();
     }
 }

@@ -41,7 +41,8 @@
 
     private async Task SubscribeToCall()
     {
-        SubscriberPeerId = await JsRuntime.InvokeAsync<string>("subscribeToCalls");
+        await JsRuntime.InvokeVoidAsync("subscribeToCalls");
+        SubscriberPeerId = await JsRuntime.InvokeAsync<string>("getPeerJsId");
     }
 
     private async Task ConnectToPeer()
