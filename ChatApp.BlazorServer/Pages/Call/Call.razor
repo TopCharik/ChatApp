@@ -10,10 +10,7 @@
 <h3>Call</h3>
 @if (CallStateContainer.CurrentCall != null && CallStateContainer.IsInCall)
 {
-    @if (_isAccepted)
-    {
         <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="HangUp">HangUp</MudButton>
-    }
     <MudGrid>
         <MudItem>
             <MudText >

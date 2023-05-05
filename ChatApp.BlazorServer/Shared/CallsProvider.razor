@@ -23,6 +23,8 @@
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         _username = authState.User.Identity.Name;
         
+        _hubSubscriptions.Add(SubscribeToCallEnded());
+        
         await CallsHubConnection.InvokeAsync("Join", _username);
         CallsHubConnection.On("IncomingCall", (CallUsernamesDto callUsernamesDto) =>
         {
@@ -54,8 +56,6 @@
                 snackbar.OnClose += snackbar => HangUp(callUsernamesDto);
             }
         });
-        
-        
     }
 
     private async Task OpenCall(CallUsernamesDto callUsernamesDto)
@@ -68,6 +68,16 @@
         };
         CallStateContainer.CurrentCall = AcceptedCall;
         NavigationManager.NavigateTo("/call");
+    }
+    
+    private IDisposable SubscribeToCallEnded()
+    {
+        return CallsHubConnection.On("CallEnded", async () =>
+        {
+            var uri = NavigationManager.Uri; 
+            NavigationManager.NavigateTo($"{uri}#declined");
+            NavigationManager.NavigateTo(uri);
+        });
     }
 
     
