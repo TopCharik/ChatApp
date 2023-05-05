@@ -213,6 +213,7 @@ public class UsersController : ControllerBase
         user.FirstName = editUserDto.FirstName;
         user.LastName = editUserDto.LastName;
         user.Email = editUserDto.Email;
+        user.Birthday = editUserDto.Birthday;
         user.PhoneNumber = editUserDto.PhoneNumber;
 
         var result = await _userManager.UpdateAsync(user);

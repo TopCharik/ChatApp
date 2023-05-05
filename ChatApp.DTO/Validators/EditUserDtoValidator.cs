@@ -18,6 +18,10 @@ public class EditUserDtoValidator : AbstractValidator<EditUserDto>
         RuleFor(x => x.Email)
             .NotEmpty()
             .EmailAddress();
+        RuleFor(x => x.Birthday)
+            .Must(x => x.Value < DateTime.Now).WithMessage("Birthday can't be in the future")
+            .Must(x => x.Value > DateTime.Now.AddYears(-120)).WithMessage("Age can't be more than 120 years")
+            .When(x => x.Birthday != null);
         RuleFor(x => x.PhoneNumber)
             .Matches(new Regex(@"((\(\d{3}\) ?)|(\d{3}-))?\d{3}-\d{4}"))
             .WithMessage("PhoneNumber not valid. Valid phone example: +38-050-193-5524")

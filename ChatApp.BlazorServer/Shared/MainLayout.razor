@@ -81,6 +81,23 @@
 
     protected override async Task OnInitializedAsync()
     {
+        await SetUpHubs();
+        AuthenticationStateProvider.AuthenticationStateChanged += async state =>
+        {
+            var authState = await state;
+            if (authState.User.Identity is {IsAuthenticated: true })
+            {
+                await SetUpHubs();
+            }
+            else
+            {
+                CloseHubs();
+            }
+        };
+    }
+
+    private async Task SetUpHubs()
+    {
         var apiUrl = Configuration["ApiUrl"];
         _chatHubConnection = new HubConnectionBuilder().WithUrl($"{apiUrl}/hub/conversations").Build();
         await _chatHubConnection.StartAsync();
@@ -88,9 +105,19 @@
         await _usersHubConnection.StartAsync();
         _callsHubConnection = new HubConnectionBuilder().WithUrl($"{apiUrl}/hub/calls").Build();
         await _callsHubConnection.StartAsync();
-    }
-
-    void ToggleDrawer()
+    } 
+    
+    private async Task CloseHubs()
+    {
+        if (_chatHubConnection != null) await _chatHubConnection.DisposeAsync();
+        _chatHubConnection = null;
+        if (_usersHubConnection != null) await _usersHubConnection.DisposeAsync();
+        _usersHubConnection = null;
+        if (_callsHubConnection != null) await _callsHubConnection.DisposeAsync();
+        _callsHubConnection = null;
+    } 
+        
+    private void ToggleDrawer()
     {
         _isDrawerOpen = !_isDrawerOpen;
     }

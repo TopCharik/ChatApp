@@ -5,7 +5,7 @@
 @using FluentValidation
 @inject IValidator<RegisterAppUserDto> RegisterValidator
 @inject IAuthenticationApiProvider AuthenticationApiProvider
-@inject IJwtProvider JwtProvider
+@inject IJwtStorage JwtStorage
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager NavigationManager
 
@@ -37,6 +37,10 @@
                               For="@(() => _registerAppUserModel.Email)"
                               Immediate="true"
                               Label="Email"/>
+                <MudDatePicker MinDate="DateTime.Now.AddYears(-200)"
+                               @bind-Date="_registerAppUserModel.Birthday"
+                               For="@(() => _registerAppUserModel.Birthday)"
+                               Label="Birthday" />
                 <MudTextField @bind-Value="_registerAppUserModel.PhoneNumber"
                               For="@(() => _registerAppUserModel.PhoneNumber)"
                               Immediate="true"
@@ -104,7 +108,8 @@
         if (response.IsSuccessStatusCode)
         {
             var token = await response.Content.ReadAsStringAsync();
-            await JwtProvider.SetTokenAsync(token);
+            await JwtStorage.SaveJwtTokenAsync(token);
+            await AuthenticationStateProvider.GetAuthenticationStateAsync();
             await AuthenticationStateProvider.GetAuthenticationStateAsync();
             NavigationManager.NavigateTo("/");
         }

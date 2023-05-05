@@ -23,8 +23,6 @@ public class JwtAuthenticationStateProvider : AuthenticationStateProvider
             ? new ClaimsIdentity()
             : new ClaimsIdentity(_jwtHelper.ParseClaimsFromJwt(token), "jwt"); 
             
-            
-
         
         var user = new ClaimsPrincipal(identity);
         var state = new AuthenticationState(user);

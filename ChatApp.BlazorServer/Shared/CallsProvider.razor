@@ -21,7 +21,6 @@
     protected override async Task OnInitializedAsync()
     {
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-
         _username = authState.User.Identity.Name;
         
         await CallsHubConnection.InvokeAsync("Join", _username);

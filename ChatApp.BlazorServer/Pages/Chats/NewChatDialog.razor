@@ -25,7 +25,8 @@
                               Immediate="true"
                               Label="Title"/>
                 <MudSwitch Label="Is private chat" Class="mt-3"
-                           @bind-Checked="_newChatDto.IsPrivate" For="@(() => _newChatDto.IsPrivate)"/>
+                           @bind-Checked="_newChatDto.IsPrivate"
+                           For="@(() => _newChatDto.IsPrivate)"/>
                 @if (_apiError != null)
                 {
                     @foreach (var errorMessage in _apiError.Errors)

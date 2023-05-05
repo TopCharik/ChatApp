@@ -29,6 +29,10 @@ public class RegisterUserValidator : AbstractValidator<RegisterAppUserDto>
             .Matches(@"[a-z]+").WithMessage("Your password must contain at least one lowercase letter.")
             .Matches(@"[0-9]+").WithMessage("Your password must contain at least one number.")
             .Matches(@"[\!\?\*\.]+").WithMessage("Your password must contain at least one (!? *.).");
+        RuleFor(x => x.Birthday)
+            .Must(x => x.Value < DateTime.Now).WithMessage("Birthday can't be in the future")
+            .Must(x => x.Value > DateTime.Now.AddYears(-120)).WithMessage("Age can't be more than 120 years")
+            .When(x => x.Birthday != null);
         RuleFor(x => x.PhoneNumber)
             .Matches(new Regex(@"((\(\d{3}\) ?)|(\d{3}-))?\d{3}-\d{4}"))
                 .When(x => !string.IsNullOrWhiteSpace(x.PhoneNumber))

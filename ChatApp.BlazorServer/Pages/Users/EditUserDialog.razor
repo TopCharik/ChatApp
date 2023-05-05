@@ -1,6 +1,5 @@
 @using AutoMapper
 @using ChatApp.BlazorServer.Helpers
-@using ChatApp.DTO.Validators
 @using FluentValidation
 @inject IMapper Mapper
 @inject IUsersApiProvider UsersApiProvider 
@@ -31,6 +30,10 @@
                               For="@(() => _editUserDto.Email)"
                               Immediate="true"
                               Label="New Email"/>
+                <MudDatePicker MinDate="DateTime.Now.AddYears(-200)"
+                               @bind-Date="_editUserDto.Birthday"  
+                               For="@(() => _editUserDto.Birthday)" 
+                               Label="Birthday" />
                 <MudTextField @bind-Value="_editUserDto.PhoneNumber"
                               For="@(() => _editUserDto.PhoneNumber)"
                               Immediate="true"

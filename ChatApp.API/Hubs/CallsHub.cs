@@ -54,9 +54,13 @@ public class CallsHub : Hub
     public async Task AcceptCall(CallUsernamesDto callUsernamesDto, string peerJsId)
     {
         var callInitiator = await _userService.GetUserByUsernameAsync(callUsernamesDto.callInitiatorUsername);
-        if (callInitiator.Succeeded)
+        if (callInitiator is {Succeeded: true, Value: {InCall: true, CallHubConnectionId: not null}})
         {
-            await Clients.All.SendAsync("CallAccepted", peerJsId);
+            await Clients.Client(callInitiator.Value.CallHubConnectionId).SendAsync("CallAccepted", peerJsId);
+        }
+        else
+        {
+            HangUp(callUsernamesDto);
         }
     }
 }
