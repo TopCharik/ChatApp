@@ -11,6 +11,12 @@
         Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Chat">
         Create new chat
     </MudButton>
+    <MudButton
+        OnClick="@((e) => _table.ReloadServerData())"
+        Class="mt-5"
+        Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Update">
+        Update Table
+    </MudButton>
     <MudTable ServerData="@(new Func<TableState, Task<TableData<ChatInfoDto>>>(ServerReload))"
               OnRowClick="RowClickEvent"
               Class="mt-5"

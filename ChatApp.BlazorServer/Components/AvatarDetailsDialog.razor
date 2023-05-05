@@ -46,13 +46,6 @@
         }
         @if (CanEdit)
         {
-            @if (_avatars is {Count: > 0 })
-            {
-                <MudButton Variant="Variant.Filled" Color="Color.Error" Style="width: 100%">
-                    Remove this avatar
-                </MudButton>
-            }
-
             <MudForm Model="@_model" @ref="@_form">
                 @if (_newAvatarDto.ImagePayload != null)
                 {

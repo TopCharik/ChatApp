@@ -32,7 +32,7 @@ public class MappingProfiles : Profile
                 opt => opt.MapFrom(
                     x => x.Birthday == null || x.Birthday > DateTime.Now 
                         ? null
-                        : new DateTime((DateTime.Now - x.Birthday).Value.Ticks).Year.ToString())
+                        : new DateTime((DateTime.Now - x.Birthday).Value.Ticks).Year.ToString() + " y.o.")
                 )
             .ForMember(
                 dest => dest.isOnline,

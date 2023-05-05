@@ -47,7 +47,7 @@ public class CallsHub : Hub
                 result.Value.CallInitiator.CallHubConnectionId,
             };
 
-            await Clients.Clients(connectionIds).SendAsync("CallEnded");
+            await Clients.All.SendAsync("CallEnded");
         }
     }
 
@@ -56,11 +56,11 @@ public class CallsHub : Hub
         var callInitiator = await _userService.GetUserByUsernameAsync(callUsernamesDto.callInitiatorUsername);
         if (callInitiator is {Succeeded: true, Value: {InCall: true, CallHubConnectionId: not null}})
         {
-            await Clients.Client(callInitiator.Value.CallHubConnectionId).SendAsync("CallAccepted", peerJsId);
+            await Clients.All.SendAsync("CallAccepted", peerJsId);
         }
         else
         {
-            HangUp(callUsernamesDto);
+            await HangUp(callUsernamesDto);
         }
     }
 }

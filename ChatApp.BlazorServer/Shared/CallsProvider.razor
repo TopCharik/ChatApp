@@ -24,7 +24,6 @@
         _username = authState.User.Identity.Name;
         
         await CallsHubConnection.InvokeAsync("Join", _username);
-        
         CallsHubConnection.On("IncomingCall", (CallUsernamesDto callUsernamesDto) =>
         {
             if (callUsernamesDto.callInitiatorUsername != _username)

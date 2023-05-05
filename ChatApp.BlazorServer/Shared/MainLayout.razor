@@ -5,6 +5,7 @@
 @inject IConfiguration Configuration
 @implements IDisposable
 @inject AuthenticationStateProvider AuthenticationStateProvider
+@inject CallStateContainer CallStateContainer
 
 <PageTitle>ChatApp.BlazorServer</PageTitle>
 
@@ -18,7 +19,12 @@
                 <Authorized>
                     <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@ToggleDrawer"/>
                     <MudSpacer/>
-                    <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="OnLogOut">Logout</MudButton>
+                    @if (!_isInCall)
+                    {
+                        <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="OnLogOut">
+                            Logout
+                        </MudButton>
+                    }
                 </Authorized>
                 <NotAuthorized>
                     <MudButton Variant="Variant.Text" Style="color: #fff" Class="me-3" Href="/">
@@ -78,25 +84,34 @@
     private HubConnection? _chatHubConnection;
     private HubConnection? _usersHubConnection;
     private HubConnection? _callsHubConnection;
+    private string? _currentUsername;
+    private bool _isInCall;
 
     protected override async Task OnInitializedAsync()
     {
-        await SetUpHubs();
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        if (authState.User.Identity.IsAuthenticated)
+        {
+            _currentUsername = authState.User.Identity.Name;
+            await SetUpHubs(_currentUsername);
+        }
         AuthenticationStateProvider.AuthenticationStateChanged += async state =>
         {
             var authState = await state;
-            if (authState.User.Identity is {IsAuthenticated: true })
+            if (authState.User.Identity is {IsAuthenticated: true } && authState.User.Identity.Name != _currentUsername)
             {
-                await SetUpHubs();
+                await SetUpHubs(authState.User.Identity.Name);
             }
-            else
-            {
-                CloseHubs();
-            }
+        };
+
+        CallStateContainer.OnStateChange += () =>
+        {
+            _isInCall = CallStateContainer.IsInCall;
+            StateHasChanged();
         };
     }
 
-    private async Task SetUpHubs()
+    private async Task SetUpHubs(string username)
     {
         var apiUrl = Configuration["ApiUrl"];
         _chatHubConnection = new HubConnectionBuilder().WithUrl($"{apiUrl}/hub/conversations").Build();
@@ -105,17 +120,7 @@
         await _usersHubConnection.StartAsync();
         _callsHubConnection = new HubConnectionBuilder().WithUrl($"{apiUrl}/hub/calls").Build();
         await _callsHubConnection.StartAsync();
-    } 
-    
-    private async Task CloseHubs()
-    {
-        if (_chatHubConnection != null) await _chatHubConnection.DisposeAsync();
-        _chatHubConnection = null;
-        if (_usersHubConnection != null) await _usersHubConnection.DisposeAsync();
-        _usersHubConnection = null;
-        if (_callsHubConnection != null) await _callsHubConnection.DisposeAsync();
-        _callsHubConnection = null;
-    } 
+    }
         
     private void ToggleDrawer()
     {
@@ -141,6 +146,7 @@
     {
         _chatHubConnection?.DisposeAsync();
         _usersHubConnection?.DisposeAsync();
+        CallStateContainer.OnStateChange -= StateHasChanged;
     }
 
 }

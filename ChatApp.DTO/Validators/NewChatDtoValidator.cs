@@ -13,6 +13,7 @@ public class NewChatDtoValidator : AbstractValidator<NewChatDto>
         RuleFor(x => x.ChatLink)
             .NotEmpty()
             .MinimumLength(2)
-            .MaximumLength(128);
+            .MaximumLength(128)
+            .Matches("^[A-Za-z0-9_.!+=-]*$").WithMessage("Chat link is not valid");
     }
 }
