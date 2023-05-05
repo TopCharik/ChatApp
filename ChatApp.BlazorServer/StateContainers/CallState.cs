@@ -6,4 +6,5 @@ public class CallState
 {
     public CallUsernamesDto CallUsernames { get; set; }
     public bool IsReceiver { get; set; }
+    public string ReturnUrl { get; set; } = "/";
 }

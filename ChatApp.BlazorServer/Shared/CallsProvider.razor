@@ -64,6 +64,7 @@
         {
             CallUsernames = callUsernamesDto,
             IsReceiver = true,
+            ReturnUrl = NavigationManager.Uri,
         };
         CallStateContainer.CurrentCall = AcceptedCall;
         NavigationManager.NavigateTo("/call");

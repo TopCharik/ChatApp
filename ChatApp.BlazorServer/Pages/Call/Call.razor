@@ -84,7 +84,7 @@
     {
         return CallsHubConnection.On("CallEnded", async () =>
         {
-            NavigationManager.NavigateTo("/");
+            NavigationManager.NavigateTo(CallStateContainer.CurrentCall?.ReturnUrl ?? "/");
         });
     }
 
