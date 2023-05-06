@@ -58,7 +58,9 @@
             <MudContainer MaxWidth="MaxWidth.Large">
                 <AuthorizeView>
                     <Authorized>
-                        @if (_chatHubConnection is not null && _usersHubConnection is not null && _callsHubConnection is not null)
+                        @if (_chatHubConnection?.State == HubConnectionState.Connected
+                             && _usersHubConnection?.State == HubConnectionState.Connected
+                             && _callsHubConnection?.State == HubConnectionState.Connected)
                         {
                             <CascadingValue Name="ChatHubConnection" Value="@_chatHubConnection">
                                 <CascadingValue Name="UsersHubConnection" Value="@_usersHubConnection">
@@ -94,6 +96,7 @@
         {
             _currentUsername = authState.User.Identity.Name;
             await SetUpHubs(_currentUsername);
+            StateHasChanged();
         }
         AuthenticationStateProvider.AuthenticationStateChanged += async state =>
         {
@@ -120,6 +123,7 @@
         await _usersHubConnection.StartAsync();
         _callsHubConnection = new HubConnectionBuilder().WithUrl($"{apiUrl}/hub/calls").Build();
         await _callsHubConnection.StartAsync();
+        StateHasChanged();
     }
         
     private void ToggleDrawer()

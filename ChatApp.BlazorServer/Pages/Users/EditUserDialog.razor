@@ -14,7 +14,8 @@
             </h2>
         </MudCardHeader>
         <MudCardContent>
-            <MudForm Model="@_editUserDto" @ref="@_form" Validation="@(_editUserValidator.ValidateValue)" ValidationDelay="0">
+            <MudForm Model="@_editUserDto" @ref="@_form"
+                     Validation="@(_editUserValidator.ValidateValue)" ValidationDelay="0">
                 <MudTextField Label="Old username" Class="mt-3"
                               @bind-Value="AppUserDto.UserName"
                               ReadOnly="true"/>
@@ -33,7 +34,7 @@
                 <MudDatePicker MinDate="DateTime.Now.AddYears(-200)"
                                @bind-Date="_editUserDto.Birthday"  
                                For="@(() => _editUserDto.Birthday)" 
-                               Label="New Birthday" />
+                               Label="Birthday" />
                 <MudTextField @bind-Value="_editUserDto.PhoneNumber"
                               For="@(() => _editUserDto.PhoneNumber)"
                               Immediate="true"

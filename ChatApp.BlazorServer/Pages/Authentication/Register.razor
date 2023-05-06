@@ -38,9 +38,9 @@
                               Immediate="true"
                               Label="Email"/>
                 <MudDatePicker MinDate="DateTime.Now.AddYears(-200)"
-                               @bind-Date="_registerAppUserModel.Birthday"
-                               For="@(() => _registerAppUserModel.Birthday)"
-                               Label="Birthday" />
+                               @bind-Date="_registerAppUserModel.Birthday"  
+                               For="@(() => _registerAppUserModel.Birthday)" 
+                               Label="New Birthday" />
                 <MudTextField @bind-Value="_registerAppUserModel.PhoneNumber"
                               For="@(() => _registerAppUserModel.PhoneNumber)"
                               Immediate="true"
@@ -111,7 +111,7 @@
             await JwtStorage.SaveJwtTokenAsync(token);
             await AuthenticationStateProvider.GetAuthenticationStateAsync();
             await AuthenticationStateProvider.GetAuthenticationStateAsync();
-            NavigationManager.NavigateTo("/");
+            NavigationManager.NavigateTo("/", true);
         }
         if (!response.IsSuccessStatusCode)
         {

@@ -18,15 +18,44 @@
     private Snackbar snackbar;
     private bool _joined;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        _username = authState.User.Identity.Name;
+        if (firstRender)
+        {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            _username = authState.User.Identity.Name;
         
-        _hubSubscriptions.Add(SubscribeToCallEnded());
-        
-        await CallsHubConnection.InvokeAsync("Join", _username);
-        CallsHubConnection.On("IncomingCall", (CallUsernamesDto callUsernamesDto) =>
+            await CallsHubConnection.InvokeAsync("Join", _username);
+            _hubSubscriptions.Add(SubscribeToIncomingCall());
+            _hubSubscriptions.Add(SubscribeToCallEnded());   
+        }
+    }
+    
+    private async Task OpenCall(CallUsernamesDto callUsernamesDto)
+    {
+        var AcceptedCall = new CallState
+        {
+            CallUsernames = callUsernamesDto,
+            IsReceiver = true,
+            ReturnUrl = NavigationManager.Uri,
+        };
+        CallStateContainer.CurrentCall = AcceptedCall;
+        NavigationManager.NavigateTo("/call");
+    }
+    
+    private IDisposable SubscribeToCallEnded()
+    {
+        return CallsHubConnection.On("CallEnded", async () =>
+        {
+            var uri = NavigationManager.Uri; 
+            NavigationManager.NavigateTo($"{uri}#declined");
+            NavigationManager.NavigateTo(uri);
+        });
+    }
+
+    private IDisposable SubscribeToIncomingCall()
+    {
+        return CallsHubConnection.On("IncomingCall", (CallUsernamesDto callUsernamesDto) =>
         {
             if (callUsernamesDto.callInitiatorUsername != _username)
             {
@@ -55,28 +84,6 @@
                 
                 snackbar.OnClose += snackbar => HangUp(callUsernamesDto);
             }
-        });
-    }
-
-    private async Task OpenCall(CallUsernamesDto callUsernamesDto)
-    {
-        var AcceptedCall = new CallState
-        {
-            CallUsernames = callUsernamesDto,
-            IsReceiver = true,
-            ReturnUrl = NavigationManager.Uri,
-        };
-        CallStateContainer.CurrentCall = AcceptedCall;
-        NavigationManager.NavigateTo("/call");
-    }
-    
-    private IDisposable SubscribeToCallEnded()
-    {
-        return CallsHubConnection.On("CallEnded", async () =>
-        {
-            var uri = NavigationManager.Uri; 
-            NavigationManager.NavigateTo($"{uri}#declined");
-            NavigationManager.NavigateTo(uri);
         });
     }
 
