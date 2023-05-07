@@ -1,9 +1,11 @@
 using ChatApp.BLL;
 using ChatApp.DTO;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 
 namespace ChatApp.API.Hubs;
 
+[Authorize]
 public class CallsHub : Hub
 {
     private readonly IUserService _userService;

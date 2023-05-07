@@ -82,7 +82,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 app.MapHub<ConversationsHub>("/hub/conversations");
-app.MapHub<CallsHub>("/hub/calls");
-app.MapHub<UsersHub>("/hub/users");
+app.MapHub<CallsHub>("/hub/calls").RequireAuthorization();
+app.MapHub<UsersHub>("/hub/users").RequireAuthorization();
 
 app.Run();

@@ -1,4 +1,7 @@
 ﻿@using Microsoft.AspNetCore.SignalR.Client
+@using Microsoft.AspNetCore.Diagnostics.HealthChecks
+@using Microsoft.AspNetCore.Http.Connections.Client
+@using Microsoft.AspNetCore.SignalR
 @inherits LayoutComponentBase
 @inject NavigationManager NavigationManager
 @inject IJwtProvider JwtProvider
@@ -95,15 +98,14 @@
         if (authState.User.Identity.IsAuthenticated)
         {
             _currentUsername = authState.User.Identity.Name;
-            await SetUpHubs(_currentUsername);
+            await SetUpHubs();
             StateHasChanged();
         }
-        AuthenticationStateProvider.AuthenticationStateChanged += async state =>
+        AuthenticationStateProvider.AuthenticationStateChanged += async _ =>
         {
-            var authState = await state;
             if (authState.User.Identity is {IsAuthenticated: true } && authState.User.Identity.Name != _currentUsername)
             {
-                await SetUpHubs(authState.User.Identity.Name);
+                await SetUpHubs();
             }
         };
 
@@ -114,14 +116,23 @@
         };
     }
 
-    private async Task SetUpHubs(string username)
+    private async Task SetUpHubs()
     {
         var apiUrl = Configuration["ApiUrl"];
-        _chatHubConnection = new HubConnectionBuilder().WithUrl($"{apiUrl}/hub/conversations").Build();
+        _chatHubConnection = new HubConnectionBuilder().WithUrl($"{apiUrl}/hub/conversations", connectionOptions =>
+        {
+            connectionOptions.AccessTokenProvider = async () => await JwtProvider.GetTokenAsync();
+        }).Build();
         await _chatHubConnection.StartAsync();
-        _usersHubConnection = new HubConnectionBuilder().WithUrl($"{apiUrl}/hub/users").Build();
+        _usersHubConnection = new HubConnectionBuilder().WithUrl($"{apiUrl}/hub/users", connectionOptions =>
+        {
+            connectionOptions.AccessTokenProvider = async () => await JwtProvider.GetTokenAsync();
+        }).Build();
         await _usersHubConnection.StartAsync();
-        _callsHubConnection = new HubConnectionBuilder().WithUrl($"{apiUrl}/hub/calls").Build();
+        _callsHubConnection = new HubConnectionBuilder().WithUrl($"{apiUrl}/hub/calls", connectionOptions =>
+        {
+            connectionOptions.AccessTokenProvider = async () => await JwtProvider.GetTokenAsync();
+        }).Build();
         await _callsHubConnection.StartAsync();
         StateHasChanged();
     }
