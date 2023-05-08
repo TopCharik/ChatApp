@@ -9,7 +9,7 @@ public class MessageRepository : BaseRepository<Message>, IMessageRepository
 {
     public MessageRepository(AppDbContext context) : base(context) { }
 
-    public async Task<List<Message>> GetMessages(int conversationId, MessageParameters messageParameters)
+    public async Task<List<Message>> GetMessagesAsync(int conversationId, MessageParameters messageParameters)
     {
         var messages = GetAll()
             .Include(x => x.Participation)

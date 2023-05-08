@@ -44,7 +44,7 @@ public class MessageService : IMessageService
         
         var messageRepo = _unitOfWork.GetRepository<IMessageRepository>();
 
-        var messages = await messageRepo.GetMessages(conversationId, messageParameters);
+        var messages = await messageRepo.GetMessagesAsync(conversationId, messageParameters);
 
         return new ServiceResult<List<Message>>(messages);
     }

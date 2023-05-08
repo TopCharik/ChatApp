@@ -17,7 +17,7 @@ public class UserRepositoryTests
     {
         if (_firstSetUp)
         {
-            var context = await FakeData.SetUpAppDbContextAsync(); 
+            var context = await FakeData.GetDefaultAppDbContext(); 
             _repository = new UserRepository(context);   
         }
 
@@ -606,8 +606,7 @@ public class UserRepositoryTests
 
         Assert.IsNull(result);
     }
-    
-    
+
     private async Task VerifyUserListAsync(List<AppUser> expectedUsers, AppUserParameters parameters)
     {
         var expectedResult = PagedList<AppUser>.ToPagedList(expectedUsers, parameters.Page, parameters.PageSize);
@@ -615,7 +614,7 @@ public class UserRepositoryTests
         var result = await _repository.GetUsersAsync(parameters);
 
         Assert.AreEqual(expectedResult.TotalCount, result.TotalCount);
-        Assert.AreEqual(expectedResult.Count, result.TotalCount);
+        Assert.AreEqual(expectedResult.Count, result.Count);
         Assert.True(expectedResult.All(expectedUser => result.FirstOrDefault(x => x.Id == expectedUser.Id) != null));
     }
 }

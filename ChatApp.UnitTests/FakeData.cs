@@ -1,5 +1,7 @@
 using ChatApp.Core.Entities;
 using ChatApp.Core.Entities.AppUserAggregate;
+using ChatApp.Core.Entities.ChatInfoAggregate;
+using ChatApp.Core.Entities.MessageArggregate;
 using ChatApp.DAL.App.AppContext;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,19 +9,44 @@ namespace ChatApp.UnitTests;
 
 public class FakeData
 {
-
     public static List<AppUser> FakeUsers => _fakeUsers;
     public static List<Avatar> FakeAvatars => _fakeAvatars;
+    public static List<Conversation> FakeConversations => _fakeConversations;
+    public static List<ChatInfo> FakeChatInfos => _fakeChatInfos;
+    public static List<Participation> FakeParticipations => _fakeParticipations;
+    public static List<Message> FakeMessages => _fakeMessages;
+    public static async Task<AppDbContext> GetDefaultAppDbContext()
+    {
+        if (_defaultAppDbContext == null)
+        {
+            _defaultAppDbContext = await SetUpAppDbContextAsync();
+        }
+
+        return _defaultAppDbContext;
+    }
     
-    public static async Task<AppDbContext> SetUpAppDbContextAsync(List<AppUser>? users = null, List<Avatar>? avatars = null)
+    private static AppDbContext? _defaultAppDbContext;
+
+    public static async Task<AppDbContext> SetUpAppDbContextAsync(
+        List<AppUser>? users = null,
+        List<Avatar>? avatars = null,
+        List<Conversation>? conversations = null,
+        List<ChatInfo>? chatInfos = null,
+        List<Participation>? participations = null,
+        List<Message>? messages = null
+        )
     {
         var options = new DbContextOptionsBuilder<AppDbContext>()
             .UseInMemoryDatabase(databaseName: new Guid().ToString())
             .Options;
         var context = new AppDbContext(options);
             
-        await context.AddRangeAsync(FakeUsers);
-        await context.AddRangeAsync(FakeAvatars);
+        await context.AddRangeAsync(users ?? FakeUsers);
+        await context.AddRangeAsync(avatars ?? FakeAvatars);
+        await context.AddRangeAsync(conversations ?? FakeConversations);
+        await context.AddRangeAsync(chatInfos ?? FakeChatInfos);
+        await context.AddRangeAsync(participations ?? FakeParticipations);
+        await context.AddRangeAsync(messages ?? FakeMessages);
         await context.SaveChangesAsync();
         return context;
     }
@@ -252,7 +279,7 @@ public class FakeData
     {
         new()
         {
-            UserId = "71487432-92E3-49F9-8ECB-31FFD92FD581",
+            UserId = "436E26E8-45B8-4971-A81B-663A40A93893",
             DateSet = DateTime.Now,
             ImagePayload = "qwerty",
         },
@@ -261,6 +288,146 @@ public class FakeData
             UserId = "2D829992-8FB0-4800-98A2-0E4E429C6708",
             DateSet = DateTime.Now,
             ImagePayload = "qwerty",
+        },
+    };
+
+    private static List<Conversation> _fakeConversations = new()
+    {
+        new()
+        {
+            Id = 1,
+            ChatInfoId = 1,  
+        },
+        new()
+        {
+            Id = 2,
+            ChatInfoId = 2,  
+        },
+        new()
+        {
+            Id = 3,
+            ChatInfoId = 3,  
+        },
+        new()
+        {
+            Id = 1234565,
+            ChatInfoId = 4,  
+        },
+    };
+    
+    private static List<ChatInfo> _fakeChatInfos = new()
+    {
+        new()
+        {
+            Id = 1,
+            Title = "First Chat",
+            ChatLink = "First_Chat",
+            IsPrivate = false,
+        },
+        new()
+        {
+            Id = 2,
+            Title = "Second Chat",
+            ChatLink = "Second_Chat",
+            IsPrivate = false,
+        },
+        new()
+        {
+            Id = 3,
+            Title = "Third Chat",
+            ChatLink = "Third_Chat",
+            IsPrivate = true,
+        },
+        new()
+        {
+            Id = 4,
+            Title = "Fourth Chat",
+            ChatLink = "Fourth_Chat",
+            IsPrivate = true,
+        },
+        new()
+        {
+            Id = 5,
+            Title = "Fifth Chat",
+            ChatLink = "Fifth_Chat",
+            IsPrivate = false,
+        },
+    };
+
+    private static List<Participation> _fakeParticipations = new()
+    {
+        new()
+        {
+            Id = 1,
+            AspNetUserId = "661ABAAB-DA8F-46B9-B796-52A258C591BF",
+            ConversationId = 1234565,
+            CanWriteMessages = true,
+            CanMuteParticipants = false,
+            CanDeleteMessages = false,
+            CanAddParticipants = false,
+            CanDeleteParticipants = false,
+            CanChangePublicity = false,
+            CanChangeChatAvatar = false,
+            CanChangeChatTitle = false,
+            CanSetPermissions = false,
+            CanDeleteConversation = false,
+        },
+        new()
+        {
+            Id = 2,
+            AspNetUserId = "2D829992-8FB0-4800-98A2-0E4E429C6708",
+            ConversationId = 1234565,
+            CanWriteMessages = true,
+            CanMuteParticipants = true,
+            CanDeleteMessages = true,
+            CanAddParticipants = true,
+            CanDeleteParticipants = true,
+            CanChangePublicity = true,
+            CanChangeChatAvatar = true,
+            CanChangeChatTitle = true,
+            CanSetPermissions = true,
+            CanDeleteConversation = true,
+        },
+        new()
+        {
+            Id = 3,
+            AspNetUserId = "2D829992-8FB0-4800-98A2-0E4E429C6708",
+            ConversationId = 1234565,
+            CanWriteMessages = true,
+            CanMuteParticipants = false,
+            CanDeleteMessages = false,
+            CanAddParticipants = false,
+            CanDeleteParticipants = false,
+            CanChangePublicity = false,
+            CanChangeChatAvatar = false,
+            CanChangeChatTitle = false,
+            CanSetPermissions = false,
+            CanDeleteConversation = false,
+        },
+    };
+
+    private static List<Message> _fakeMessages = new()
+    {
+        new()
+        {
+            Id = 12648,
+            ParticipationId = 2, 
+            MessageText = "First message",
+            DateSent = new DateTime(638191744920000000),
+        },
+        new()
+        {
+            Id = 85678,
+            ParticipationId = 2,
+            MessageText = "Second message",
+            DateSent = new DateTime(638191746120000000),
+        },
+        new()
+        {
+            Id = 1234565,
+            ParticipationId = 3,
+            MessageText = "Third message",
+            DateSent = new DateTime(638191746200000000),
         },
     };
 }

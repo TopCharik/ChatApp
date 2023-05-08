@@ -6,5 +6,5 @@ namespace ChatApp.DAL.App.Repositories;
 
 public interface IMessageRepository : IBaseRepository<Message>
 {
-    Task<List<Message>> GetMessages(int conversationId, MessageParameters messageParameters);
+    Task<List<Message>> GetMessagesAsync(int conversationId, MessageParameters messageParameters);
 }
