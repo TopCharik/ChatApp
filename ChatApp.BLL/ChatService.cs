@@ -158,4 +158,39 @@ public class ChatService : IChatService
         
         return new ServiceResult<Conversation>(chatWithUserParticipation);
     }
+    
+    public async Task<ServiceResult<Conversation>> AddAvatar(Avatar avatar, string chatLink, string uploaderId)
+    {
+        var participationRepo = _unitOfWork.GetRepository<IConversationsRepository>();
+        var chatWithUserParticipation = await participationRepo.GetChatWithUserParticipationByLink(chatLink, uploaderId);
+        
+        if (chatWithUserParticipation == null)
+        {
+            var errors = new List<KeyValuePair<string, string>>
+            {
+                new ("Avatar upload failed", "Chat with this link doesn't exist."),
+            };
+            return new ServiceResult<Conversation>(errors);
+        }
+        
+        var currentParticipation = chatWithUserParticipation.Participations
+            ?.FirstOrDefault(x => x.AspNetUserId == uploaderId);
+
+        if (currentParticipation is not {CanChangeChatAvatar: true})
+        {
+            var errors = new List<KeyValuePair<string, string>>
+            {
+                new ("Avatar upload failed", "You don't have permission for upload avatar to this chat"),
+            };
+            return new ServiceResult<Conversation>(errors);
+        }
+
+        var repo = _unitOfWork.GetRepository<IAvatarRepository>();
+
+        avatar.ChatInfoId = chatWithUserParticipation.ChatInfoId;
+        repo.Create(avatar);
+        await _unitOfWork.SaveChangesAsync();
+        
+        return new ServiceResult<Conversation>(chatWithUserParticipation);
+    }
 }

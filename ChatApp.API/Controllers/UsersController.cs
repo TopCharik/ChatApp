@@ -3,6 +3,7 @@ using ChatApp.API.Extensions;
 using ChatApp.API.Helpers;
 using ChatApp.API.Hubs;
 using ChatApp.BLL;
+using ChatApp.Core.Entities;
 using ChatApp.Core.Entities.AppUserAggregate;
 using ChatApp.DAL.Identity;
 using ChatApp.DTO;
@@ -270,8 +271,42 @@ public class UsersController : ControllerBase
             return BadRequest(new ApiError(400, errors));
         }
 
-        await _usersHubContext.Clients.All.SendAsync($"{username.ToLower()}/UsernameChanged", newUsernameDto.NewUsername);
+        await _usersHubContext.Clients.All.SendAsync($"{username.ToLower()}/UsernameChanged",
+            newUsernameDto.NewUsername);
         return _jwtTokenBuilder.CreateToken(user);
+    }
+
+    [HttpPost]
+    [Route("Avatar")]
+    public async Task<ActionResult> AddAvatar(NewUserAvatarDto newAvatarDto)
+    {
+        var claimsUsername = HttpContext.User.Identity!.Name!;
+        var claimsUser = await _userService.GetUserByUsernameAsync(claimsUsername);
+        if (!claimsUser.Succeeded)
+        {
+            return BadRequest(new ApiError(400, claimsUser.Errors));
+        }
+
+        var avatar = _mapper.Map<Avatar>(newAvatarDto);
+
+        if (claimsUser.Value.UserName != newAvatarDto.Username)
+        {
+            var errors = new List<KeyValuePair<string, string>>
+            {
+                new("Avatar upload failed", "You don't have permission for uploading avatar to this user"),
+            };
+            return Unauthorized(new ApiError(401, errors));
+        }
+
+        avatar.UserId = claimsUser.Value.Id;
+        var result = await _userService.AddAvatar(avatar);
+        if (result.Errors != null)
+        {
+            return BadRequest(new ApiError(400, result.Errors));
+        }
+
+        await _usersHubContext.Clients.All.SendAsync($"{newAvatarDto.Username.ToLower()}/UserInfoChanged");
+        return Ok();
     }
 
     [HttpPost]
@@ -284,9 +319,11 @@ public class UsersController : ControllerBase
             return BadRequest(new ApiError(400, callParticipants.Errors));
         }
 
-        await _usersHubContext.Clients.All.SendAsync($"{callUsernamesDto.callInitiatorUsername.ToLower()}/UserInfoChanged");
-        await _usersHubContext.Clients.All.SendAsync($"{callUsernamesDto.callReceiverUsername.ToLower()}/UserInfoChanged");
-        
+        await _usersHubContext.Clients.All.SendAsync(
+            $"{callUsernamesDto.callInitiatorUsername.ToLower()}/UserInfoChanged");
+        await _usersHubContext.Clients.All.SendAsync(
+            $"{callUsernamesDto.callReceiverUsername.ToLower()}/UserInfoChanged");
+
         await _callsHub.Clients
             .Client(callParticipants.Value.CallReceiver.CallHubConnectionId)
             .SendAsync("IncomingCall", callUsernamesDto);

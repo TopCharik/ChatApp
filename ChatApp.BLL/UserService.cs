@@ -1,4 +1,5 @@
 using ChatApp.BLL.Helpers;
+using ChatApp.Core.Entities;
 using ChatApp.Core.Entities.AppUserAggregate;
 using ChatApp.DAL.App.Helpers;
 using ChatApp.DAL.App.Interfaces;
@@ -78,6 +79,14 @@ public class UserService : IUserService
         }
 
         return new ServiceResult<List<string>>(userIds);
+    }
+
+    public async Task<ServiceResult> AddAvatar(Avatar avatar)
+    {
+        var repo = _unitOfWork.GetRepository<IAvatarRepository>();
+        repo.Create(avatar);
+        await _unitOfWork.SaveChangesAsync();
+        return new ServiceResult();
     }
 
     public async Task<ServiceResult> SetCallHubConnectionId(string username, string? callHubConnectionId)

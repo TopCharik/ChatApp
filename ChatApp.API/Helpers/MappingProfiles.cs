@@ -81,5 +81,15 @@ public class MappingProfiles : Profile
             );
         CreateMap<Message, MessageDto>();
         CreateMap<MessageQueryParametersDto, MessageParameters>();
+        CreateMap<NewUserAvatarDto, Avatar>()
+            .ForMember(
+                dest => dest.DateSet,
+                opt => opt.MapFrom(src => DateTime.Now)
+            );
+        CreateMap<NewChatAvatarDto, Avatar>()
+            .ForMember(
+                dest => dest.DateSet,
+                opt => opt.MapFrom(src => DateTime.Now)
+            );
     }
 }

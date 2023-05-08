@@ -1,5 +1,6 @@
-@using ChatApp.BlazorServer.Helpers
-@inject IAvatarApiProvider AvatarApiProvider
+@inject IMapper Mapper
+@inject IChatsApiProvider ChatsApiProvider
+@inject IUsersApiProvider UsersApiProvider
 
 <MudDialog Style="width: 550px">
     <TitleContent>
@@ -90,7 +91,7 @@
         }
     </DialogContent>
     <DialogActions>
-        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton OnClick="OnClose">Cancel</MudButton>
     </DialogActions>
 </MudDialog>
 
@@ -142,18 +143,8 @@
         _newAvatarDto.ChatLink = ChatInfoDto?.ChatLink;
     }
 
-    private void Cancel()
-    {
-        MudDialog.Cancel();
-    }
 
-
-    public class FileModel
-    {
-        public string Name { get; set; }
-        public IBrowserFile File { get; set; }
-    }
-
+    
     private async Task UploadAvatarPreview(InputFileChangeEventArgs e)
     {
         await using var stream = e.File.OpenReadStream(e.File.Size);
@@ -168,7 +159,9 @@
 
     private async Task UploadAvatar()
     {
-        var response = await AvatarApiProvider.UploadNewAvatar(_newAvatarDto);
+        var response = AppUserDto != null
+            ? await UsersApiProvider.UploadNewAvatar(Mapper.Map<NewUserAvatarDto>(_newAvatarDto))
+            : await ChatsApiProvider.UploadNewAvatar(Mapper.Map<NewChatAvatarDto>(_newAvatarDto));
 
         if (response.IsSuccessStatusCode)
         {
@@ -178,5 +171,16 @@
         {
             _apiError = await response.Content.ReadFromJsonAsync<ApiError>();
         }
+    }
+    
+    private void OnClose()
+    {
+        MudDialog.Cancel();
+    }
+    
+    public class FileModel
+    {
+        public string Name { get; set; }
+        public IBrowserFile File { get; set; }
     }
 }

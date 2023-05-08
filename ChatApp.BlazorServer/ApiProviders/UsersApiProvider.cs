@@ -47,4 +47,9 @@ public class UsersApiProvider : BaseApiProvider, IUsersApiProvider
         );
         return response;
     }
+    
+    public async Task<HttpResponseMessage> UploadNewAvatar(NewUserAvatarDto newAvatarDto)
+    {
+        return await _jwtHttpClient.PostAsJsonAsync($"{_apiUrl}/api/Users/avatar", newAvatarDto);
+    }
 }

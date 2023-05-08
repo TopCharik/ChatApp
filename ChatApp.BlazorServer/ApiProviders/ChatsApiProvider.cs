@@ -20,4 +20,10 @@ public class ChatsApiProvider : BaseApiProvider, IChatsApiProvider
     {
         return await _jwtHttpClient.PostAsJsonAsync($"{_apiUrl}/api/Chats", newChatDto);
     }
+    
+        
+    public async Task<HttpResponseMessage> UploadNewAvatar(NewChatAvatarDto newAvatarDto)
+    {
+        return await _jwtHttpClient.PostAsJsonAsync($"{_apiUrl}/api/Chats/avatar", newAvatarDto);
+    }
 }

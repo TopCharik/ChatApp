@@ -13,4 +13,5 @@ public interface IChatService
     Task<PagedList<ChatInfoView>> GetChatsAsync(ChatInfoParameters parameters);
     Task<ServiceResult<Conversation>> GetChatByLink(string chatLink);
     Task<ServiceResult<Conversation>> GetParticipationByChatLink(string chatLink, string userId);
+    Task<ServiceResult<Conversation>> AddAvatar(Avatar avatar, string chatLink, string uploaderId);
 }
