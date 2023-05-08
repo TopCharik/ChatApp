@@ -22,11 +22,18 @@ public class PagedList<T> : List<T>
         AddRange(items);
     }
     
-    public static async Task<PagedList<T>> ToPagedList(IQueryable<T> query, int pageNumber, int pageSize)
+    public static async Task<PagedList<T>> ToPagedListAsync(IQueryable<T> query, int pageNumber, int pageSize)
     {
         var count = query.Count();
         var items = await query.Skip(pageNumber * pageSize).Take(pageSize).ToListAsync();
 
+        return new PagedList<T>(items, count, pageNumber, pageSize);
+    }
+    
+    public static PagedList<T> ToPagedList(List<T> list, int pageNumber, int pageSize, int? totalCount = null)
+    {
+        var count = totalCount ?? list.Count;
+        var items = list.Skip(pageNumber * pageSize).Take(pageSize).ToList();
         return new PagedList<T>(items, count, pageNumber, pageSize);
     }
 }

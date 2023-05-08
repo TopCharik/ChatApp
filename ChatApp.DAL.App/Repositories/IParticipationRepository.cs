@@ -5,5 +5,4 @@ namespace ChatApp.DAL.App.Repositories;
 
 public interface IParticipationRepository : IBaseRepository<Participation>
 {
-    
 }
