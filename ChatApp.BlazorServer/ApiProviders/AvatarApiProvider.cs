@@ -3,16 +3,10 @@ using ChatApp.DTO;
 
 namespace ChatApp.BlazorServer.ApiProviders;
 
-public class AvatarApiProvider : IAvatarApiProvider
+public class AvatarApiProvider : BaseApiProvider, IAvatarApiProvider
 {
-    private readonly IJwtHttpClient _jwtHttpClient;
-    private readonly string? _apiUrl;
-
-    public AvatarApiProvider(IJwtHttpClient jwtHttpClient, IConfiguration config, HttpClient httpClient)
-    {
-        _jwtHttpClient = jwtHttpClient;
-        _apiUrl = config["ApiUrl"];
-    }
+    public AvatarApiProvider(IJwtHttpClient jwtHttpClient, IConfiguration config, string apiUrl)
+        : base(jwtHttpClient, config, apiUrl) { }
     
     public async Task<HttpResponseMessage> UploadNewAvatar(NewAvatarDto newAvatarDto)
     {

@@ -4,16 +4,10 @@ using Microsoft.AspNetCore.WebUtilities;
 
 namespace ChatApp.BlazorServer.ApiProviders;
 
-public class UsersApiProvider : IUsersApiProvider
+public class UsersApiProvider : BaseApiProvider, IUsersApiProvider
 {
-    private readonly IJwtHttpClient _jwtHttpClient;
-    private readonly string? _apiUrl;
-
-    public UsersApiProvider(IJwtHttpClient jwtHttpClient, IConfiguration config, HttpClient httpClient)
-    {
-        _jwtHttpClient = jwtHttpClient;
-        _apiUrl = config["ApiUrl"];
-    }
+    public UsersApiProvider(IJwtHttpClient jwtHttpClient, IConfiguration config, string apiUrl)
+        : base(jwtHttpClient, config, apiUrl) { }
 
     public async Task<HttpResponseMessage> LoadUsersAsync(Dictionary<string, string> queryParams)
     {

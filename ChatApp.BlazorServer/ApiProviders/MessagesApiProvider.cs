@@ -3,16 +3,10 @@ using ChatApp.DTO;
 
 namespace ChatApp.BlazorServer.ApiProviders;
 
-public class MessagesApiProvider : IMessagesApiProvider
+public class MessagesApiProvider : BaseApiProvider, IMessagesApiProvider
 {
-    private readonly IJwtHttpClient _jwtHttpClient;
-    private readonly string? _apiUrl;
-
-    public MessagesApiProvider(IJwtHttpClient jwtHttpClient, IConfiguration config, HttpClient httpClient)
-    {
-        _jwtHttpClient = jwtHttpClient;
-        _apiUrl = config["ApiUrl"];
-    }
+    public MessagesApiProvider(IJwtHttpClient jwtHttpClient, IConfiguration config, string apiUrl)
+        : base(jwtHttpClient, config, apiUrl) { }
     
     public async Task<HttpResponseMessage> LoadMessagesAsync(int conversationId)
     {

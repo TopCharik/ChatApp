@@ -2,16 +2,10 @@ using ChatApp.BlazorServer.Services.Authentication;
 
 namespace ChatApp.BlazorServer.ApiProviders;
 
-public class ParticipationApiProvider : IParticipationApiProvider
+public class ParticipationApiProvider : BaseApiProvider, IParticipationApiProvider
 {
-    private readonly IJwtHttpClient _jwtHttpClient;
-    private readonly string? _apiUrl;
-
-    public ParticipationApiProvider(IJwtHttpClient jwtHttpClient, IConfiguration config, HttpClient httpClient)
-    {
-        _jwtHttpClient = jwtHttpClient;
-        _apiUrl = config["ApiUrl"];
-    }
+    public ParticipationApiProvider(IJwtHttpClient jwtHttpClient, IConfiguration config, string apiUrl)
+        : base(jwtHttpClient, config, apiUrl) { }
     
     public async Task<HttpResponseMessage> GetChatParticipation(string chatLink)
     {

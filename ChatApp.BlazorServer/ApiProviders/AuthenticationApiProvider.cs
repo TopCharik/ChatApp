@@ -3,17 +3,13 @@ using ChatApp.DTO;
 
 namespace ChatApp.BlazorServer.ApiProviders;
 
-public class AuthenticationApiProvider : IAuthenticationApiProvider
+public class AuthenticationApiProvider : BaseApiProvider ,IAuthenticationApiProvider
 {
-    private readonly IJwtHttpClient _jwtHttpClient;
-    private string _apiUrl;
-
-    public AuthenticationApiProvider(IJwtHttpClient jwtHttpClient, IConfiguration config)
+    public AuthenticationApiProvider(IJwtHttpClient jwtHttpClient, IConfiguration config, string apiUrl)
+        : base(jwtHttpClient, config, apiUrl)
     {
-        _jwtHttpClient = jwtHttpClient;
-        _apiUrl = config["ApiUrl"];
     }
-    
+  
     public async Task<HttpResponseMessage> Login(LoginDto loginDto)
     {
         var response = await _jwtHttpClient.PostAsJsonAsync($"{_apiUrl}/api/Users/login", loginDto);
