@@ -28,7 +28,7 @@ public class ConversationsRepository : BaseRepository<Conversation>, IConversati
         SearchByTitle(ref chats, parameters.Title);
         SearchByLink(ref chats, parameters.ChatLink);
 
-        return await PagedList<ChatInfoView>.ToPagedList(chats, parameters.Page, parameters.PageSize);
+        return await PagedList<ChatInfoView>.ToPagedListAsync(chats, parameters.Page, parameters.PageSize);
     }
 
     public async Task<Conversation?> GetChatByLink(string chatLink)

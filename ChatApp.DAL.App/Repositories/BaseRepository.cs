@@ -8,7 +8,7 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
 {
     protected DbContext _context;
 
-    public BaseRepository(DbContext context)
+    protected BaseRepository(DbContext context)
     {
         _context = context;
     }

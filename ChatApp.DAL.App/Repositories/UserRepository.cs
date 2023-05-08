@@ -8,10 +8,7 @@ namespace ChatApp.DAL.App.Repositories;
 
 public class UserRepository : BaseRepository<AppUser>, IUserRepository
 {
-    public UserRepository(AppDbContext context) : base(context)
-    {
-    }
-
+    public UserRepository(AppDbContext context) : base(context) { }
 
     public async Task<PagedList<AppUser>> GetUsersAsync(AppUserParameters parameters)
     {
@@ -25,7 +22,7 @@ public class UserRepository : BaseRepository<AppUser>, IUserRepository
         SearchByPhoneNumber(ref users, parameters.PhoneNumber);
         SearchGlobal(ref users, parameters);
 
-        return await PagedList<AppUser>.ToPagedList(
+        return await PagedList<AppUser>.ToPagedListAsync(
             users
                 .Include(u => u.Avatars.OrderByDescending(a => a.DateSet).Take(1))
             ,
@@ -38,7 +35,7 @@ public class UserRepository : BaseRepository<AppUser>, IUserRepository
     {
         return await GetAll()
             .Include(x => x.Avatars.OrderByDescending(a => a.DateSet))
-            .FirstOrDefaultAsync(x => x.NormalizedUserName == username.Normalize());
+            .FirstOrDefaultAsync(x => x.NormalizedUserName == username.ToUpper().Normalize());
     }
 
     private static void SearchGlobal(ref IQueryable<AppUser> users, AppUserParameters parameters)

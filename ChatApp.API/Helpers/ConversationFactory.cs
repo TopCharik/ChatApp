@@ -12,17 +12,7 @@ public static class ConversationFactory
             .Select(ParticipationFactory.DefaultChatMember).ToList();
 
         var Avatars = new List<Avatar>();
-
-        /*
-        if (newChatDto.AvatarUrl != null)
-        {
-            Avatars.Add(new Avatar
-            {
-                PictureUrl = newChatDto.AvatarUrl,
-                DateSet = DateTime.Now,
-            });
-        }
-        */
+        
         
         participants.Add(ParticipationFactory.ChatOwner(ownerId));
         
