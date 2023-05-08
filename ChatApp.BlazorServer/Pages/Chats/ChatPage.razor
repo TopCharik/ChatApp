@@ -11,6 +11,7 @@
 @inject IJSRuntime JsRuntime
 @inject IConfiguration Configuration
 @inject IValidator<NewMessageDto> NewMessageValidator
+@inject HubConnectionProvider HubConnectionProvider
 @implements IDisposable;
 
 @if (_conversationParticipationDto is {ChatInfo: not null })
@@ -139,8 +140,7 @@
     [Parameter]
     public string? ChatLink { get; set; }
 
-    [CascadingParameter(Name = "ChatHubConnection")]
-    public HubConnection? ChatHubConnection { get; set; }
+    private HubConnection? _chatHubConnection { get; set; }
 
     private ConversationParticipationDto? _conversationParticipationDto;
     private List<MessageDto>? _messages;
@@ -158,22 +158,13 @@
         await UpdateMessagesAsync();
         _newMessageValidator = new MudBlazorFormValidator<NewMessageDto>(NewMessageValidator);
 
-        if (ChatHubConnection == null)
-        {
-            var apiUrl = Configuration["ApiUrl"];
-            ChatHubConnection = new HubConnectionBuilder().WithUrl($"{apiUrl}/hub/calls").Build();
-        }
-        
-        if (ChatHubConnection.State == HubConnectionState.Disconnected)
-        {
-            await ChatHubConnection.StartAsync();
-        }
+        _chatHubConnection = await HubConnectionProvider.GetHubConnection("conversations");
 
         if (_conversationParticipationDto != null)
         {
             _hubSubscriptions.Add
                 (
-                    ChatHubConnection.On($"{_conversationParticipationDto.Id.ToString()}/NewMessage", async () =>
+                    _chatHubConnection.On($"{_conversationParticipationDto.Id.ToString()}/NewMessage", async () =>
                     {
                         var date = _messages.Count == 0
                             ? SqlDateTime.MinValue.Value
@@ -185,7 +176,7 @@
 
             _hubSubscriptions.Add
                 (
-                    ChatHubConnection.On($"{_conversationParticipationDto.Id.ToString()}/ConversationInfoChanged", async () =>
+                    _chatHubConnection.On($"{_conversationParticipationDto.Id.ToString()}/ConversationInfoChanged", async () =>
                     {
                         await UpdateChatParticipationAsync();
                     })

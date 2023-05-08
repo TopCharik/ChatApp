@@ -6,29 +6,28 @@
 @inject CallStateContainer CallStateContainer
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
+@inject HubConnectionProvider HubConnectionProvider
 @implements IDisposable
 
 
 @code {
-    [CascadingParameter(Name = "CallsHubConnection")]
-    public HubConnection? CallsHubConnection { get; set; }
+    private HubConnection _callsHubConnection;
     private List<IDisposable> _hubSubscriptions = new();
 
     private string _username;
     private Snackbar snackbar;
     private bool _joined;
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnInitializedAsync()
     {
-        if (firstRender)
-        {
-            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-            _username = authState.User.Identity.Name;
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        _username = authState.User.Identity.Name;
+
+        _callsHubConnection = await HubConnectionProvider.GetHubConnection("calls");
         
-            await CallsHubConnection.InvokeAsync("Join", _username);
-            _hubSubscriptions.Add(SubscribeToIncomingCall());
-            _hubSubscriptions.Add(SubscribeToCallEnded());   
-        }
+        await _callsHubConnection.InvokeAsync("Join", _username);
+        _hubSubscriptions.Add(SubscribeToIncomingCall());
+        _hubSubscriptions.Add(SubscribeToCallEnded());
     }
     
     private async Task OpenCall(CallUsernamesDto callUsernamesDto)
@@ -45,7 +44,7 @@
     
     private IDisposable SubscribeToCallEnded()
     {
-        return CallsHubConnection.On("CallEnded", async () =>
+        return _callsHubConnection.On("CallEnded", async () =>
         {
             var uri = NavigationManager.Uri; 
             NavigationManager.NavigateTo($"{uri}#declined");
@@ -55,7 +54,7 @@
 
     private IDisposable SubscribeToIncomingCall()
     {
-        return CallsHubConnection.On("IncomingCall", (CallUsernamesDto callUsernamesDto) =>
+        return _callsHubConnection.On("IncomingCall", (CallUsernamesDto callUsernamesDto) =>
         {
             if (callUsernamesDto.callInitiatorUsername != _username)
             {
@@ -90,12 +89,12 @@
     
     private async Task HangUp(CallUsernamesDto callUsernamesDto)
     {
-        await CallsHubConnection.InvokeAsync("HangUp", callUsernamesDto);
+        await _callsHubConnection.InvokeAsync("HangUp", callUsernamesDto);
     }
     
     public void Dispose()
     {
         _hubSubscriptions.ForEach(x => x.Dispose());
-        InvokeAsync(async () => await CallsHubConnection.StopAsync());
+        InvokeAsync(async () => await _callsHubConnection.StopAsync());
     }
 }

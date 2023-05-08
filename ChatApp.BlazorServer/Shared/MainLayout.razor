@@ -1,13 +1,8 @@
-﻿@using Microsoft.AspNetCore.SignalR.Client
-@using Microsoft.AspNetCore.Diagnostics.HealthChecks
-@using Microsoft.AspNetCore.Http.Connections.Client
-@using Microsoft.AspNetCore.SignalR
-@inherits LayoutComponentBase
+﻿@inherits LayoutComponentBase
 @inject NavigationManager NavigationManager
 @inject IJwtProvider JwtProvider
-@inject IConfiguration Configuration
+@inject HubConnectionProvider HubConnectionProvider
 @implements IDisposable
-@inject AuthenticationStateProvider AuthenticationStateProvider
 @inject CallStateContainer CallStateContainer
 
 <PageTitle>ChatApp.BlazorServer</PageTitle>
@@ -20,6 +15,7 @@
         <MudAppBar Elevation="1">
             <AuthorizeView>
                 <Authorized>
+                    <CallsProvider></CallsProvider>
                     <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@ToggleDrawer"/>
                     <MudSpacer/>
                     @if (!_isInCall)
@@ -59,26 +55,7 @@
         </MudDrawer>
         <MudMainContent Class="pt-16 px-16">
             <MudContainer MaxWidth="MaxWidth.Large">
-                <AuthorizeView>
-                    <Authorized>
-                        @if (_chatHubConnection?.State == HubConnectionState.Connected
-                             && _usersHubConnection?.State == HubConnectionState.Connected
-                             && _callsHubConnection?.State == HubConnectionState.Connected)
-                        {
-                            <CascadingValue Name="ChatHubConnection" Value="@_chatHubConnection">
-                                <CascadingValue Name="UsersHubConnection" Value="@_usersHubConnection">
-                                    <CascadingValue Name="CallsHubConnection" Value="@_callsHubConnection">
-                                        <CallsProvider></CallsProvider>
-                                        @Body
-                                    </CascadingValue>
-                                </CascadingValue>
-                            </CascadingValue>   
-                        }
-                    </Authorized>
-                    <NotAuthorized>
-                        @Body
-                    </NotAuthorized>
-                </AuthorizeView>
+                @Body
             </MudContainer>
         </MudMainContent>
     </MudLayout>
@@ -86,55 +63,16 @@
 
 @code{
     private bool _isDrawerOpen = false;
-    private HubConnection? _chatHubConnection;
-    private HubConnection? _usersHubConnection;
-    private HubConnection? _callsHubConnection;
     private string? _currentUsername;
     private bool _isInCall;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        if (authState.User.Identity.IsAuthenticated)
-        {
-            _currentUsername = authState.User.Identity.Name;
-            await SetUpHubs();
-            StateHasChanged();
-        }
-        AuthenticationStateProvider.AuthenticationStateChanged += async _ =>
-        {
-            if (authState.User.Identity is {IsAuthenticated: true } && authState.User.Identity.Name != _currentUsername)
-            {
-                await SetUpHubs();
-            }
-        };
-
         CallStateContainer.OnStateChange += () =>
         {
             _isInCall = CallStateContainer.IsInCall;
             StateHasChanged();
         };
-    }
-
-    private async Task SetUpHubs()
-    {
-        var apiUrl = Configuration["ApiUrl"];
-        _chatHubConnection = new HubConnectionBuilder().WithUrl($"{apiUrl}/hub/conversations", connectionOptions =>
-        {
-            connectionOptions.AccessTokenProvider = async () => await JwtProvider.GetTokenAsync();
-        }).Build();
-        await _chatHubConnection.StartAsync();
-        _usersHubConnection = new HubConnectionBuilder().WithUrl($"{apiUrl}/hub/users", connectionOptions =>
-        {
-            connectionOptions.AccessTokenProvider = async () => await JwtProvider.GetTokenAsync();
-        }).Build();
-        await _usersHubConnection.StartAsync();
-        _callsHubConnection = new HubConnectionBuilder().WithUrl($"{apiUrl}/hub/calls", connectionOptions =>
-        {
-            connectionOptions.AccessTokenProvider = async () => await JwtProvider.GetTokenAsync();
-        }).Build();
-        await _callsHubConnection.StartAsync();
-        StateHasChanged();
     }
         
     private void ToggleDrawer()
@@ -155,12 +93,11 @@
     private async Task OnLogOut()
     {
         await JwtProvider.DeleteTokenAsync();
+        await HubConnectionProvider.DisconnectFromHubsAsync();
     }
 
     public void Dispose()
     {
-        _chatHubConnection?.DisposeAsync();
-        _usersHubConnection?.DisposeAsync();
         CallStateContainer.OnStateChange -= StateHasChanged;
     }
 

@@ -82,7 +82,7 @@
             var token = await response.Content.ReadAsStringAsync();
             await JwtStorage.SaveJwtTokenAsync(token);
             await AuthenticationStateProvider.GetAuthenticationStateAsync();
-            NavigationManager.NavigateTo("/", true);
+            NavigationManager.NavigateTo("/");
         }
         if (!response.IsSuccessStatusCode)
         {

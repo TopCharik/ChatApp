@@ -4,8 +4,8 @@ namespace ChatApp.BlazorServer.ApiProviders;
 
 public class ParticipationApiProvider : BaseApiProvider, IParticipationApiProvider
 {
-    public ParticipationApiProvider(IJwtHttpClient jwtHttpClient, IConfiguration config, string apiUrl)
-        : base(jwtHttpClient, config, apiUrl) { }
+    public ParticipationApiProvider(IJwtHttpClient jwtHttpClient, IConfiguration config)
+        : base(jwtHttpClient, config) { }
     
     public async Task<HttpResponseMessage> GetChatParticipation(string chatLink)
     {

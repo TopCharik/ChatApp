@@ -5,6 +5,7 @@
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IConfiguration Configuration
+@inject HubConnectionProvider HubConnectionProvider
 @implements IDisposable
 
 <h3>Call</h3>
@@ -28,8 +29,7 @@
 }
 
 @code {
-    [CascadingParameter(Name = "CallsHubConnection")]
-    public HubConnection? CallsHubConnection { get; set; }
+    private HubConnection? _callsHubConnection;
 
     private string SubscriberPeerId { get; set; }
     private readonly List<IDisposable> _hubSubscriptions = new();
@@ -44,6 +44,8 @@
             NavigationManager.NavigateTo("/");
             return;
         }
+        
+        _callsHubConnection = await HubConnectionProvider.GetHubConnection("calls");
 
         _hubSubscriptions.Add(SubscribeToCallEnded());
 
@@ -52,7 +54,7 @@
             _isAccepted = true;
             SubscriberPeerId = await JsRuntime.InvokeAsync<string>("initPeer");
             await JsRuntime.InvokeVoidAsync("subscribeToCalls");
-            await CallsHubConnection.SendAsync("AcceptCall", CallStateContainer.CurrentCall.CallUsernames, SubscriberPeerId);
+            await _callsHubConnection.SendAsync("AcceptCall", CallStateContainer.CurrentCall.CallUsernames, SubscriberPeerId);
             await InvokeAsync(StateHasChanged);
         }
         
@@ -65,7 +67,7 @@
         
         _hubSubscriptions.Add
             (
-                CallsHubConnection.On($"{CallStateContainer.remoteUsername.ToLower()}/Disconnected", async () =>
+                _callsHubConnection.On($"{CallStateContainer.remoteUsername.ToLower()}/Disconnected", async () =>
                 {
                     await HangUp();
                 })
@@ -74,12 +76,12 @@
 
     private async Task HangUp()
     {
-        await CallsHubConnection.InvokeAsync("HangUp", CallStateContainer.CurrentCall?.CallUsernames);
+        await _callsHubConnection.InvokeAsync("HangUp", CallStateContainer.CurrentCall?.CallUsernames);
     }
 
     private IDisposable SubscribeToCallEnded()
     {
-        return CallsHubConnection.On("CallEnded", async () =>
+        return _callsHubConnection.On("CallEnded", async () =>
         {
             NavigationManager.NavigateTo(CallStateContainer.CurrentCall?.ReturnUrl ?? "/");
         });
@@ -87,7 +89,7 @@
 
     private IDisposable SubscribeToCallAccept()
     {
-        return CallsHubConnection.On("CallAccepted", async (string peerJsId) =>
+        return _callsHubConnection.On("CallAccepted", async (string peerJsId) =>
         {
             _isAccepted = true;
             await InvokeAsync(StateHasChanged);
@@ -100,7 +102,7 @@
     public void Dispose()
     {
         InvokeAsync(async () => await JsRuntime.InvokeVoidAsync("endCall"));
-        InvokeAsync(async () => await CallsHubConnection.InvokeAsync("HangUp", CallStateContainer.CurrentCall?.CallUsernames));
+        InvokeAsync(async () => await _callsHubConnection.InvokeAsync("HangUp", CallStateContainer.CurrentCall?.CallUsernames));
         _hubSubscriptions.ForEach(x => x.Dispose());
         CallStateContainer.CurrentCall = null;
     }

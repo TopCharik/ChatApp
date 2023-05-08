@@ -6,8 +6,8 @@ namespace ChatApp.BlazorServer.ApiProviders;
 
 public class UsersApiProvider : BaseApiProvider, IUsersApiProvider
 {
-    public UsersApiProvider(IJwtHttpClient jwtHttpClient, IConfiguration config, string apiUrl)
-        : base(jwtHttpClient, config, apiUrl) { }
+    public UsersApiProvider(IJwtHttpClient jwtHttpClient, IConfiguration config)
+        : base(jwtHttpClient, config) { }
 
     public async Task<HttpResponseMessage> LoadUsersAsync(Dictionary<string, string> queryParams)
     {

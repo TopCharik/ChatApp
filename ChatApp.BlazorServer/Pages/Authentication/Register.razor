@@ -111,7 +111,7 @@
             await JwtStorage.SaveJwtTokenAsync(token);
             await AuthenticationStateProvider.GetAuthenticationStateAsync();
             await AuthenticationStateProvider.GetAuthenticationStateAsync();
-            NavigationManager.NavigateTo("/", true);
+            NavigationManager.NavigateTo("/");
         }
         if (!response.IsSuccessStatusCode)
         {

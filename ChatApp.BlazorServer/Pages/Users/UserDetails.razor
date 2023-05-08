@@ -8,6 +8,7 @@
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager NavigationManager
 @inject ISnackbar Snackbar
+@inject HubConnectionProvider HubConnectionProvider
 @implements IDisposable
 
 @if (_appUserDto != null)
@@ -107,10 +108,7 @@
     [Parameter]
     public string? Username { get; set; }
     
-    [CascadingParameter(Name = "UsersHubConnection")]
-    public HubConnection UsersHubConnection { get; set; }
-    [CascadingParameter(Name = "CallsHubConnection")]
-    public HubConnection CallsHubConnection { get; set; }
+    private HubConnection _usersHubConnection { get; set; }
     
     private List<IDisposable> _hubSubscriptions = new();
 
@@ -124,14 +122,11 @@
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         _isCurrentUserPage = _appUserDto?.UserName == authState.User.Identity?.Name;
 
-        if (UsersHubConnection.State == HubConnectionState.Disconnected)
-        {
-            await UsersHubConnection.StartAsync();
-        }
+        _usersHubConnection = await HubConnectionProvider.GetHubConnection("users");
         
         _hubSubscriptions.Add
             (
-                UsersHubConnection.On($"{Username.ToLower()}/UserInfoChanged", async () =>
+                _usersHubConnection.On($"{Username.ToLower()}/UserInfoChanged", async () =>
                 {
                     await LoadUser(Username);
                 })
@@ -140,7 +135,7 @@
         {
             _hubSubscriptions.Add
                 (
-                    UsersHubConnection.On($"{Username.ToLower()}/UsernameChanged", async (string newUsername) =>
+                    _usersHubConnection.On($"{Username.ToLower()}/UsernameChanged", async (string newUsername) =>
                     {
                         NavigationManager.NavigateTo($"/users/{newUsername}", true);
                         await LoadUser(newUsername);

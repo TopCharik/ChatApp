@@ -5,10 +5,8 @@ namespace ChatApp.BlazorServer.ApiProviders;
 
 public class AuthenticationApiProvider : BaseApiProvider ,IAuthenticationApiProvider
 {
-    public AuthenticationApiProvider(IJwtHttpClient jwtHttpClient, IConfiguration config, string apiUrl)
-        : base(jwtHttpClient, config, apiUrl)
-    {
-    }
+    public AuthenticationApiProvider(IJwtHttpClient jwtHttpClient, IConfiguration config)
+        : base(jwtHttpClient, config) { }
   
     public async Task<HttpResponseMessage> Login(LoginDto loginDto)
     {

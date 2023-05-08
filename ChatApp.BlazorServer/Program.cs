@@ -28,6 +28,7 @@ builder.Services.AddScoped<IMessagesApiProvider, MessagesApiProvider>();
 builder.Services.AddScoped<IJwtHelper, JwtHelper>();
 builder.Services.AddScoped<IJwtHttpClient, JwtHttpClient>();
 builder.Services.AddScoped<CallStateContainer>();
+builder.Services.AddScoped<HubConnectionProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider, JwtAuthenticationStateProvider>();
 
 builder.Services.AddBlazoredLocalStorage();

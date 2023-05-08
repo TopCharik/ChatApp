@@ -5,8 +5,8 @@ namespace ChatApp.BlazorServer.ApiProviders;
 
 public class MessagesApiProvider : BaseApiProvider, IMessagesApiProvider
 {
-    public MessagesApiProvider(IJwtHttpClient jwtHttpClient, IConfiguration config, string apiUrl)
-        : base(jwtHttpClient, config, apiUrl) { }
+    public MessagesApiProvider(IJwtHttpClient jwtHttpClient, IConfiguration config)
+        : base(jwtHttpClient, config) { }
     
     public async Task<HttpResponseMessage> LoadMessagesAsync(int conversationId)
     {

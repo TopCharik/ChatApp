@@ -5,8 +5,8 @@ namespace ChatApp.BlazorServer.ApiProviders;
 
 public class AvatarApiProvider : BaseApiProvider, IAvatarApiProvider
 {
-    public AvatarApiProvider(IJwtHttpClient jwtHttpClient, IConfiguration config, string apiUrl)
-        : base(jwtHttpClient, config, apiUrl) { }
+    public AvatarApiProvider(IJwtHttpClient jwtHttpClient, IConfiguration config)
+        : base(jwtHttpClient, config) { }
     
     public async Task<HttpResponseMessage> UploadNewAvatar(NewAvatarDto newAvatarDto)
     {
