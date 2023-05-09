@@ -33,7 +33,7 @@ public class UserService : IUserService
         {
             var errors = new List<KeyValuePair<string, string>>
             {
-                new("Get User By Username failed", $"user with username \"{username}\" not found."),
+                new("Get User By Username failed", "user with this username not found."),
             };
             return new ServiceResult<AppUser>(errors);
         }

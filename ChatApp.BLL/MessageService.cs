@@ -1,4 +1,5 @@
 using ChatApp.BLL.Helpers;
+using ChatApp.BLL.Helpers.ServiceErrors;
 using ChatApp.Core.Entities.MessageArggregate;
 using ChatApp.DAL.App.Interfaces;
 using ChatApp.DAL.App.Repositories;
@@ -21,25 +22,18 @@ public class MessageService : IMessageService
         var conversationsRepo = _unitOfWork.GetRepository<IConversationsRepository>();
 
         var chatWithUserParticipation = await conversationsRepo.GetChatWithUserParticipationById(conversationId, userId);
-        var currentParticipation = chatWithUserParticipation.Participations?.FirstOrDefault(x => x.AspNetUserId == userId);
         
         if (chatWithUserParticipation == null)
         {
-            var errors = new List<KeyValuePair<string, string>>
-            {
-                new ("Get messages failed", "Chat with this link doesn't exist."),
-            };
-            return new ServiceResult<List<Message>>(errors);
+            return new ServiceResult<List<Message>>(MessageServiceErrors.CHAT_WITH_THIS_LINK_DOESNT_EXIST);
         }
         
-        if (chatWithUserParticipation.ChatInfo!.IsPrivate 
-            && currentParticipation is {HasLeft: true})
+        var currentParticipation = chatWithUserParticipation.Participations?.FirstOrDefault(x => x.AspNetUserId == userId);
+        
+        if (chatWithUserParticipation.ChatInfo!.IsPrivate
+            && currentParticipation is null or {HasLeft: true})
         {
-            var errors = new List<KeyValuePair<string, string>>
-            {
-                new ("Get messages failed", "This is a private chat. Only participants can read messages."),
-            };
-            return new ServiceResult<List<Message>>(errors);
+            return new ServiceResult<List<Message>>(MessageServiceErrors.USER_CANT_READ_MESSAGES_IN_THIS_CHAT);
         }
         
         var messageRepo = _unitOfWork.GetRepository<IMessageRepository>();
@@ -52,35 +46,21 @@ public class MessageService : IMessageService
     public async Task<ServiceResult> SendMessage(Message message, string senderId, int conversationId)
     {
         var participationRepo = _unitOfWork.GetRepository<IParticipationRepository>();
-        var participation = await participationRepo
-            .GetByCondition(x => x.AspNetUserId == senderId)
-            .FirstOrDefaultAsync(x => x.ConversationId == conversationId);
+        var participation = await participationRepo.GetUserParticipationByConversationId(senderId, conversationId);
 
         if (participation == null || participation.HasLeft)
         {
-            var errors = new List<KeyValuePair<string, string>>
-            {
-                new ("Message creation failed", $"User is not a member of this conversation."),
-            };
-            return new ServiceResult(errors);
+            return new ServiceResult(MessageServiceErrors.USER_IS_NOT_A_MEMBER_OF_THIS_CONVERSATION);
         }
         
         if (!participation.CanWriteMessages)
         {
-            var errors = new List<KeyValuePair<string, string>>
-            {
-                new ("Message creation failed", $"User can't write messages in this chat."),
-            };
-            return new ServiceResult(errors);
+            return new ServiceResult(MessageServiceErrors.USER_CANT_WRITE_MESSAGES_IN_THIS_CHAT);
         }
         
-        if (participation.MutedUntil > DateTime.Now)
+        if (participation.MutedUntil != null && participation.MutedUntil > DateTime.Now)
         {
-            var errors = new List<KeyValuePair<string, string>>
-            {
-                new ("Message creation failed", $"User muted until {participation.MutedUntil}."),
-            };
-            return new ServiceResult(errors);
+            return new ServiceResult(MessageServiceErrors.USER_IS_MUTED_UNTIL(participation.MutedUntil));
         }
         
         var repo = _unitOfWork.GetRepository<IMessageRepository>();
