@@ -3,7 +3,6 @@ using ChatApp.BLL.Helpers.ServiceErrors;
 using ChatApp.Core.Entities.MessageArggregate;
 using ChatApp.DAL.App.Interfaces;
 using ChatApp.DAL.App.Repositories;
-using Microsoft.EntityFrameworkCore;
 
 namespace ChatApp.BLL;
 

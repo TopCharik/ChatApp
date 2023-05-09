@@ -1,4 +1,5 @@
 using ChatApp.BLL.Helpers;
+using ChatApp.BLL.Helpers.ServiceErrors;
 using ChatApp.Core.Entities;
 using ChatApp.Core.Entities.AppUserAggregate;
 using ChatApp.DAL.App.Helpers;
@@ -18,11 +19,13 @@ public class UserService : IUserService
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<PagedList<AppUser>> GetUsersAsync(AppUserParameters parameters)
+    public async Task<ServiceResult<PagedList<AppUser>>> GetUsersAsync(AppUserParameters parameters)
     {
         var repo = _unitOfWork.GetRepository<IUserRepository>();
+        
+        var result = await repo.GetUsersAsync(parameters);
 
-        return await repo.GetUsersAsync(parameters);
+        return new ServiceResult<PagedList<AppUser>>(result);
     }
 
     public async Task<ServiceResult<AppUser>> GetUserByUsernameAsync(string username)
@@ -31,11 +34,7 @@ public class UserService : IUserService
         var user = await repo.GetUserByUsernameAsync(username);
         if (user == null)
         {
-            var errors = new List<KeyValuePair<string, string>>
-            {
-                new("Get User By Username failed", "user with this username not found."),
-            };
-            return new ServiceResult<AppUser>(errors);
+            return new ServiceResult<AppUser>(UserServiceErrors.USER_NOT_FOUND_BY_USERNAME);
         }
 
         return new ServiceResult<AppUser>(user);
@@ -45,14 +44,10 @@ public class UserService : IUserService
     {
         var repo = _unitOfWork.GetRepository<IUserRepository>();
 
-        var user = await repo.GetAll().FirstOrDefaultAsync(x => x.CallHubConnectionId == connectionId);
+        var user = await repo.GetUserByConnectionIdAsync(connectionId);
         if (user == null)
         {
-            var errors = new List<KeyValuePair<string, string>>
-            {
-                new("Get User By ConnectionId", "user not found"),
-            };
-            return new ServiceResult<AppUser>(errors);
+            return new ServiceResult<AppUser>(UserServiceErrors.USER_NOT_FOUND_BY_CONNECTIONID);
         }
 
         return new ServiceResult<AppUser>(user);
@@ -68,11 +63,7 @@ public class UserService : IUserService
             var user = await repo.GetUserByUsernameAsync(username);
             if (user == null)
             {
-                var errors = new List<KeyValuePair<string, string>>
-                {
-                    new("Get User Id By Username", $"user with username \"{username}\" not found."),
-                };
-                return new ServiceResult<List<string>>(errors);
+                return new ServiceResult<List<string>>(UserServiceErrors.USER_NOT_FOUND_BY_USERNAME);
             }
 
             userIds.Add(user.Id);
@@ -108,17 +99,13 @@ public class UserService : IUserService
         return new ServiceResult();
     }
 
-    public async Task<ServiceResult<AppUser>> RemoveCallHubConnectionId(string contextConnectionId)
+    public async Task<ServiceResult<AppUser>> RemoveCallHubConnectionId(string connectionId)
     {
         var repo = _unitOfWork.GetRepository<IUserRepository>();
-        var user = await repo.GetAll().FirstOrDefaultAsync(x => x.CallHubConnectionId == contextConnectionId);
+        var user = await repo.GetUserByConnectionIdAsync(connectionId);
         if (user == null)
         {
-            var errors = new List<KeyValuePair<string, string>>
-            {
-                new("Remove CallHubConnectionId failed", $"user with username \"{contextConnectionId}\" not found."),
-            };
-            return new ServiceResult<AppUser>(errors);
+            return new ServiceResult<AppUser>(UserServiceErrors.USER_NOT_FOUND_BY_CONNECTIONID);
         }
 
         user.CallHubConnectionId = null;
@@ -132,53 +119,27 @@ public class UserService : IUserService
     public async Task<ServiceResult<CallParticipants>> SetInCall(CallUsernamesDto callUsernamesDto, bool newValue)
     {
         var repo = _unitOfWork.GetRepository<IUserRepository>();
-        var callInitiator = await repo.GetAll()
-            .AsTracking()
-            .FirstOrDefaultAsync(x => x.UserName == callUsernamesDto.callInitiatorUsername);
-        if (callInitiator == null)
+        var callInitiator = await repo.GetUserByUsernameAsync(callUsernamesDto.callInitiatorUsername);
+        var callReceiver = await repo.GetUserByUsernameAsync(callUsernamesDto.callReceiverUsername);
+        
+        if (callReceiver == null || callInitiator == null)
         {
-            var error = new List<KeyValuePair<string, string>>
-            {
-                new("Call failed", $"User {callUsernamesDto.callInitiatorUsername} not found"),
-            };
-            return new ServiceResult<CallParticipants>(error);
-        }
-
-        var callReceiver = await repo.GetAll()
-            .AsTracking()
-            .FirstOrDefaultAsync(x => x.UserName == callUsernamesDto.callReceiverUsername);
-        if (callReceiver == null)
-        {
-            var error = new List<KeyValuePair<string, string>>
-            {
-                new("Call failed", $"User {callUsernamesDto.callReceiverUsername} not found"),
-            };
-            return new ServiceResult<CallParticipants>(error);
+            return new ServiceResult<CallParticipants>(UserServiceErrors.USER_NOT_FOUND_BY_USERNAME);
         }
 
         if (newValue)
         {
-            if (callInitiator.InCall == newValue)
+            if (callInitiator.InCall == newValue || callReceiver.InCall == newValue)
             {
-                var error = new List<KeyValuePair<string, string>>
-                {
-                    new("Call failed", $"{callInitiator} InCall has same value"),
-                };
-                return new ServiceResult<CallParticipants>(error);
-            }
-
-            if (callReceiver.InCall == newValue)
-            {
-                var error = new List<KeyValuePair<string, string>>
-                {
-                    new("Call failed", $"{callReceiver} InCall has same value"),
-                };
-                return new ServiceResult<CallParticipants>(error);
+                return new ServiceResult<CallParticipants>(UserServiceErrors.USER_SET_IN_CALL_FAILED);
             }
         }
 
         callInitiator.InCall = newValue;
         callReceiver.InCall = newValue;
+        
+        repo.Update(callInitiator);
+        repo.Update(callReceiver);
 
         await _unitOfWork.SaveChangesAsync();
 
@@ -194,28 +155,19 @@ public class UserService : IUserService
     {
         var repo = _unitOfWork.GetRepository<IUserRepository>();
 
-        var user = await repo.GetAll()
-            .AsTracking()
-            .FirstOrDefaultAsync(x => x.CallHubConnectionId == contextConnectionId);
+        var user = await repo.GetUserByConnectionIdAsync(contextConnectionId);
         if (user == null)
         {
-            var errors = new List<KeyValuePair<string, string>>
-            {
-                new("Set In Call failed", "user not found"),
-            };
-            return new ServiceResult<AppUser>(errors);
+            return new ServiceResult<AppUser>(UserServiceErrors.USER_NOT_FOUND_BY_CONNECTIONID);
         }
 
         if (user.InCall == newValue)
         {
-            var errors = new List<KeyValuePair<string, string>>
-            {
-                new("Set In Call failed", $"{user.UserName} InCall has same value"),
-            };
-            return new ServiceResult<AppUser>(errors);
+            return new ServiceResult<AppUser>(UserServiceErrors.USER_SET_IN_CALL_FAILED);
         }
         
         user.InCall = newValue;
+        repo.Update(user);
         await _unitOfWork.SaveChangesAsync();
         
         return new ServiceResult<AppUser>(user);

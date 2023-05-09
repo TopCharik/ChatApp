@@ -38,6 +38,11 @@ public class UserRepository : BaseRepository<AppUser>, IUserRepository
             .FirstOrDefaultAsync(x => x.NormalizedUserName == username.ToUpper().Normalize());
     }
 
+    public async Task<AppUser?> GetUserByConnectionIdAsync(string contextConnectionId)
+    {
+        return await GetAll().FirstOrDefaultAsync(x => x.CallHubConnectionId == contextConnectionId);
+    }
+
     private static void SearchGlobal(ref IQueryable<AppUser> users, AppUserParameters parameters)
     {
         var search = parameters.Search;

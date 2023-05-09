@@ -8,11 +8,11 @@ namespace ChatApp.BLL;
 
 public interface IUserService
 {
-    Task<PagedList<AppUser>> GetUsersAsync(AppUserParameters parameters);
+    Task<ServiceResult<PagedList<AppUser>>> GetUsersAsync(AppUserParameters parameters);
     Task<ServiceResult<AppUser>> GetUserByUsernameAsync(string username);
     Task<ServiceResult<List<string>>> GetUserIdsByUsernames(IEnumerable<string> usernames);
     Task<ServiceResult> SetCallHubConnectionId(string username, string? callHubConnectionId);
-    Task<ServiceResult<AppUser>> RemoveCallHubConnectionId(string contextConnectionId);
+    Task<ServiceResult<AppUser>> RemoveCallHubConnectionId(string connectionId);
     Task<ServiceResult<CallParticipants>> SetInCall(CallUsernamesDto callUsernamesDto, bool newValue);
     Task<ServiceResult> AddAvatar(Avatar avatar);
 }

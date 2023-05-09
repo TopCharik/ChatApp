@@ -66,10 +66,14 @@ public class UsersController : ControllerBase
     public async Task<ActionResult<PagedResponseDto<AppUserDto>>> GetUsers([FromQuery] AppUserQueryParams parameters)
     {
         var userParameters = _mapper.Map<AppUserParameters>(parameters);
-        var users = await _userService.GetUsersAsync(userParameters);
+        var result = await _userService.GetUsersAsync(userParameters);
 
+        if (!result.Succeeded)
+        {
+            return BadRequest(new ApiError(400, result.Errors));
+        }
 
-        return _mapper.Map<PagedResponseDto<AppUserDto>>(users);
+        return _mapper.Map<PagedResponseDto<AppUserDto>>(result.Value);
     }
 
     [HttpGet]
