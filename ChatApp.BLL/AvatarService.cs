@@ -1,4 +1,5 @@
 using ChatApp.BLL.Helpers;
+using ChatApp.BLL.Helpers.ServiceErrors;
 using ChatApp.Core.Entities;
 using ChatApp.DAL.App.Interfaces;
 using ChatApp.DAL.App.Repositories;
@@ -29,11 +30,7 @@ public class AvatarService : IAvatarService
         
         if (chatWithUserParticipation == null)
         {
-            var errors = new List<KeyValuePair<string, string>>
-            {
-                new ("Avatar upload failed", "Chat with this link doesn't exist."),
-            };
-            return new ServiceResult<Conversation>(errors);
+            return new ServiceResult<Conversation>(AvatarServiceErrors.CHAT_WITH_THIS_LINK_DOESNT_EXIST);
         }
         
         var currentParticipation = chatWithUserParticipation.Participations
@@ -41,11 +38,7 @@ public class AvatarService : IAvatarService
 
         if (currentParticipation is {CanChangeChatAvatar: false})
         {
-            var errors = new List<KeyValuePair<string, string>>
-            {
-                new ("Avatar upload failed", "You don't have permission for upload avatar to this chat"),
-            };
-            return new ServiceResult<Conversation>(errors);
+            return new ServiceResult<Conversation>(AvatarServiceErrors.GIVED_USER_DONT_HAVE_PERMISSION_FOR_UPLOAD_AVATAR);
         }
 
         var repo = _unitOfWork.GetRepository<IAvatarRepository>();

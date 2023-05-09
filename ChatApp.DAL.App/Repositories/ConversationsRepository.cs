@@ -9,9 +9,8 @@ namespace ChatApp.DAL.App.Repositories;
 
 public class ConversationsRepository : BaseRepository<Conversation>, IConversationsRepository
 {
-    public ConversationsRepository(AppDbContext context) : base(context)
-    {
-    }
+    public ConversationsRepository(AppDbContext context) 
+        : base(context) { }
 
     public async Task<PagedList<ChatInfoView>> GetPublicChatsAsync(ChatInfoParameters parameters)
     {
@@ -56,6 +55,7 @@ public class ConversationsRepository : BaseRepository<Conversation>, IConversati
     {
         var conversation = await GetByCondition(x => x.ChatInfoId != null)
             .Include(x => x.ChatInfo)
+            .ThenInclude(x => x.Avatars.OrderByDescending(x => x.DateSet))
             .Include(x => x.Participations.Where(p => p.AspNetUserId == userId))
             .FirstOrDefaultAsync(x => x.Id == chatId);
 

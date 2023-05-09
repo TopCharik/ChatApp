@@ -7,6 +7,6 @@ public class AppUser : AspNetUser
     public DateTime? Birthday { get; init; }
     public string? CallHubConnectionId { get; set; }
     public bool InCall { get; set; }
-    public ICollection<Avatar> Avatars { get; }
-    public ICollection<Participation> Participations { get; }
+    public List<Avatar> Avatars { get; init; }
+    public List<Participation> Participations { get; init;}
 }

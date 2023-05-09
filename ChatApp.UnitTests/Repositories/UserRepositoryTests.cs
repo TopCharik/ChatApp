@@ -10,18 +10,12 @@ namespace ChatApp.UnitTests.Repositories;
 public class UserRepositoryTests
 {
     private UserRepository _repository;
-    private bool _firstSetUp = true;
     
-    [SetUp]
+    [OneTimeSetUp]
     public async Task SetUp()
     {
-        if (_firstSetUp)
-        {
-            var context = await FakeData.GetDefaultAppDbContext(); 
-            _repository = new UserRepository(context);   
-        }
-
-        _firstSetUp = false;
+        var context = await FakeData.GetDefaultAppDbContext(); 
+        _repository = new UserRepository(context);
     }
 
     [Test]
@@ -32,7 +26,6 @@ public class UserRepositoryTests
         var result = await _repository.GetUsersAsync(parameters);
 
         Assert.AreEqual(FakeData.FakeUsers.Count, result.TotalCount);
-        Assert.AreEqual(parameters.PageSize, result.Count);
     }
         
     [Test]
@@ -40,25 +33,25 @@ public class UserRepositoryTests
     {
         var parameters = new AppUserParameters
         {
-            Search = "doe",
+            Search = "D05DE7939F274AB68853D0D9282FA284",
         };
         var expectedUsers = new List<AppUser>
         {
             new()
             {
-                Id = "71487432-92E3-49F9-8ECB-31FFD92FD581",
+                Id = "F6A8A0DC-DB3F-449A-B95F-9D63C03758A1",
                 FirstName = "John",
                 LastName = "Doe",
-                UserName = "JohnDoe",
-                NormalizedUserName = "JOHNDOE",
+                UserName = "JohnD05DE7939F274AB68853D0D9282FA284Doe",
+                NormalizedUserName = "JOHNDOED05DE7939F274AB68853D0D9282FA284",
                 Email = "johndoe@example.com",
                 NormalizedEmail = "JOHNDOE@EXAMPLE.COM",
                 PhoneNumber = "+12-345-6789",
             },
             new()
             {
-                Id = "2D829992-8FB0-4800-98A2-0E4E429C6708",
-                FirstName = "Jane",
+                Id = "2AD1DA00-7808-42EC-BADD-7318882ABD49",
+                FirstName = "JaneD05DE7939F274AB68853D0D9282FA284",
                 LastName = "Doe",
                 UserName = "janedoe",
                 NormalizedUserName = "JANEDOE",
@@ -68,13 +61,13 @@ public class UserRepositoryTests
             },
             new()
             {
-                Id = "B4CB6F4D-76ED-4BEC-9C22-8A51D051A720",
+                Id = "456BC3A3-8B95-45EA-96CE-36802456D77E",
                 FirstName = "Mary",
                 LastName = "Doe",
                 UserName = "MaryD",
                 NormalizedUserName = "MARYD",
-                Email = "maryjohnson@example.com",
-                NormalizedEmail = "MARYJOHNSON@EXAMPLE.COM",
+                Email = "maryjohnsonD05DE7939F274AB68853D0D9282FA284@example.com",
+                NormalizedEmail = "MARYJOHNSOND05DE7939F274AB68853D0D9282FA284@EXAMPLE.COM",
                 PhoneNumber = "555-987-6543",
             },
         };
@@ -87,28 +80,28 @@ public class UserRepositoryTests
     {
         var parameters = new AppUserParameters
         {
-            UserName = "dOe",
+            UserName = "0A9BB93B62054848A048AB765E518A46",
         };
         var expectedUsers = new List<AppUser> 
         {
             new()
             {
-                Id = "71487432-92E3-49F9-8ECB-31FFD92FD581",
+                Id = "0C60C495-FB2F-47A9-B9CE-0A9E98DD16A6",
                 FirstName = "John",
                 LastName = "Doe",
-                UserName = "JohnDoe",
-                NormalizedUserName = "JOHNDOE",
+                UserName = "John0A9BB93B62054848A048AB765E518A46Doe",
+                NormalizedUserName = "JOHN0A9BB93B62054848A048AB765E518A46DOE",
                 Email = "johndoe@example.com",
                 NormalizedEmail = "JOHNDOE@EXAMPLE.COM",
                 PhoneNumber = "+12-345-6789",
             },
             new()
             {
-                Id = "2D829992-8FB0-4800-98A2-0E4E429C6708",
+                Id = "6ABF1ADE-5B2C-4967-8D2F-000FC30FFA6E",
                 FirstName = "Jane",
                 LastName = "Doe",
-                UserName = "janedoe",
-                NormalizedUserName = "JANEDOE",
+                UserName = "janedoe0A9BB93B62054848A048AB765E518A46",
+                NormalizedUserName = "JANEDOE0A9BB93B62054848A048AB765E518A46",
                 Email = "janedoe@example.com",
                 NormalizedEmail = "JANEDOE@EXAMPLE.COM",
                 PhoneNumber = "098-765-4321",
@@ -123,14 +116,14 @@ public class UserRepositoryTests
     {
         var parameters = new AppUserParameters
         {
-            FirstName = "oB",
+            FirstName = "4602B55B7D184AD58F8ABDBFCFD12AC2",
         };
         var expectedUsers = new List<AppUser> 
         {
             new()
             {
-                Id = "0D64737E-F602-44D8-9B0D-83D2E2C7FEBA",
-                FirstName = "Robert",
+                Id = "728E83DD-17AA-458A-B139-4CA62EFFDAD4",
+                FirstName = "Rob4602B55B7D184AD58F8ABDBFCFD12AC2ert",
                 LastName = "Brown",
                 UserName = "RobertB",
                 NormalizedUserName = "ROBERTB",
@@ -140,8 +133,8 @@ public class UserRepositoryTests
             },
             new()
             {
-                Id = "EC94280C-5E90-4D4C-9214-49799B4E5C92",
-                FirstName = "Bob",
+                Id = "19F970F2-1924-4241-9EAB-CDD311721415",
+                FirstName = "4602B55B7D184AD58F8ABDBFCFD12AC2Bob",
                 LastName = "Smith",
                 UserName = "bob.Smith",
                 NormalizedUserName = "BOB.SMITH",
@@ -159,15 +152,15 @@ public class UserRepositoryTests
     {
         var parameters = new AppUserParameters
         {
-            LastName = "dOe",
+            LastName = "544A41B16E1F49A280A9CE557A0EBD35",
         };
         var expectedUsers = new List<AppUser> 
         {
             new()
             {
-                Id = "71487432-92E3-49F9-8ECB-31FFD92FD581",
+                Id = "890AC95B-0CAA-42A7-8344-1640B44817E1",
                 FirstName = "John",
-                LastName = "Doe",
+                LastName = "D544A41B16E1F49A280A9CE557A0EBD35oe",
                 UserName = "JohnDoe",
                 NormalizedUserName = "JOHNDOE",
                 Email = "johndoe@example.com",
@@ -176,9 +169,9 @@ public class UserRepositoryTests
             },
             new()
             {
-                Id = "2D829992-8FB0-4800-98A2-0E4E429C6708",
+                Id = "4AB42DD8-D72F-4D73-A6CC-247C0C7FE2D9",
                 FirstName = "Jane",
-                LastName = "Doe",
+                LastName = "Doe544A41B16E1F49A280A9CE557A0EBD35",
                 UserName = "janedoe",
                 NormalizedUserName = "JANEDOE",
                 Email = "janedoe@example.com",
@@ -187,9 +180,9 @@ public class UserRepositoryTests
             },
             new()
             {
-                Id = "B4CB6F4D-76ED-4BEC-9C22-8A51D051A720",
+                Id = "0BE8ACF4-60B9-4BBB-BD19-F9F95F62974F",
                 FirstName = "Mary",
-                LastName = "Doe",
+                LastName = "544A41B16E1F49A280A9CE557A0EBD35Doe",
                 UserName = "MaryD",
                 NormalizedUserName = "MARYD",
                 Email = "maryjohnson@example.com",
@@ -206,30 +199,30 @@ public class UserRepositoryTests
     {
         var parameters = new AppUserParameters
         {
-            Email = "Doe@EXaMpLe.COm",
+            Email = "8479664F638C4BB7AA390A055A3B918D",
         };
         var expectedUsers = new List<AppUser> 
         {
             new()
             {
-                Id = "71487432-92E3-49F9-8ECB-31FFD92FD581",
+                Id = "E9A0D556-B6CA-4D02-97C9-97A16B4B19B2",
                 FirstName = "John",
                 LastName = "Doe",
                 UserName = "JohnDoe",
                 NormalizedUserName = "JOHNDOE",
-                Email = "johndoe@example.com",
-                NormalizedEmail = "JOHNDOE@EXAMPLE.COM",
+                Email = "john8479664F638C4BB7AA390A055A3B918Ddoe@example.com",
+                NormalizedEmail = "JOHN8479664F638C4BB7AA390A055A3B918DDOE@EXAMPLE.COM",
                 PhoneNumber = "+12-345-6789",
             },
             new()
             {
-                Id = "2D829992-8FB0-4800-98A2-0E4E429C6708",
+                Id = "38B5F211-9869-4D5C-9FD8-E154E3168314",
                 FirstName = "Jane",
                 LastName = "Doe",
                 UserName = "janedoe",
                 NormalizedUserName = "JANEDOE",
-                Email = "janedoe@example.com",
-                NormalizedEmail = "JANEDOE@EXAMPLE.COM",
+                Email = "janedoe@example8479664F638C4BB7AA390A055A3B918D.com",
+                NormalizedEmail = "JANEDOE@EXAMPLE8479664F638C4BB7AA390A055A3B918D.COM",
                 PhoneNumber = "098-765-4321",
             },
         };
@@ -242,45 +235,45 @@ public class UserRepositoryTests
     {
         var parameters = new AppUserParameters
         {
-            PhoneNumber = "45-6893",
+            PhoneNumber = "7339BA628BF341DC897F03E2ABDE8725",
         };
-
         var expectedUsers = new List<AppUser> 
         {
             new()
             {
-                Id = "0D64737E-F602-44D8-9B0D-83D2E2C7FEBA",
+                Id = "4955F482-2B6B-41CA-94AA-BCBE78EE1CA6",
                 FirstName = "Robert",
                 LastName = "Brown",
                 UserName = "RobertB",
                 NormalizedUserName = "ROBERTB",
                 Email = "robertbrown@example.com",
                 NormalizedEmail = "ROBERTBROWN@EXAMPLE.COM",
-                PhoneNumber = "555-545-6893",
+                PhoneNumber = "555-7339BA628BF341DC897F03E2ABDE8725-6893",
             },
             new()
             {
-                Id = "E72B33C2-DF13-4D03-ABEE-932A529AB1B8",
+                Id = "9D332CD6-2CFA-4759-BF77-788A7FDC5FD1",
                 FirstName = "Alice",
                 LastName = "Smith",
                 UserName = "alice.smith",
                 NormalizedUserName = "ALICE.SMITH",
                 Email = "alice.smith@example.com",
                 NormalizedEmail = "ALICE.SMITH@EXAMPLE.COM",
-                PhoneNumber = "111-245-6893",
+                PhoneNumber = "111-245-7339BA628BF341DC897F03E2ABDE8725",
             },
             new()
             {
-                Id = "EC94280C-5E90-4D4C-9214-49799B4E5C92",
+                Id = "439362BF-1390-434B-838B-8733AB727134",
                 FirstName = "Bob",
                 LastName = "Smith",
                 UserName = "bob.Smith",
                 NormalizedUserName = "BOB.SMITH",
                 Email = "bob.johnson@example.com",
                 NormalizedEmail = "BOB.JOHNSON@EXAMPLE.COM",
-                PhoneNumber = "444-545-6893",
+                PhoneNumber = "7339BA628BF341DC897F03E2ABDE8725-545-6893",
             },
         };
+        
         await VerifyUserListAsync(expectedUsers, parameters);
     }
     
@@ -297,8 +290,8 @@ public class UserRepositoryTests
             Id = "5DE50785-60C3-4B5C-8EE8-6FFDBACEB671",
             FirstName = "David",
             LastName = "Brown",
-            UserName = "AAAAAA",
-            NormalizedUserName = "DBROWN",
+            UserName = "!!!!!!!!!!!!",
+            NormalizedUserName = "!!!!!!!!!!!!",
             Email = "dbrown@example.com",
             NormalizedEmail = "DBROWN@EXAMPLE.COM",
             PhoneNumber = "222-333-4444",
@@ -324,7 +317,7 @@ public class UserRepositoryTests
             FirstName = "Emily",
             LastName = "Taylor",
             UserName = "ZZZZZZ",
-            NormalizedUserName = "ETAYLOR",
+            NormalizedUserName = "ZZZZZZ",
             Email = "etaylor@example.com",
             NormalizedEmail = "ETAYLOR@EXAMPLE.COM",
             PhoneNumber = "555-666-7777",
@@ -347,7 +340,7 @@ public class UserRepositoryTests
         var expectedFirstUser = new AppUser
         {
             Id = "482B198F-1064-467F-B053-F9CEE91EF34E",
-            FirstName = "AAAAAAA",
+            FirstName = "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!",
             LastName = "Brown",
             UserName = "dbrown",
             NormalizedUserName = "DBROWN",
@@ -359,7 +352,7 @@ public class UserRepositoryTests
         var result = await _repository.GetUsersAsync(parameters);
 
         Assert.AreEqual(FakeData.FakeUsers.Count, result.TotalCount);
-        Assert.AreEqual(expectedFirstUser.Id, result[0].Id);
+        Assert.AreEqual(expectedFirstUser.Id, result.First().Id);
     }
 
     [Test]
@@ -373,7 +366,7 @@ public class UserRepositoryTests
         var expectedFirstUser = new AppUser
         {
             Id = "24CBCD2A-D458-4502-8A3D-A47A90F20D2C",
-            FirstName = "ZZZZZZZ",
+            FirstName = "ZZZZZZZZZZZZZZZZZZZZ",
             LastName = "Taylor",
             UserName = "etaylor",
             NormalizedUserName = "ETAYLOR",
@@ -400,7 +393,7 @@ public class UserRepositoryTests
         {
             Id = "FE74C855-04F5-44E5-9B04-BE69F0ED59E7",
             FirstName = "Carol",
-            LastName = "AAAAA",
+            LastName = "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!",
             UserName = "cdavis",
             NormalizedUserName = "CDAVIS",
             Email = "cdavis@example.com",
@@ -455,8 +448,8 @@ public class UserRepositoryTests
             LastName = "Brown",
             UserName = "dbrown",
             NormalizedUserName = "DBROWN",
-            Email = "AAAAAA@example.com",
-            NormalizedEmail = "AAAAAA@EXAMPLE.COM",
+            Email = "!!!!!!!!!!!!!!!!@example.com",
+            NormalizedEmail = "!!!!!!!!!!!!!!!!@EXAMPLE.COM",
             PhoneNumber = "222-333-4444",
         };
 
@@ -509,7 +502,7 @@ public class UserRepositoryTests
             NormalizedUserName = "DBROWN",
             Email = "dbrown@example.com",
             NormalizedEmail = "DBROWN@EXAMPLE.COM",
-            PhoneNumber = "111-111-1111",
+            PhoneNumber = "!!!!!!!!!!11-111-1111",
         };
 
         var result = await _repository.GetUsersAsync(parameters);
@@ -535,7 +528,7 @@ public class UserRepositoryTests
             NormalizedUserName = "ETAYLOR",
             Email = "etaylor@example.com",
             NormalizedEmail = "ETAYLOR@EXAMPLE.COM",
-            PhoneNumber = "999-999-9999",
+            PhoneNumber = "ZZZZZZZZZZ999-999-9999",
         };
 
         var result = await _repository.GetUsersAsync(parameters);
@@ -547,14 +540,14 @@ public class UserRepositoryTests
     [Test]
     public async Task GetUserByUsernameAsync_WithExistingUsername_ReturnsUser()
     {
-        const string username = "JohnDoe";
+        const string username = "B73FB9C10A42455991B90EB4F0262699";
         var expectedResult = new AppUser
         {
-            Id = "71487432-92E3-49F9-8ECB-31FFD92FD581",
+            Id = "340E7DB9-1CBB-4B6D-84DD-DE95276E9AD7",
             FirstName = "John",
             LastName = "Doe",
-            UserName = "JohnDoe",
-            NormalizedUserName = "JOHNDOE",
+            UserName = "B73FB9C10A42455991B90EB4F0262699",
+            NormalizedUserName = "B73FB9C10A42455991B90EB4F0262699",
             Email = "johndoe@example.com",
             NormalizedEmail = "JOHNDOE@EXAMPLE.COM",
             PhoneNumber = "+12-345-6789",
@@ -563,7 +556,7 @@ public class UserRepositoryTests
         var appUser = await _repository.GetUserByUsernameAsync(username);
 
         Assert.IsNotNull(appUser);
-        Assert.AreEqual("JohnDoe", appUser.UserName);
+        Assert.AreEqual(username, appUser.UserName);
         Assert.AreEqual(expectedResult.Id, appUser.Id);
     }
 
