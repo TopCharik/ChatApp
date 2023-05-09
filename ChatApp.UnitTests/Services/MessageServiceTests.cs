@@ -223,7 +223,7 @@ public class MessageServiceTests
         var conversationId = 1230;
         var message = new Message();
         var expectedError = MessageServiceErrors.USER_IS_NOT_A_MEMBER_OF_THIS_CONVERSATION;
-        _mockParticipationRepository.Setup(repo => repo.GetUserParticipationByConversationId(senderId, conversationId))
+        _mockParticipationRepository.Setup(repo => repo.GetUserParticipationByConversationIdAsync(senderId, conversationId))
             .ReturnsAsync(() => null);
 
         var result = await _messageService.SendMessage(message, senderId, conversationId);
@@ -245,7 +245,7 @@ public class MessageServiceTests
         };
         var message = new Message();
         var expectedError = MessageServiceErrors.USER_IS_NOT_A_MEMBER_OF_THIS_CONVERSATION;
-        _mockParticipationRepository.Setup(repo => repo.GetUserParticipationByConversationId(senderId, conversationId))
+        _mockParticipationRepository.Setup(repo => repo.GetUserParticipationByConversationIdAsync(senderId, conversationId))
             .ReturnsAsync(participation);
 
         var result = await _messageService.SendMessage(message, senderId, conversationId);
@@ -268,7 +268,7 @@ public class MessageServiceTests
         };
         var message = new Message();
         var expectedError = MessageServiceErrors.USER_CANT_WRITE_MESSAGES_IN_THIS_CHAT;
-        _mockParticipationRepository.Setup(repo => repo.GetUserParticipationByConversationId(senderId, conversationId))
+        _mockParticipationRepository.Setup(repo => repo.GetUserParticipationByConversationIdAsync(senderId, conversationId))
             .ReturnsAsync(participation);
 
         var result = await _messageService.SendMessage(message, senderId, conversationId);
@@ -292,7 +292,7 @@ public class MessageServiceTests
         };
         var message = new Message();
         var expectedError = MessageServiceErrors.USER_IS_MUTED_UNTIL(DateTime.Today.AddDays(1));
-        _mockParticipationRepository.Setup(repo => repo.GetUserParticipationByConversationId(senderId, conversationId))
+        _mockParticipationRepository.Setup(repo => repo.GetUserParticipationByConversationIdAsync(senderId, conversationId))
             .ReturnsAsync(participation);
 
         var result = await _messageService.SendMessage(message, senderId, conversationId);
@@ -315,7 +315,7 @@ public class MessageServiceTests
             MutedUntil = null,
         };
         var message = new Message();
-        _mockParticipationRepository.Setup(repo => repo.GetUserParticipationByConversationId(senderId, conversationId))
+        _mockParticipationRepository.Setup(repo => repo.GetUserParticipationByConversationIdAsync(senderId, conversationId))
             .ReturnsAsync(participation);
 
         var result = await _messageService.SendMessage(message, senderId, conversationId);
@@ -338,7 +338,7 @@ public class MessageServiceTests
             MutedUntil = DateTime.Today.AddDays(-1),
         };
         var message = new Message();
-        _mockParticipationRepository.Setup(repo => repo.GetUserParticipationByConversationId(senderId, conversationId))
+        _mockParticipationRepository.Setup(repo => repo.GetUserParticipationByConversationIdAsync(senderId, conversationId))
             .ReturnsAsync(participation);
 
         var result = await _messageService.SendMessage(message, senderId, conversationId);

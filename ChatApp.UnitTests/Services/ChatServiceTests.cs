@@ -199,7 +199,7 @@ public class ChatServiceTests
 
         _mockConversationsRepository.Setup(repo => repo.GetChatByLink(chatLink))
             .ReturnsAsync(chat);
-        _mockParticipationRepository.Setup(repo => repo.GetUserParticipationByConversationId(userId, conversationId))
+        _mockParticipationRepository.Setup(repo => repo.GetUserParticipationByConversationIdAsync(userId, conversationId))
             .ReturnsAsync(() => null);
         
 
@@ -229,7 +229,7 @@ public class ChatServiceTests
 
         _mockConversationsRepository.Setup(repo => repo.GetChatByLink(chatLink))
             .ReturnsAsync(chat);
-        _mockParticipationRepository.Setup(repo => repo.GetUserParticipationByConversationId(userId, conversationId))
+        _mockParticipationRepository.Setup(repo => repo.GetUserParticipationByConversationIdAsync(userId, conversationId))
             .ReturnsAsync(participation);
         
 
@@ -258,7 +258,7 @@ public class ChatServiceTests
 
         _mockConversationsRepository.Setup(repo => repo.GetChatByLink(chatLink))
             .ReturnsAsync(chat);
-        _mockParticipationRepository.Setup(repo => repo.GetUserParticipationByConversationId(userId, conversationId))
+        _mockParticipationRepository.Setup(repo => repo.GetUserParticipationByConversationIdAsync(userId, conversationId))
             .ReturnsAsync(participation);
         
 

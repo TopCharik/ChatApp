@@ -77,7 +77,7 @@ public class ChatService : IChatService
 
         var repo = _unitOfWork.GetRepository<IParticipationRepository>();
         
-        var participation = await repo.GetUserParticipationByConversationId(userId, chat.Value!.Id);
+        var participation = await repo.GetUserParticipationByConversationIdAsync(userId, chat.Value!.Id);
 
         if (participation == null || participation.HasLeft)
         {

@@ -599,6 +599,40 @@ public class UserRepositoryTests
 
         Assert.IsNull(result);
     }
+    
+    [Test]
+    public async Task GetUserByConnectionIdAsync_WithNonExistingConnectionId_ReturnsNull()
+    {
+        var connectionId = "nonexistinguserconnectionId";
+
+        var result = await _repository.GetUserByConnectionIdAsync(connectionId);
+
+        Assert.IsNull(result);
+    }
+    
+    [Test]
+    public async Task GetUserByConnectionIdAsync_WithExistingConnectionId_ReturnsUser()
+    {
+        const string callHubConnectionId = "735AD785D8CD4723989A87B6DF7074EF";
+        var expectedResult = new AppUser
+        {
+            Id = "00DA31F8-0619-4593-A89B-A39AA3FB88E7",
+            FirstName = "David",
+            LastName = "Smith",
+            UserName = "DavidSmith",
+            NormalizedUserName = "DAVIDSMITH",
+            Email = "davidsmith@example.com",
+            NormalizedEmail = "DAVIDSMITH@EXAMPLE.COM",
+            PhoneNumber = "555-123-4567",
+            CallHubConnectionId = "735AD785D8CD4723989A87B6DF7074EF",
+        };
+
+        var appUser = await _repository.GetUserByConnectionIdAsync(callHubConnectionId);
+
+        Assert.IsNotNull(appUser);
+        Assert.AreEqual(callHubConnectionId, appUser.CallHubConnectionId);
+        Assert.AreEqual(expectedResult.Id, appUser.Id);
+    }
 
     private async Task VerifyUserListAsync(List<AppUser> expectedUsers, AppUserParameters parameters)
     {
@@ -610,4 +644,6 @@ public class UserRepositoryTests
         Assert.AreEqual(expectedResult.Count, result.Count);
         Assert.True(expectedResult.All(expectedUser => result.FirstOrDefault(x => x.Id == expectedUser.Id) != null));
     }
+    
+    
 }

@@ -5,5 +5,5 @@ namespace ChatApp.DAL.App.Repositories;
 
 public interface IParticipationRepository : IBaseRepository<Participation>
 {
-    public Task<Participation?> GetUserParticipationByConversationId(string userId, int ConversationId);
+    public Task<Participation?> GetUserParticipationByConversationIdAsync(string userId, int ConversationId);
 }

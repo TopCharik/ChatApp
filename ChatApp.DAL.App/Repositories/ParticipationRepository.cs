@@ -8,7 +8,7 @@ public class ParticipationRepository : BaseRepository<Participation>, IParticipa
 {
     public ParticipationRepository(AppDbContext context) : base(context) { }
 
-    public Task<Participation?> GetUserParticipationByConversationId(string userId, int ConversationId)
+    public Task<Participation?> GetUserParticipationByConversationIdAsync(string userId, int ConversationId)
     {
         return GetByCondition(x => x.AspNetUserId == userId && x.ConversationId == ConversationId)
             .FirstOrDefaultAsync();

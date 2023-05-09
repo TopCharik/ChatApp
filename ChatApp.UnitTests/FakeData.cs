@@ -70,6 +70,18 @@ public class FakeData
         },
         new()
         {
+            Id = "00DA31F8-0619-4593-A89B-A39AA3FB88E7",
+            FirstName = "David",
+            LastName = "Smith",
+            UserName = "DavidSmith",
+            NormalizedUserName = "DAVIDSMITH",
+            Email = "davidsmith@example.com",
+            NormalizedEmail = "DAVIDSMITH@EXAMPLE.COM",
+            PhoneNumber = "555-123-4567",
+            CallHubConnectionId = "735AD785D8CD4723989A87B6DF7074EF",
+        },
+        new()
+        {
             Id = "661ABAAB-DA8F-46B9-B796-52A258C591BF",
             FirstName = "David",
             LastName = "Smith",
@@ -440,7 +452,7 @@ public class FakeData
             NormalizedUserName = "B73FB9C10A42455991B90EB4F0262699",
             Email = "johndoe@example.com",
             NormalizedEmail = "JOHNDOE@EXAMPLE.COM",
-            PhoneNumber = "+12-345-6789",  
+            PhoneNumber = "+12-345-6789",
         },
         new()
         {
@@ -564,7 +576,12 @@ public class FakeData
         {
             Id = 5588,
             ChatInfoId = 96241,
-        }
+        },
+        new()
+        {
+        Id = 25482,
+        ChatInfoId = 4682195,
+    },
     };
 
     private static List<ChatInfo> _fakeChatInfos = new()
@@ -631,7 +648,14 @@ public class FakeData
             Title = "Chat Title",
             ChatLink = "3DE73A90-0BB4-44AA-B6F9-BC2099F0CCB2",
             IsPrivate = false,
-        }
+        },
+        new()
+        {
+        Id = 4682195,
+        Title = "Chat Title",
+        ChatLink = "51491C65-9A5D-4050-908A-4439F33E4158",
+        IsPrivate = false,
+    },
     };
 
     private static List<Participation> _fakeParticipations = new()
@@ -730,8 +754,24 @@ public class FakeData
             CanChangeChatAvatar = false,
             CanChangeChatTitle = false,
             CanSetPermissions = false,
-            CanDeleteConversation = false, 
-        }
+            CanDeleteConversation = false,
+        },
+        new()
+        {
+            Id = 1972,
+            AspNetUserId = "00DA31F8-0619-4593-A89B-A39AA3FB88E7",
+            ConversationId = 25482,
+            CanWriteMessages = true,
+            CanMuteParticipants = false,
+            CanDeleteMessages = false,
+            CanAddParticipants = false,
+            CanDeleteParticipants = false,
+            CanChangePublicity = false,
+            CanChangeChatAvatar = false,
+            CanChangeChatTitle = false,
+            CanSetPermissions = false,
+            CanDeleteConversation = false,
+        },
     };
 
     private static List<Message> _fakeMessages = new()

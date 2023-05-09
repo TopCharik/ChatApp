@@ -45,7 +45,7 @@ public class MessageService : IMessageService
     public async Task<ServiceResult> SendMessage(Message message, string senderId, int conversationId)
     {
         var participationRepo = _unitOfWork.GetRepository<IParticipationRepository>();
-        var participation = await participationRepo.GetUserParticipationByConversationId(senderId, conversationId);
+        var participation = await participationRepo.GetUserParticipationByConversationIdAsync(senderId, conversationId);
 
         if (participation == null || participation.HasLeft)
         {
