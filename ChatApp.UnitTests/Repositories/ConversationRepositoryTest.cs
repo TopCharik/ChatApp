@@ -24,7 +24,7 @@ public class ConversationRepositoryTest
     {
         var parameters = new ChatInfoParameters();
 
-        var result = await _repository.GetPublicChatsAsync(parameters);
+        var result = await _repository.GetChatsAsync(parameters);
 
         Assert.AreEqual(FakeData.FakeChatInfoViews.Count, result.TotalCount);
     }
@@ -177,7 +177,7 @@ public class ConversationRepositoryTest
             ParticipationsCount = 325,
         };
 
-        var result = await _repository.GetPublicChatsAsync(parameters);
+        var result = await _repository.GetChatsAsync(parameters);
 
         Assert.AreEqual(FakeData.FakeChatInfoViews.Count, result.TotalCount);
         Assert.AreEqual(expectedFirstUser.ChatInfoId, result.First().ChatInfoId);
@@ -202,7 +202,7 @@ public class ConversationRepositoryTest
             ParticipationsCount = 325,
         };
 
-        var result = await _repository.GetPublicChatsAsync(parameters);
+        var result = await _repository.GetChatsAsync(parameters);
 
         Assert.AreEqual(FakeData.FakeChatInfoViews.Count, result.TotalCount);
         Assert.AreEqual(expectedFirstUser.ChatInfoId, result.First().ChatInfoId);
@@ -227,7 +227,7 @@ public class ConversationRepositoryTest
             ParticipationsCount = 325,
         };
 
-        var result = await _repository.GetPublicChatsAsync(parameters);
+        var result = await _repository.GetChatsAsync(parameters);
 
         Assert.AreEqual(FakeData.FakeChatInfoViews.Count, result.TotalCount);
         Assert.AreEqual(expectedFirstUser.ChatInfoId, result.First().ChatInfoId);
@@ -252,7 +252,7 @@ public class ConversationRepositoryTest
             ParticipationsCount = 325,
         };
 
-        var result = await _repository.GetPublicChatsAsync(parameters);
+        var result = await _repository.GetChatsAsync(parameters);
 
         Assert.AreEqual(FakeData.FakeChatInfoViews.Count, result.TotalCount);
         Assert.AreEqual(expectedFirstUser.ChatInfoId, result.First().ChatInfoId);
@@ -278,7 +278,7 @@ public class ConversationRepositoryTest
             ParticipationsCount = int.MinValue,
         };
 
-        var result = await _repository.GetPublicChatsAsync(parameters);
+        var result = await _repository.GetChatsAsync(parameters);
 
         Assert.AreEqual(FakeData.FakeChatInfoViews.Count, result.TotalCount);
         Assert.AreEqual(expectedFirstUser.ChatInfoId, result.First().ChatInfoId);
@@ -303,7 +303,7 @@ public class ConversationRepositoryTest
             ParticipationsCount = int.MaxValue,
         };
 
-        var result = await _repository.GetPublicChatsAsync(parameters);
+        var result = await _repository.GetChatsAsync(parameters);
 
         Assert.AreEqual(FakeData.FakeChatInfoViews.Count, result.TotalCount);
         Assert.AreEqual(expectedFirstUser.ChatInfoId, result.First().ChatInfoId);
@@ -669,7 +669,7 @@ public class ConversationRepositoryTest
         var expectedResult =
             PagedList<ChatInfoView>.ToPagedList(expectedChatInfoViews, parameters.Page, parameters.PageSize);
 
-        var result = await _repository.GetPublicChatsAsync(parameters);
+        var result = await _repository.GetChatsAsync(parameters);
 
         Assert.AreEqual(expectedResult.TotalCount, result.TotalCount);
         Assert.AreEqual(expectedResult.Count, result.Count);

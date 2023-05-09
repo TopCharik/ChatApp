@@ -1,3 +1,4 @@
+using ChatApp.Core.Entities.ChatInfoAggregate;
 using Microsoft.EntityFrameworkCore;
 
 namespace ChatApp.DAL.App.Helpers;

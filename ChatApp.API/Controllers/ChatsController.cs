@@ -44,8 +44,13 @@ public class ChatsController : ControllerBase
     {
         var parameters = _mapper.Map<ChatInfoParameters>(queryParams);
         var chats = await _chatService.GetChatsAsync(parameters);
-        var chatsDto = _mapper.Map<PagedResponseDto<ChatInfoDto>>(chats);
-
+        if (!chats.Succeeded)
+        {
+            return BadRequest(new ApiError(400, chats.Errors));
+        }
+        
+        var chatsDto = _mapper.Map<PagedResponseDto<ChatInfoDto>>(chats.Value);
+        
         return chatsDto;
     }
 

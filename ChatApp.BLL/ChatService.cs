@@ -1,4 +1,5 @@
 using ChatApp.BLL.Helpers;
+using ChatApp.BLL.Helpers.ServiceErrors;
 using ChatApp.Core.Entities;
 using ChatApp.Core.Entities.ChatInfoAggregate;
 using ChatApp.DAL.App.Helpers;
@@ -17,11 +18,13 @@ public class ChatService : IChatService
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<PagedList<ChatInfoView>> GetChatsAsync(ChatInfoParameters parameters)
+    public async Task<ServiceResult<PagedList<ChatInfoView>>> GetChatsAsync(ChatInfoParameters parameters)
     {
         var repo = _unitOfWork.GetRepository<IConversationsRepository>();
+        
+        var chats = await repo.GetChatsAsync(parameters);
 
-        return await repo.GetPublicChatsAsync(parameters);
+        return new ServiceResult<PagedList<ChatInfoView>>(chats);
     }
     
     public async Task<ServiceResult> JoinChat(string chatLink, Participation newParticipation)
@@ -38,20 +41,12 @@ public class ChatService : IChatService
         if (conversationInfo.Value.Participations != null 
             && currentParticipation?.HasLeft == false)
         {
-            var errors = new List<KeyValuePair<string, string>>
-            {
-                new ("Joining chat failed", "User is already member of this chat."),
-            };
-            return new ServiceResult(errors);
+            return new ServiceResult(ChatServiceErrors.USER_IS_ALLREADY_MEMBER_OF_THIS_CHAT);
         }
 
         if (conversationInfo.Value!.ChatInfo!.IsPrivate)
         {
-            var errors = new List<KeyValuePair<string, string>>
-            {
-                new ("Joining chat failed", "This is a private chat. User can't join this chat."),
-            };
-            return new ServiceResult(errors);
+            return new ServiceResult(ChatServiceErrors.USER_CANT_JOIN_PRIVATE_CHAT);
         }
 
         var repo = _unitOfWork.GetRepository<IParticipationRepository>();
@@ -64,7 +59,6 @@ public class ChatService : IChatService
         {
             currentParticipation.HasLeft = false;
             repo.Update(currentParticipation);
-            await _unitOfWork.SaveChangesAsync();
         }
 
         await _unitOfWork.SaveChangesAsync();
@@ -83,17 +77,11 @@ public class ChatService : IChatService
 
         var repo = _unitOfWork.GetRepository<IParticipationRepository>();
         
-        var participation = await repo
-            .GetByCondition(x => x.AspNetUserId == userId && x.ConversationId == chat.Value!.Id)
-            .FirstOrDefaultAsync();
+        var participation = await repo.GetUserParticipationByConversationId(userId, chat.Value!.Id);
 
         if (participation == null || participation.HasLeft)
         {
-            var errors = new List<KeyValuePair<string, string>>
-            {
-                new ("Chat leave failed", "User is not a member of this chat."),
-            };
-            return new ServiceResult(errors);
+            return new ServiceResult(ChatServiceErrors.USER_IS_NOT_A_MEMBER_OF_THIS_CHAT);
         }
 
         participation.HasLeft = true;
@@ -111,11 +99,7 @@ public class ChatService : IChatService
         var chat = await repo.GetChatByLink(conversation.ChatInfo.ChatLink);
         if (chat != null)
         {
-            var errors = new List<KeyValuePair<string, string>>
-            {
-                new ("Chat creation failed", "Chat with this link already exist."),
-            };
-            return new ServiceResult(errors);
+            return new ServiceResult(ChatServiceErrors.CHAT_WITH_THIS_LINK_ALLREADY_EXIST);
         }
 
         repo.Create(conversation);
@@ -131,11 +115,7 @@ public class ChatService : IChatService
         var chat = await repo.GetChatByLink(chatLink);
         if (chat == null)
         {
-            var errors = new List<KeyValuePair<string, string>>
-            {
-                new ("Chat not found", "Chat with this link doesn't exist."),
-            };
-            return new ServiceResult<Conversation>(errors);
+            return new ServiceResult<Conversation>(ChatServiceErrors.CHAT_WITH_THIS_LINK_DOESNT_EXIST);
         }
 
         return new ServiceResult<Conversation>(chat);
@@ -148,14 +128,9 @@ public class ChatService : IChatService
         var chatWithUserParticipation = await repo.GetChatWithUserParticipationByLink(chatLink, userId);
         if (chatWithUserParticipation == null)
         {
-            var errors = new List<KeyValuePair<string, string>>
-            {
-                new ("Chat not found", "Chat with this link doesn't exist."),
-            };
-            return new ServiceResult<Conversation>(errors);
+            return new ServiceResult<Conversation>(ChatServiceErrors.CHAT_WITH_THIS_LINK_DOESNT_EXIST);
         }
-        
-        
+
         return new ServiceResult<Conversation>(chatWithUserParticipation);
     }
     
@@ -166,11 +141,7 @@ public class ChatService : IChatService
         
         if (chatWithUserParticipation == null)
         {
-            var errors = new List<KeyValuePair<string, string>>
-            {
-                new ("Avatar upload failed", "Chat with this link doesn't exist."),
-            };
-            return new ServiceResult<Conversation>(errors);
+            return new ServiceResult<Conversation>(ChatServiceErrors.CHAT_WITH_THIS_LINK_DOESNT_EXIST);
         }
         
         var currentParticipation = chatWithUserParticipation.Participations
@@ -178,11 +149,7 @@ public class ChatService : IChatService
 
         if (currentParticipation is not {CanChangeChatAvatar: true})
         {
-            var errors = new List<KeyValuePair<string, string>>
-            {
-                new ("Avatar upload failed", "You don't have permission for upload avatar to this chat"),
-            };
-            return new ServiceResult<Conversation>(errors);
+            return new ServiceResult<Conversation>(ChatServiceErrors.USER_CANT_ADD_AVATAR_TO_THIS_CHAT);
         }
 
         var repo = _unitOfWork.GetRepository<IAvatarRepository>();

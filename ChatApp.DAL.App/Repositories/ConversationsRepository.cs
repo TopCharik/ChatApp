@@ -12,7 +12,7 @@ public class ConversationsRepository : BaseRepository<Conversation>, IConversati
     public ConversationsRepository(AppDbContext context) 
         : base(context) { }
 
-    public async Task<PagedList<ChatInfoView>> GetPublicChatsAsync(ChatInfoParameters parameters)
+    public async Task<PagedList<ChatInfoView>> GetChatsAsync(ChatInfoParameters parameters)
     {
         var chats = _context.Set<ChatInfoView>()
             .Include(
