@@ -41,7 +41,7 @@ public class MessageServiceTests
         var userId = "test-id";
         var messageParameters = new MessageParameters();
         var messages = new List<Message>();
-        var expectedError = MessageServiceErrors.CHAT_WITH_THIS_LINK_DOESNT_EXIST;
+        var expectedError = MessageServiceErrors.CHAT_NOT_FOUND;
         _mockConversationsRepository.Setup(repo => repo.GetChatWithUserParticipationById(conversationId, userId))
             .ReturnsAsync(() => null);
         _mockMessageRepository.Setup(repo => repo.GetMessagesAsync(conversationId, messageParameters))
@@ -70,7 +70,7 @@ public class MessageServiceTests
             },
             Participations =  null,
         };
-        var expectedError = MessageServiceErrors.USER_CANT_READ_MESSAGES_IN_THIS_CHAT;
+        var expectedError = MessageServiceErrors.USER_CANT_READ_MESSAGES_FROM_THIS_CHAT;
         _mockConversationsRepository.Setup(repo => repo.GetChatWithUserParticipationById(conversationId, userId))
             .ReturnsAsync(conversation);
         _mockMessageRepository.Setup(repo => repo.GetMessagesAsync(conversationId, messageParameters))
@@ -105,7 +105,7 @@ public class MessageServiceTests
                 },
             },
         };
-        var expectedError = MessageServiceErrors.USER_CANT_READ_MESSAGES_IN_THIS_CHAT;
+        var expectedError = MessageServiceErrors.USER_CANT_READ_MESSAGES_FROM_THIS_CHAT;
         _mockConversationsRepository.Setup(repo => repo.GetChatWithUserParticipationById(conversationId, userId))
             .ReturnsAsync(conversation);
         _mockMessageRepository.Setup(repo => repo.GetMessagesAsync(conversationId, messageParameters))

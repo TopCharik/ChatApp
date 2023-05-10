@@ -2,9 +2,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ChatApp.BLL\ChatApp.BLL.csproj" />
+    <ProjectReference Include="..\ChatApp.DAL.Identity\ChatApp.DAL.Identity.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Bogus" Version="34.0.2" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.5.0" />
     <PackageReference Include="NUnit" Version="3.13.3" />
   </ItemGroup>

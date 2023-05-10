@@ -2,11 +2,11 @@ namespace ChatApp.BLL.Helpers.ServiceErrors;
 
 public class MessageServiceErrors
 {
-    public static  List<KeyValuePair<string, string>> CHAT_WITH_THIS_LINK_DOESNT_EXIST = new()
+    public static  List<KeyValuePair<string, string>> CHAT_NOT_FOUND = new()
     {
-        new ("Get messages failed", "Chat with this link doesn't exist."),
+        new ("Get messages failed", "Chat not found."),
     };
-    public static  List<KeyValuePair<string, string>> USER_CANT_READ_MESSAGES_IN_THIS_CHAT = new()
+    public static  List<KeyValuePair<string, string>> USER_CANT_READ_MESSAGES_FROM_THIS_CHAT = new()
     {
         new ("Get messages failed", "This is a private chat. Only participants can read messages."),
     };

@@ -8,5 +8,4 @@ public class AspNetUser
     public string? Email { get; init; }
     public string? NormalizedEmail { get; init; }
     public string? PhoneNumber { get; init; }
-    public bool PhoneNumberConfirmed { get; init; }
 }

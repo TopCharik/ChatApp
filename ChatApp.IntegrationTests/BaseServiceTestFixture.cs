@@ -3,6 +3,8 @@ using ChatApp.DAL.App;
 using ChatApp.DAL.App.AppContext;
 using ChatApp.DAL.App.Interfaces;
 using ChatApp.DAL.App.Repositories;
+using ChatApp.DAL.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -14,22 +16,28 @@ public abstract class BaseServiceTestFixture
     
     protected IServiceProvider _serviceProvider;
     protected DbContext _dbContext;
+    protected UserManager<ExtendedIdentityUser> _userManager;
 
 
     protected BaseServiceTestFixture()
     {
-        _serviceProvider = new ServiceCollection()
+        var serviceCollection = new ServiceCollection()
             .AddDbContext<AppDbContext>(opt => opt.UseSqlServer(TESTDB_CONNECTION_STRING))
+            .AddDbContext<IdentityDbContext>(opt => opt.UseSqlServer(TESTDB_CONNECTION_STRING))
             .AddScoped<IUserRepository, UserRepository>()
             .AddScoped<IConversationsRepository, ConversationsRepository>()
             .AddScoped<IParticipationRepository, ParticipationRepository>()
             .AddScoped<IMessageRepository, MessageRepository>()
             .AddScoped<IAvatarRepository, AvatarRepository>()
             .AddScoped<IUnitOfWork, UnitOfWork>()
-            .AddScoped<IMessageService, MessageService>()
-            .BuildServiceProvider();
+            .AddScoped<IMessageService, MessageService>();
+        serviceCollection.AddIdentityCore<ExtendedIdentityUser>()
+            .AddEntityFrameworkStores<IdentityDbContext>();
+        _serviceProvider = serviceCollection.BuildServiceProvider();
         
         _dbContext = _serviceProvider.GetService<AppDbContext>() 
                           ?? throw new InvalidOperationException("IMessageService is not registered in BaseServiceTestFixture");
+        _userManager = _serviceProvider.GetService<UserManager<ExtendedIdentityUser>>()
+                       ?? throw new InvalidOperationException("UserManager is not registered in BaseServiceTestFixture");
     }
 }

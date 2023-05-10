@@ -24,7 +24,7 @@ public class MessageService : IMessageService
         
         if (chatWithUserParticipation == null)
         {
-            return new ServiceResult<List<Message>>(MessageServiceErrors.CHAT_WITH_THIS_LINK_DOESNT_EXIST);
+            return new ServiceResult<List<Message>>(MessageServiceErrors.CHAT_NOT_FOUND);
         }
         
         var currentParticipation = chatWithUserParticipation.Participations?.FirstOrDefault(x => x.AspNetUserId == userId);
@@ -32,7 +32,7 @@ public class MessageService : IMessageService
         if (chatWithUserParticipation.ChatInfo!.IsPrivate
             && currentParticipation is null or {HasLeft: true})
         {
-            return new ServiceResult<List<Message>>(MessageServiceErrors.USER_CANT_READ_MESSAGES_IN_THIS_CHAT);
+            return new ServiceResult<List<Message>>(MessageServiceErrors.USER_CANT_READ_MESSAGES_FROM_THIS_CHAT);
         }
         
         var messageRepo = _unitOfWork.GetRepository<IMessageRepository>();
