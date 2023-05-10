@@ -177,8 +177,7 @@ public class MessageRepositoryTests
 
         var result = await _repository.GetMessagesAsync(conversationId, messageParameters);
 
-        Assert.AreEqual(expectedResult.FirstOrDefault().Participation.AppUser.Id,
-            result.FirstOrDefault().Participation.AppUser.Id);
+        Assert.AreEqual(expectedResult.First().Participation.AppUser.Id, result.First().Participation.AppUser.Id);
     }
 
 
@@ -237,8 +236,8 @@ public class MessageRepositoryTests
 
         var result = await _repository.GetMessagesAsync(conversationId, messageParameters);
 
-        Assert.AreEqual(expectedResult.FirstOrDefault().Participation.AppUser.Avatars.First().ImagePayload,
-            result.FirstOrDefault().Participation.AppUser.Avatars.First().ImagePayload);
+        Assert.AreEqual(expectedResult.First().Participation.AppUser.Avatars.First().ImagePayload,
+            result.First().Participation.AppUser.Avatars.First().ImagePayload);
     }
 
     [Test]

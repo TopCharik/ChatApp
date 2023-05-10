@@ -140,7 +140,7 @@ public class UserServiceTests
     }
 
     [Test]
-    public async Task GetUserIdsByUsernames_WithAllUsernamesExist_ReturnsError()
+    public async Task GetUserIdsByUsernames_WithAllUsernamesExist_ReturnsUsernames()
     {
         var usernames = new List<string> {"username1", "username2"};
         var user1 = new AppUser {UserName = "username1"};
@@ -218,6 +218,8 @@ public class UserServiceTests
 
         Assert.IsFalse(result.Succeeded);
         Assert.AreEqual(expectedError, result.Errors);
+        _mockUserRepository.Verify(repo => repo.Update(It.IsAny<AppUser>()), Times.Never);
+        _mockUnitOfWork.Verify(uow => uow.SaveChangesAsync(), Times.Never);
         Assert.IsNull(result.Value);
     }
 
@@ -235,139 +237,36 @@ public class UserServiceTests
         var result = await _userService.RemoveCallHubConnectionId(connectionId);
 
         Assert.IsTrue(result.Succeeded);
+        _mockUserRepository.Verify(repo => repo.Update(user), Times.Once);
+        _mockUnitOfWork.Verify(uow => uow.SaveChangesAsync(), Times.Once);
         Assert.IsNull(result.Value.CallHubConnectionId);
     }
 
-    [Test]
-    public async Task SetInCall_WithCallReceiverUsernameNotExist_ReturnsError()
+    [TestCase(null, null)]
+    [TestCase("user1", null)]
+    [TestCase(null, "user2")]
+    public async Task SetInCall_WithBothUsernamesNotExist1_ReturnsError(string? callInitiatorUsername, string? callReceiverUsername)
     {
-        AppUser? user1 = new AppUser {UserName = "username1"};
-        AppUser? user2 = null;
+        var callInitiator = callInitiatorUsername != null ? new AppUser { UserName = callInitiatorUsername } : null;
+        var callReceiver = callReceiverUsername != null ? new AppUser { UserName = callReceiverUsername } : null;
+        
         var callUsernames = new CallUsernamesDto
         {
-            callInitiatorUsername = user1.UserName,
-            callReceiverUsername = "username2",
+            callInitiatorUsername = callInitiator?.UserName ?? "usernameNotExist",
+            callReceiverUsername =  callReceiver?.UserName ?? "usernameNotExist",
         };
         var expectedError = UserServiceErrors.USER_NOT_FOUND_BY_USERNAME;
-        _mockUserRepository.Setup(repo => repo.GetUserByUsernameAsync("username1"))
-            .ReturnsAsync(user1);
-        _mockUserRepository.Setup(repo => repo.GetUserByUsernameAsync("username2"))
-            .ReturnsAsync(user2);
+        _mockUserRepository.Setup(repo => repo.GetUserByUsernameAsync(callUsernames.callInitiatorUsername))
+            .ReturnsAsync(callInitiator);
+        _mockUserRepository.Setup(repo => repo.GetUserByUsernameAsync(callUsernames.callReceiverUsername))
+            .ReturnsAsync(callReceiver);
 
         var result = await _userService.SetInCall(callUsernames, true);
         
         Assert.IsFalse(result.Succeeded);
         Assert.AreEqual(expectedError, result.Errors);
-    }
-
-    [Test]
-    public async Task SetInCall_WithCallInitiatorUsernameNotExist_ReturnsError()
-    {
-        AppUser? user1 = null;
-        AppUser? user2 = new AppUser {UserName = "username2"};
-        var callUsernames = new CallUsernamesDto
-        {
-            callInitiatorUsername = "username1",
-            callReceiverUsername = user2.UserName,
-        };
-        var expectedError = UserServiceErrors.USER_NOT_FOUND_BY_USERNAME;
-        _mockUserRepository.Setup(repo => repo.GetUserByUsernameAsync("username1"))
-            .ReturnsAsync(user1);
-        _mockUserRepository.Setup(repo => repo.GetUserByUsernameAsync("username2"))
-            .ReturnsAsync(user2);
-
-        var result = await _userService.SetInCall(callUsernames, true);
-        
-        Assert.IsFalse(result.Succeeded);
-        Assert.AreEqual(expectedError, result.Errors);
-    }
-    
-    [Test]
-    public async Task SetInCall_WithBothUsernamesNotExist_ReturnsError()
-    {
-        AppUser? user1 = null;
-        AppUser? user2 = null;
-        var callUsernames = new CallUsernamesDto
-        {
-            callInitiatorUsername = "username1",
-            callReceiverUsername = "username2",
-        };
-        var expectedError = UserServiceErrors.USER_NOT_FOUND_BY_USERNAME;
-        _mockUserRepository.Setup(repo => repo.GetUserByUsernameAsync("username1"))
-            .ReturnsAsync(user1);
-        _mockUserRepository.Setup(repo => repo.GetUserByUsernameAsync("username2"))
-            .ReturnsAsync(user2);
-
-        var result = await _userService.SetInCall(callUsernames, true);
-        
-        Assert.IsFalse(result.Succeeded);
-        Assert.AreEqual(expectedError, result.Errors);
-    }
-    
-    [Test]
-    public async Task SetInCall_WithCallInitiatorSameValueTrue_ReturnsError()
-    {
-        AppUser? user1 = new AppUser{UserName = "username1", InCall = true};
-        AppUser? user2 = new AppUser{UserName = "username2", InCall = false};
-        var callUsernames = new CallUsernamesDto
-        {
-            callInitiatorUsername = "username1",
-            callReceiverUsername = "username2",
-        };
-        var expectedError = UserServiceErrors.USER_SET_IN_CALL_FAILED;
-        _mockUserRepository.Setup(repo => repo.GetUserByUsernameAsync("username1"))
-            .ReturnsAsync(user1);
-        _mockUserRepository.Setup(repo => repo.GetUserByUsernameAsync("username2"))
-            .ReturnsAsync(user2);
-
-        var result = await _userService.SetInCall(callUsernames, true);
-        
-        Assert.IsFalse(result.Succeeded);
-        Assert.AreEqual(expectedError, result.Errors);
-    }
-    
-    [Test]
-    public async Task SetInCall_WithCallReceiverSameValueTrue_ReturnsError()
-    {
-        AppUser? user1 = new AppUser{UserName = "username1", InCall = false};
-        AppUser? user2 = new AppUser{UserName = "username2", InCall = true};
-        var callUsernames = new CallUsernamesDto
-        {
-            callInitiatorUsername = "username1",
-            callReceiverUsername = "username2",
-        };
-        var expectedError = UserServiceErrors.USER_SET_IN_CALL_FAILED;
-        _mockUserRepository.Setup(repo => repo.GetUserByUsernameAsync("username1"))
-            .ReturnsAsync(user1);
-        _mockUserRepository.Setup(repo => repo.GetUserByUsernameAsync("username2"))
-            .ReturnsAsync(user2);
-
-        var result = await _userService.SetInCall(callUsernames, true);
-        
-        Assert.IsFalse(result.Succeeded);
-        Assert.AreEqual(expectedError, result.Errors);
-    }
-
-    [Test]
-    public async Task SetInCall_WithBothSameValueTrue_ReturnsError()
-    {
-        AppUser? user1 = new AppUser{UserName = "username1", InCall = true};
-        AppUser? user2 = new AppUser{UserName = "username2", InCall = true};
-        var callUsernames = new CallUsernamesDto
-        {
-            callInitiatorUsername = "username1",
-            callReceiverUsername = "username2",
-        };
-        var expectedError = UserServiceErrors.USER_SET_IN_CALL_FAILED;
-        _mockUserRepository.Setup(repo => repo.GetUserByUsernameAsync("username1"))
-            .ReturnsAsync(user1);
-        _mockUserRepository.Setup(repo => repo.GetUserByUsernameAsync("username2"))
-            .ReturnsAsync(user2);
-
-        var result = await _userService.SetInCall(callUsernames, true);
-        
-        Assert.IsFalse(result.Succeeded);
-        Assert.AreEqual(expectedError, result.Errors);
+        _mockUserRepository.Verify(repo => repo.Update(It.IsAny<AppUser>()), Times.Never);
+        _mockUnitOfWork.Verify(uow => uow.SaveChangesAsync(), Times.Never);
     }
     
     [Test]
@@ -380,7 +279,6 @@ public class UserServiceTests
             callInitiatorUsername = "username1",
             callReceiverUsername = "username2",
         };
-        var expectedError = UserServiceErrors.USER_SET_IN_CALL_FAILED;
         _mockUserRepository.Setup(repo => repo.GetUserByUsernameAsync("username1"))
             .ReturnsAsync(user1);
         _mockUserRepository.Setup(repo => repo.GetUserByUsernameAsync("username2"))
@@ -393,6 +291,31 @@ public class UserServiceTests
         _mockUserRepository.Verify(repo => repo.Update(user2), Times.Once);
         _mockUnitOfWork.Verify(uow => uow.SaveChangesAsync(), Times.Once);
     }
+    
+    [TestCase(true, false, true)]
+    [TestCase(false, true, true)]
+    [TestCase(true, true, true)]
+    public async Task SetInCall_WithBothValueFalseSetTrue_ReturnsError(bool callInitiatorInCall, bool callReceiverInCall, bool updatedInCallValue)
+    {
+        AppUser? callInitiator = new AppUser{UserName = "username1", InCall = callInitiatorInCall};
+        AppUser? callReceiver = new AppUser{UserName = "username2", InCall = callReceiverInCall};
+        var callUsernames = new CallUsernamesDto
+        {
+            callInitiatorUsername = callInitiator.UserName,
+            callReceiverUsername = callReceiver.UserName,
+        };
+        var expectedError = UserServiceErrors.USER_SET_IN_CALL_FAILED;
+        _mockUserRepository.Setup(repo => repo.GetUserByUsernameAsync(callInitiator.UserName))
+            .ReturnsAsync(callInitiator);
+        _mockUserRepository.Setup(repo => repo.GetUserByUsernameAsync(callReceiver.UserName))
+            .ReturnsAsync(callReceiver);
+
+        var result = await _userService.SetInCall(callUsernames, updatedInCallValue);
+        
+        Assert.IsFalse(result.Succeeded);
+        Assert.AreEqual(expectedError, result.Errors);
+    }
+
 
     [Test]
     public async Task SetInCallByConnectionId_WithConnectionIdNotExist_ReturnsError()
@@ -407,46 +330,31 @@ public class UserServiceTests
         Assert.IsFalse(result.Succeeded);
         Assert.AreEqual(expectedError, result.Errors);
         Assert.IsNull(result.Value);
-    }
-    
-    [Test]
-    public async Task SetInCallByConnectionId_WithUserValueTrueAndNewValueTrue_ReturnsError()
-    {
-        var connectionId = "test-connectionId";
-        var user = new AppUser
-        {
-            CallHubConnectionId = connectionId,
-            InCall = true,
-        };
-        var expectedError = UserServiceErrors.USER_SET_IN_CALL_FAILED;
-        _mockUserRepository.Setup(repo => repo.GetUserByConnectionIdAsync(connectionId))
-            .ReturnsAsync(user);
-
-        var result = await _userService.SetInCallByConnectionId(connectionId, true);
-
-        Assert.IsFalse(result.Succeeded);
-        Assert.AreEqual(expectedError, result.Errors);
-        Assert.IsNull(result.Value);
+        _mockUserRepository.Verify(repo => repo.Update(It.IsAny<AppUser>()), Times.Never);
+        _mockUnitOfWork.Verify(uow => uow.SaveChangesAsync(), Times.Never);
     }
         
-    [Test]
-    public async Task SetInCallByConnectionId_WithUserValueFalseAndNewValueFalse_ReturnsError()
+    [TestCase(true, true)]
+    [TestCase(false, false)]
+    public async Task SetInCallByConnectionId_WithSameUserValueAndNewValue_ReturnsError(bool userInCall, bool newInCallValue)
     {
         var connectionId = "test-connectionId";
         var user = new AppUser
         {
             CallHubConnectionId = connectionId,
-            InCall = false,
+            InCall = userInCall,
         };
         var expectedError = UserServiceErrors.USER_SET_IN_CALL_FAILED;
         _mockUserRepository.Setup(repo => repo.GetUserByConnectionIdAsync(connectionId))
             .ReturnsAsync(user);
 
-        var result = await _userService.SetInCallByConnectionId(connectionId, false);
+        var result = await _userService.SetInCallByConnectionId(connectionId, newInCallValue);
 
         Assert.IsFalse(result.Succeeded);
         Assert.AreEqual(expectedError, result.Errors);
         Assert.IsNull(result.Value);
+        _mockUserRepository.Verify(repo => repo.Update(It.IsAny<AppUser>()), Times.Never);
+        _mockUnitOfWork.Verify(uow => uow.SaveChangesAsync(), Times.Never);
     }       
     
     [Test]

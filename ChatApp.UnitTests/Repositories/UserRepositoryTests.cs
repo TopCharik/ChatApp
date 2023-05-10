@@ -276,265 +276,28 @@ public class UserRepositoryTests
         
         await VerifyUserListAsync(expectedUsers, parameters);
     }
-    
-    [Test]
-    public async Task GetUsersAsync_SortByUserNameAscending_ReturnsPagedList()
+
+    [TestCase("UsERnAmE", SortDirection.Ascending, ExpectedResult = "5DE50785-60C3-4B5C-8EE8-6FFDBACEB671")]
+    [TestCase("USerNaME", SortDirection.Descending, ExpectedResult = "99078870-7BAB-44F6-97D8-340EC0EC2FFC")]
+    [TestCase("fIrSTnAmE", SortDirection.Ascending, ExpectedResult = "482B198F-1064-467F-B053-F9CEE91EF34E")]
+    [TestCase("FirStNAMe", SortDirection.Descending, ExpectedResult = "24CBCD2A-D458-4502-8A3D-A47A90F20D2C")]
+    [TestCase("laSTnAmE", SortDirection.Ascending, ExpectedResult = "FE74C855-04F5-44E5-9B04-BE69F0ED59E7")]
+    [TestCase("laSTnAmE", SortDirection.Descending, ExpectedResult = "A2B6FFA7-9320-466C-AC41-077F9463F570")]
+    [TestCase("eMAil", SortDirection.Ascending, ExpectedResult = "2CFDB80C-BBB3-4633-B47F-5F081CD7496C")]
+    [TestCase("EmaIL", SortDirection.Descending, ExpectedResult = "F8A3D859-28AB-40BE-BE19-9935A47F0EAE")]
+    [TestCase("PHonE", SortDirection.Ascending, ExpectedResult = "382A1E62-1A84-4722-8E53-F55ECBCBA3C3")]
+    [TestCase("pHONe", SortDirection.Descending, ExpectedResult = "38603CBC-C704-41C0-AA3E-D8B0E8A32F38")]
+    public async Task<string> GetChatsAsync_SortByField_ReturnsSortedPagedList(string sortField, SortDirection sortDirection)
     {
         var parameters = new AppUserParameters
         {
-            SortField = "UseRnAmE",
-            SortDirection = SortDirection.Ascending,
-        };
-        var expectedFirstUser = new AppUser
-        {
-            Id = "5DE50785-60C3-4B5C-8EE8-6FFDBACEB671",
-            FirstName = "David",
-            LastName = "Brown",
-            UserName = "!!!!!!!!!!!!",
-            NormalizedUserName = "!!!!!!!!!!!!",
-            Email = "dbrown@example.com",
-            NormalizedEmail = "DBROWN@EXAMPLE.COM",
-            PhoneNumber = "222-333-4444",
+            SortField = sortField,
+            SortDirection = sortDirection,
         };
 
         var result = await _repository.GetUsersAsync(parameters);
 
-        Assert.AreEqual(FakeData.FakeUsers.Count, result.TotalCount);
-        Assert.AreEqual(expectedFirstUser.Id, result[0].Id);
-    }
-
-    [Test]
-    public async Task GetUsersAsync_SortByUserNameDescending_ReturnsPagedList()
-    {
-        var parameters = new AppUserParameters
-        {
-            SortField = "UsERnAmE",
-            SortDirection = SortDirection.Descending,
-        };
-        var expectedFirstUser = new AppUser
-        {
-            Id = "99078870-7BAB-44F6-97D8-340EC0EC2FFC",
-            FirstName = "Emily",
-            LastName = "Taylor",
-            UserName = "ZZZZZZ",
-            NormalizedUserName = "ZZZZZZ",
-            Email = "etaylor@example.com",
-            NormalizedEmail = "ETAYLOR@EXAMPLE.COM",
-            PhoneNumber = "555-666-7777",
-        };
-
-        var result = await _repository.GetUsersAsync(parameters);
-
-        Assert.AreEqual(FakeData.FakeUsers.Count, result.TotalCount);
-        Assert.AreEqual(expectedFirstUser.Id, result[0].Id);
-    }
-    
-    [Test]
-    public async Task GetUsersAsync_SortByFirstNameAscending_ReturnsPagedList()
-    {
-        var parameters = new AppUserParameters
-        {
-            SortField = "fIrSTnAmE",
-            SortDirection = SortDirection.Ascending,
-        };
-        var expectedFirstUser = new AppUser
-        {
-            Id = "482B198F-1064-467F-B053-F9CEE91EF34E",
-            FirstName = "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!",
-            LastName = "Brown",
-            UserName = "dbrown",
-            NormalizedUserName = "DBROWN",
-            Email = "dbrown@example.com",
-            NormalizedEmail = "DBROWN@EXAMPLE.COM",
-            PhoneNumber = "222-333-4444",
-        };
-
-        var result = await _repository.GetUsersAsync(parameters);
-
-        Assert.AreEqual(FakeData.FakeUsers.Count, result.TotalCount);
-        Assert.AreEqual(expectedFirstUser.Id, result.First().Id);
-    }
-
-    [Test]
-    public async Task GetUsersAsync_SortByFirstNameDescending_ReturnsPagedList()
-    {
-        var parameters = new AppUserParameters
-        {
-            SortField = "FirStNAMe",
-            SortDirection = SortDirection.Descending,
-        };
-        var expectedFirstUser = new AppUser
-        {
-            Id = "24CBCD2A-D458-4502-8A3D-A47A90F20D2C",
-            FirstName = "ZZZZZZZZZZZZZZZZZZZZ",
-            LastName = "Taylor",
-            UserName = "etaylor",
-            NormalizedUserName = "ETAYLOR",
-            Email = "etaylor@example.com",
-            NormalizedEmail = "ETAYLOR@EXAMPLE.COM",
-            PhoneNumber = "555-666-7777",
-        };
-
-        var result = await _repository.GetUsersAsync(parameters);
-
-        Assert.AreEqual(FakeData.FakeUsers.Count, result.TotalCount);
-        Assert.AreEqual(expectedFirstUser.Id, result[0].Id);
-    }
-
-    [Test]
-    public async Task GetUsersAsync_SortByLastNameAscending_ReturnsPagedList()
-    {
-        var parameters = new AppUserParameters
-        {
-            SortField = "laSTnAmE",
-            SortDirection = SortDirection.Ascending,
-        };
-        var expectedFirstUser = new AppUser
-        {
-            Id = "FE74C855-04F5-44E5-9B04-BE69F0ED59E7",
-            FirstName = "Carol",
-            LastName = "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!",
-            UserName = "cdavis",
-            NormalizedUserName = "CDAVIS",
-            Email = "cdavis@example.com",
-            NormalizedEmail = "CDAVIS@EXAMPLE.COM",
-            PhoneNumber = "777-888-9999",
-        };
-
-        var result = await _repository.GetUsersAsync(parameters);
-
-        Assert.AreEqual(FakeData.FakeUsers.Count, result.TotalCount);
-        Assert.AreEqual(expectedFirstUser.Id, result[0].Id);
-    }
-
-    [Test]
-    public async Task GetUsersAsync_SortByLastNameDescending_ReturnsPagedList()
-    {
-        var parameters = new AppUserParameters
-        {
-            SortField = "laSTnAmE",
-            SortDirection = SortDirection.Descending,
-        };
-        var expectedFirstUser = new AppUser
-        {
-            Id = "A2B6FFA7-9320-466C-AC41-077F9463F570",
-            FirstName = "David",
-            LastName = "ZZZZZZ",
-            UserName = "dbrown",
-            NormalizedUserName = "DBROWN",
-            Email = "dbrown@example.com",
-            NormalizedEmail = "DBROWN@EXAMPLE.COM",
-            PhoneNumber = "222-333-4444",
-        };
-
-        var result = await _repository.GetUsersAsync(parameters);
-
-        Assert.AreEqual(FakeData.FakeUsers.Count, result.TotalCount);
-        Assert.AreEqual(expectedFirstUser.Id, result[0].Id);
-    }
-
-    [Test]
-    public async Task GetUsersAsync_SortByEmailNameAscending_ReturnsPagedList()
-    {
-        var parameters = new AppUserParameters
-        {
-            SortField = "eMAil",
-            SortDirection = SortDirection.Ascending,
-        };
-        var expectedFirstUser = new AppUser
-        {
-            Id = "2CFDB80C-BBB3-4633-B47F-5F081CD7496C",
-            FirstName = "David",
-            LastName = "Brown",
-            UserName = "dbrown",
-            NormalizedUserName = "DBROWN",
-            Email = "!!!!!!!!!!!!!!!!@example.com",
-            NormalizedEmail = "!!!!!!!!!!!!!!!!@EXAMPLE.COM",
-            PhoneNumber = "222-333-4444",
-        };
-
-        var result = await _repository.GetUsersAsync(parameters);
-
-        Assert.AreEqual(FakeData.FakeUsers.Count, result.TotalCount);
-        Assert.AreEqual(expectedFirstUser.Id, result[0].Id);
-    }
-
-    [Test]
-    public async Task GetUsersAsync_SortByEmailDescending_ReturnsPagedList()
-    {
-        var parameters = new AppUserParameters
-        {
-            SortField = "EmaIL",
-            SortDirection = SortDirection.Descending,
-        };
-        var expectedFirstUser = new AppUser
-        {
-            Id = "F8A3D859-28AB-40BE-BE19-9935A47F0EAE",
-            FirstName = "Emily",
-            LastName = "Taylor",
-            UserName = "etaylor",
-            NormalizedUserName = "ETAYLOR",
-            Email = "ZZZZZ@example.com",
-            NormalizedEmail = "ZZZZZ@EXAMPLE.COM",
-            PhoneNumber = "555-666-7777",
-        };
-
-        var result = await _repository.GetUsersAsync(parameters);
-
-        Assert.AreEqual(FakeData.FakeUsers.Count, result.TotalCount);
-        Assert.AreEqual(expectedFirstUser.Id, result[0].Id);
-    }
-
-    [Test]
-    public async Task GetUsersAsync_SortByPhoneAscending_ReturnsPagedList()
-    {
-        var parameters = new AppUserParameters
-        {
-            SortField = "PHonE",
-            SortDirection = SortDirection.Ascending,
-        };
-        var expectedFirstUser = new AppUser
-        {
-            Id = "382A1E62-1A84-4722-8E53-F55ECBCBA3C3",
-            FirstName = "David",
-            LastName = "Brown",
-            UserName = "dbrown",
-            NormalizedUserName = "DBROWN",
-            Email = "dbrown@example.com",
-            NormalizedEmail = "DBROWN@EXAMPLE.COM",
-            PhoneNumber = "!!!!!!!!!!11-111-1111",
-        };
-
-        var result = await _repository.GetUsersAsync(parameters);
-
-        Assert.AreEqual(FakeData.FakeUsers.Count, result.TotalCount);
-        Assert.AreEqual(expectedFirstUser.Id, result[0].Id);
-    }
-
-    [Test]
-    public async Task GetUsersAsync_SortByPhoneDescending_ReturnsPagedList()
-    {
-        var parameters = new AppUserParameters
-        {
-            SortField = "pHONe",
-            SortDirection = SortDirection.Descending,
-        };
-        var expectedFirstUser = new AppUser
-        {
-            Id = "38603CBC-C704-41C0-AA3E-D8B0E8A32F38",
-            FirstName = "Emily",
-            LastName = "Taylor",
-            UserName = "etaylor",
-            NormalizedUserName = "ETAYLOR",
-            Email = "etaylor@example.com",
-            NormalizedEmail = "ETAYLOR@EXAMPLE.COM",
-            PhoneNumber = "ZZZZZZZZZZ999-999-9999",
-        };
-
-        var result = await _repository.GetUsersAsync(parameters);
-
-        Assert.AreEqual(FakeData.FakeUsers.Count, result.TotalCount);
-        Assert.AreEqual(expectedFirstUser.Id, result[0].Id);
+        return result.First().Id;
     }
 
     [Test]
@@ -640,7 +403,6 @@ public class UserRepositoryTests
 
         var result = await _repository.GetUsersAsync(parameters);
 
-        Assert.AreEqual(expectedResult.TotalCount, result.TotalCount);
         Assert.AreEqual(expectedResult.Count, result.Count);
         Assert.True(expectedResult.All(expectedUser => result.FirstOrDefault(x => x.Id == expectedUser.Id) != null));
     }

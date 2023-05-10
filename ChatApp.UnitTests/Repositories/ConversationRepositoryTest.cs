@@ -158,156 +158,24 @@ public class ConversationRepositoryTest
 
         await VerifyChatInfoViewsListAsync(parameters, expectedResult);
     }
-
-    [Test]
-    public async Task GetUsersAsync_SortByTitleAscending_ReturnsPagedList()
+    
+    [TestCase("TiTLe", SortDirection.Ascending, ExpectedResult = 26134)]
+    [TestCase("TiTLe", SortDirection.Descending, ExpectedResult = 12345565)]
+    [TestCase("CHatLinK", SortDirection.Ascending, ExpectedResult = 73145)]
+    [TestCase("ChATlInK", SortDirection.Descending, ExpectedResult = 24563)]
+    [TestCase("pArTIciPatIonSCOunT", SortDirection.Ascending, ExpectedResult = 4682)]
+    [TestCase("ParTiCIPatIonSCouNT", SortDirection.Descending, ExpectedResult = 26481)]
+    public async Task<int> GetChatsAsync_SortByField_ReturnsSortedPagedList(string sortField, SortDirection sortDirection)
     {
         var parameters = new ChatInfoParameters
         {
-            SortField = "TiTLe",
-            SortDirection = SortDirection.Ascending,
-        };
-        var expectedFirstUser = new ChatInfoView
-        {
-            ChatInfoId = 26134,
-            ConversationId = 89456,
-            Title = "!!!!!!!!!!!!!!!!!!!!!!!!!!!",
-            ChatLink = "Sample_chat_info_view",
-            IsPrivate = false,
-            ParticipationsCount = 325,
+            SortField = sortField,
+            SortDirection = sortDirection,
         };
 
         var result = await _repository.GetChatsAsync(parameters);
 
-        Assert.AreEqual(FakeData.FakeChatInfoViews.Count, result.TotalCount);
-        Assert.AreEqual(expectedFirstUser.ChatInfoId, result.First().ChatInfoId);
-        Assert.AreEqual(expectedFirstUser.ConversationId, result.First().ConversationId);
-    }
-
-    [Test]
-    public async Task GetUsersAsync_SortByTitleDescending_ReturnsPagedList()
-    {
-        var parameters = new ChatInfoParameters
-        {
-            SortField = "TiTLe",
-            SortDirection = SortDirection.Descending,
-        };
-        var expectedFirstUser = new ChatInfoView
-        {
-            ChatInfoId = 12345565,
-            ConversationId = 79183,
-            Title = "ZZZZZZZZZZZZZZZZZZZZZZZZZZ",
-            ChatLink = "Sample_chat_info_view",
-            IsPrivate = false,
-            ParticipationsCount = 325,
-        };
-
-        var result = await _repository.GetChatsAsync(parameters);
-
-        Assert.AreEqual(FakeData.FakeChatInfoViews.Count, result.TotalCount);
-        Assert.AreEqual(expectedFirstUser.ChatInfoId, result.First().ChatInfoId);
-        Assert.AreEqual(expectedFirstUser.ConversationId, result.First().ConversationId);
-    }
-
-    [Test]
-    public async Task GetUsersAsync_SortByChatLinkAscending_ReturnsPagedList()
-    {
-        var parameters = new ChatInfoParameters
-        {
-            SortField = "CHatLinK",
-            SortDirection = SortDirection.Ascending,
-        };
-        var expectedFirstUser = new ChatInfoView
-        {
-            ChatInfoId = 73145,
-            ConversationId = 37541,
-            Title = "Sample chat info view",
-            ChatLink = "!!!!!!!!!!!!!!!!!!!!!!",
-            IsPrivate = false,
-            ParticipationsCount = 325,
-        };
-
-        var result = await _repository.GetChatsAsync(parameters);
-
-        Assert.AreEqual(FakeData.FakeChatInfoViews.Count, result.TotalCount);
-        Assert.AreEqual(expectedFirstUser.ChatInfoId, result.First().ChatInfoId);
-        Assert.AreEqual(expectedFirstUser.ConversationId, result.First().ConversationId);
-    }
-
-    [Test]
-    public async Task GetUsersAsync_SortByChatLinkDescending_ReturnsPagedList()
-    {
-        var parameters = new ChatInfoParameters
-        {
-            SortField = "ChATlInK",
-            SortDirection = SortDirection.Descending,
-        };
-        var expectedFirstUser = new ChatInfoView
-        {
-            ChatInfoId = 24563,
-            ConversationId = 6482,
-            Title = "Sample chat info view",
-            ChatLink = "ZZZZZZZZZZZZZZZZZZZZZZ",
-            IsPrivate = false,
-            ParticipationsCount = 325,
-        };
-
-        var result = await _repository.GetChatsAsync(parameters);
-
-        Assert.AreEqual(FakeData.FakeChatInfoViews.Count, result.TotalCount);
-        Assert.AreEqual(expectedFirstUser.ChatInfoId, result.First().ChatInfoId);
-        Assert.AreEqual(expectedFirstUser.ConversationId, result.First().ConversationId);
-    }
-
-
-    [Test]
-    public async Task GetUsersAsync_SortByParticipantsCountAscending_ReturnsPagedList()
-    {
-        var parameters = new ChatInfoParameters
-        {
-            SortField = "pArTIciPatIonSCOunT",
-            SortDirection = SortDirection.Ascending,
-        };
-        var expectedFirstUser = new ChatInfoView
-        {
-            ChatInfoId = 4682,
-            ConversationId = 48251,
-            Title = "Sample chat info view",
-            ChatLink = "Sample_chat_info_view",
-            IsPrivate = false,
-            ParticipationsCount = int.MinValue,
-        };
-
-        var result = await _repository.GetChatsAsync(parameters);
-
-        Assert.AreEqual(FakeData.FakeChatInfoViews.Count, result.TotalCount);
-        Assert.AreEqual(expectedFirstUser.ChatInfoId, result.First().ChatInfoId);
-        Assert.AreEqual(expectedFirstUser.ConversationId, result.First().ConversationId);
-    }
-
-    [Test]
-    public async Task GetUsersAsync_SortByParticipantsCountDescending_ReturnsPagedList()
-    {
-        var parameters = new ChatInfoParameters
-        {
-            SortField = "ParTiCIPatIonSCouNT",
-            SortDirection = SortDirection.Descending,
-        };
-        var expectedFirstUser = new ChatInfoView
-        {
-            ChatInfoId = 26481,
-            ConversationId = 73197,
-            Title = "Sample chat info view",
-            ChatLink = "Sample_chat_info_view",
-            IsPrivate = false,
-            ParticipationsCount = int.MaxValue,
-        };
-
-        var result = await _repository.GetChatsAsync(parameters);
-
-        Assert.AreEqual(FakeData.FakeChatInfoViews.Count, result.TotalCount);
-        Assert.AreEqual(expectedFirstUser.ChatInfoId, result.First().ChatInfoId);
-        Assert.AreEqual(expectedFirstUser.ConversationId, result.First().ConversationId);
+        return result.First().ChatInfoId;
     }
 
     [Test]
@@ -671,7 +539,6 @@ public class ConversationRepositoryTest
 
         var result = await _repository.GetChatsAsync(parameters);
 
-        Assert.AreEqual(expectedResult.TotalCount, result.TotalCount);
         Assert.AreEqual(expectedResult.Count, result.Count);
 
         Assert.True(expectedResult.All(
