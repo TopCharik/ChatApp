@@ -10,6 +10,7 @@ using NUnit.Framework;
 
 namespace ChatApp.UnitTests.Services;
 
+[TestFixture]
 public class ChatServiceTests
 {
     private ChatService _chatService;
