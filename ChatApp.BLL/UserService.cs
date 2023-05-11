@@ -39,19 +39,6 @@ public class UserService : IUserService
         return new ServiceResult<AppUser>(user);
     }
 
-    public async Task<ServiceResult<AppUser>> GetUserByConnectionId(string connectionId)
-    {
-        var repo = _unitOfWork.GetRepository<IUserRepository>();
-
-        var user = await repo.GetUserByConnectionIdAsync(connectionId);
-        if (user == null)
-        {
-            return new ServiceResult<AppUser>(UserServiceErrors.USER_NOT_FOUND_BY_CONNECTIONID);
-        }
-
-        return new ServiceResult<AppUser>(user);
-    }
-
     public async Task<ServiceResult<List<string>>> GetUserIdsByUsernames(IEnumerable<string> usernames)
     {
         var userIds = new List<string>();

@@ -87,39 +87,6 @@ public class UserServiceTests
         Assert.AreSame(user, result.Value);
     }
 
-
-    [Test]
-    public async Task GetUserByConnectionId_WithConnectionIdNotExist_ReturnError()
-    {
-        var connectionId = "test-connectionId";
-        var expectedError = UserServiceErrors.USER_NOT_FOUND_BY_CONNECTIONID;
-        _mockUserRepository.Setup(repo => repo.GetUserByConnectionIdAsync(connectionId))
-            .ReturnsAsync(() => null);
-
-        var result = await _userService.GetUserByConnectionId(connectionId);
-
-        Assert.IsFalse(result.Succeeded);
-        Assert.AreEqual(expectedError, result.Errors);
-        Assert.IsNull(result.Value);
-    }
-
-    [Test]
-    public async Task GetUserByConnectionId_WithConnectionIdExist_ReturnsUser()
-    {
-        var connectionId = "test-connectionId";
-        var user = new AppUser
-        {
-            CallHubConnectionId = connectionId,
-        };
-        _mockUserRepository.Setup(repo => repo.GetUserByConnectionIdAsync(connectionId))
-            .ReturnsAsync(user);
-
-        var result = await _userService.GetUserByConnectionId(connectionId);
-
-        Assert.IsTrue(result.Succeeded);
-        Assert.AreSame(user, result.Value);
-    }
-
     [Test]
     public async Task GetUserIdsByUsernames_WithUsernameNotExist_ReturnsError()
     {
