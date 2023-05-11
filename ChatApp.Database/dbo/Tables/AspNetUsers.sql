@@ -1,4 +1,4 @@
-﻿create table dbo.AspNetUsers
+﻿create table AspNetUsers
 (
     Id                   nvarchar(450) not null
         constraint PK_AspNetUsers
@@ -25,8 +25,8 @@
 )
     GO
 create index EmailIndex
-    on dbo.AspNetUsers (NormalizedEmail)
+    on AspNetUsers (NormalizedEmail)
     GO
 create unique index UserNameIndex
-    on dbo.AspNetUsers (NormalizedUserName)
+    on AspNetUsers (NormalizedUserName)
     where [NormalizedUserName] IS NOT NULL

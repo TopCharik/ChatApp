@@ -1,13 +1,13 @@
-﻿create table dbo.AspNetRoles
+﻿create table AspNetRoles
 (
-    Id  nvarchar(450) not null
+    Id               nvarchar(450) not null
         constraint PK_AspNetRoles
-        primary key,
+            primary key,
     Name             nvarchar(256),
     NormalizedName   nvarchar(256),
     ConcurrencyStamp nvarchar(max)
 )
     GO
 create unique index RoleNameIndex
-    on dbo.AspNetRoles (NormalizedName)
+    on AspNetRoles (NormalizedName)
     where [NormalizedName] IS NOT NULL

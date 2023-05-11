@@ -1,13 +1,13 @@
-﻿create table dbo.AspNetUserRoles
+﻿create table AspNetUserRoles
 (
     UserId nvarchar(450) not null
         constraint FK_AspNetUserRoles_AspNetUsers_UserId
-        references dbo.AspNetUsers
-        on delete cascade,
+            references AspNetUsers
+            on delete cascade,
     RoleId nvarchar(450) not null
         constraint FK_AspNetUserRoles_AspNetRoles_RoleId
-        references dbo.AspNetRoles
-        on delete cascade,
+            references AspNetRoles
+            on delete cascade,
     constraint PK_AspNetUserRoles
         primary key (UserId, RoleId)
 )

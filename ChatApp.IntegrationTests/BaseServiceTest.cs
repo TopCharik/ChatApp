@@ -14,8 +14,8 @@ namespace ChatApp.IntegrationTests;
 [TestFixture]
 public abstract class BaseServiceTest
 {
-    private const string TESTDB_CONNECTION_STRING = "Data Source=localhost,1433;Database=IntegrationTestChatAppDB;User Id=SA;Password=i23456789!;TrustServerCertificate=true";
-    
+    private const string TESTDB_CONNECTION_STRING = "Server=(localdb)\\ChatAppIntegrationTest;Integrated Security=true;Database=TestDb";
+
     protected IServiceProvider _serviceProvider;
     protected DbContext _dbContext;
     protected UserManager<ExtendedIdentityUser> _userManager;

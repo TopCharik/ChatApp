@@ -1,4 +1,4 @@
-﻿create table dbo.Messages
+﻿create table Messages
 (
     Id              int identity
         constraint PK_Messages
@@ -7,5 +7,6 @@
     DateSent        datetime      not null,
     ParticipationId int
         constraint FK_Messages_Participations
-            references dbo.Participations
+            references Participations
+            on update cascade on delete cascade
 )

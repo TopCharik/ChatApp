@@ -1,15 +1,15 @@
-﻿create table dbo.Participations
+﻿create table Participations
 (
     Id                    int identity
         constraint PK_Participations
             primary key,
     AspNetUserId          nvarchar(450) not null
         constraint FK_Participations_AspNetUsers
-            references dbo.AspNetUsers
+            references AspNetUsers
             on update cascade on delete cascade,
     ConversationId        int           not null
         constraint FK_Participations_Conversations
-            references dbo.Conversations
+            references Conversations
             on update cascade on delete cascade,
     CanWriteMessages      bit           not null,
     CanDeleteMessages     bit           not null,
