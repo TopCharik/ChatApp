@@ -1,7 +1,9 @@
+using System.Data.Common;
 using Bogus;
 using ChatApp.Core.Entities.AppUserAggregate;
 using ChatApp.DAL.Identity;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace ChatApp.IntegrationTests.Helpers;
 
@@ -27,7 +29,7 @@ public class UsersDataHelper
     public static AppUser GenerateRandomUser() => _userFaker.Generate();
     public static ExtendedIdentityUser GenerateRandomUserIdentity() => _userIdentityFaker.Generate();
 
-    public static async Task<AppUser> InsertNewUserToDbAsync(UserManager<ExtendedIdentityUser> userManager, ExtendedIdentityUser newUserIdentity)
+    public static async Task<AppUser> RegisterNewUserAsync(UserManager<ExtendedIdentityUser> userManager, ExtendedIdentityUser newUserIdentity)
     {
         var result = await userManager.CreateAsync(newUserIdentity);
         if (!result.Succeeded)
@@ -49,5 +51,13 @@ public class UsersDataHelper
             LastName = createdUser.LastName,
             Birthday = createdUser.Birthday,
         };
+    }
+
+    public static async Task<AppUser> UpdateUserAsync(DbContext dbContext, AppUser user)
+    {
+        dbContext.Update(user);
+        await dbContext.SaveChangesAsync();
+
+        return await dbContext.Set<AppUser>().FirstAsync(x => x.Id == user.Id);
     }
 }

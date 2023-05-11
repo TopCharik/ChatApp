@@ -28,7 +28,7 @@ public class MessagesServiceTests : BaseServiceTest
         await DbHelpers.ClearDb(_dbContext);
         
         var newUser = UsersDataHelper.GenerateRandomUserIdentity(); 
-        var user = await UsersDataHelper.InsertNewUserToDbAsync(_userManager, newUser);
+        var user = await UsersDataHelper.RegisterNewUserAsync(_userManager, newUser);
 
         var newConversation = ConversationsDataHelper.GenerateRandomChat();
         
@@ -50,7 +50,7 @@ public class MessagesServiceTests : BaseServiceTest
         await DbHelpers.ClearDb(_dbContext);
         
         var newUser = UsersDataHelper.GenerateRandomUserIdentity(); 
-        var user = await UsersDataHelper.InsertNewUserToDbAsync(_userManager, newUser);
+        var user = await UsersDataHelper.RegisterNewUserAsync(_userManager, newUser);
         
         var newChat = ConversationsDataHelper.GenerateRandomChat();
         newChat.ChatInfo.IsPrivate = true;
@@ -74,7 +74,7 @@ public class MessagesServiceTests : BaseServiceTest
         await DbHelpers.ClearDb(_dbContext);
 
         var newUser = UsersDataHelper.GenerateRandomUserIdentity(); 
-        var user = await UsersDataHelper.InsertNewUserToDbAsync(_userManager, newUser);
+        var user = await UsersDataHelper.RegisterNewUserAsync(_userManager, newUser);
         
         var newChat = ConversationsDataHelper.GenerateRandomChat();
         newChat.ChatInfo.IsPrivate = true;
@@ -104,7 +104,7 @@ public class MessagesServiceTests : BaseServiceTest
         await DbHelpers.ClearDb(_dbContext);
 
         var newUser = UsersDataHelper.GenerateRandomUserIdentity(); 
-        var user = await UsersDataHelper.InsertNewUserToDbAsync(_userManager, newUser);
+        var user = await UsersDataHelper.RegisterNewUserAsync(_userManager, newUser);
         
         var newChat = ConversationsDataHelper.GenerateRandomChat();
         newChat.ChatInfo.IsPrivate = true;
@@ -135,7 +135,7 @@ public class MessagesServiceTests : BaseServiceTest
         await DbHelpers.ClearDb(_dbContext);
 
         var newUser = UsersDataHelper.GenerateRandomUserIdentity(); 
-        var user = await UsersDataHelper.InsertNewUserToDbAsync(_userManager, newUser);
+        var user = await UsersDataHelper.RegisterNewUserAsync(_userManager, newUser);
         
         var newChat = ConversationsDataHelper.GenerateRandomChat();
         newChat.ChatInfo.IsPrivate = false;
@@ -161,7 +161,7 @@ public class MessagesServiceTests : BaseServiceTest
         await DbHelpers.ClearDb(_dbContext);
 
         var newUser = UsersDataHelper.GenerateRandomUserIdentity(); 
-        var user = await UsersDataHelper.InsertNewUserToDbAsync(_userManager, newUser);
+        var user = await UsersDataHelper.RegisterNewUserAsync(_userManager, newUser);
         
         var newChat = ConversationsDataHelper.GenerateRandomChat();
         newChat.ChatInfo.IsPrivate = false;
@@ -236,7 +236,7 @@ public class MessagesServiceTests : BaseServiceTest
         await DbHelpers.ClearDb(_dbContext);
         
         var newUser = UsersDataHelper.GenerateRandomUserIdentity(); 
-        var user = await UsersDataHelper.InsertNewUserToDbAsync(_userManager, newUser);
+        var user = await UsersDataHelper.RegisterNewUserAsync(_userManager, newUser);
         
         var conversationId = new Random().Next(100, 100000);
         var participationId = new Random().Next(100, 100000);
@@ -259,7 +259,7 @@ public class MessagesServiceTests : BaseServiceTest
         await DbHelpers.ClearDb(_dbContext);
         
         var newUser = UsersDataHelper.GenerateRandomUserIdentity(); 
-        var user = await UsersDataHelper.InsertNewUserToDbAsync(_userManager, newUser);
+        var user = await UsersDataHelper.RegisterNewUserAsync(_userManager, newUser);
         
         var newChat = ConversationsDataHelper.GenerateRandomChat();
         var chat = await ConversationsDataHelper.InsertNewChatToDbAsync(_dbContext, newChat);
@@ -291,7 +291,7 @@ public class MessagesServiceTests : BaseServiceTest
         await DbHelpers.ClearDb(_dbContext);
         
         var newUser = UsersDataHelper.GenerateRandomUserIdentity(); 
-        var user = await UsersDataHelper.InsertNewUserToDbAsync(_userManager, newUser);
+        var user = await UsersDataHelper.RegisterNewUserAsync(_userManager, newUser);
         
         var newChat = ConversationsDataHelper.GenerateRandomChat();
         var chat = await ConversationsDataHelper.InsertNewChatToDbAsync(_dbContext, newChat);
@@ -321,7 +321,7 @@ public class MessagesServiceTests : BaseServiceTest
         await DbHelpers.ClearDb(_dbContext);
         
         var newUser = UsersDataHelper.GenerateRandomUserIdentity(); 
-        var user = await UsersDataHelper.InsertNewUserToDbAsync(_userManager, newUser);
+        var user = await UsersDataHelper.RegisterNewUserAsync(_userManager, newUser);
         
         var newChat = ConversationsDataHelper.GenerateRandomChat();
         var chat = await ConversationsDataHelper.InsertNewChatToDbAsync(_dbContext, newChat);
@@ -351,7 +351,7 @@ public class MessagesServiceTests : BaseServiceTest
         await DbHelpers.ClearDb(_dbContext);
         
         var newUser = UsersDataHelper.GenerateRandomUserIdentity(); 
-        var user = await UsersDataHelper.InsertNewUserToDbAsync(_userManager, newUser);
+        var user = await UsersDataHelper.RegisterNewUserAsync(_userManager, newUser);
         
         var newChat = ConversationsDataHelper.GenerateRandomChat();
         var chat = await ConversationsDataHelper.InsertNewChatToDbAsync(_dbContext, newChat);

@@ -6,7 +6,6 @@ using ChatApp.DAL.App.Helpers;
 using ChatApp.DAL.App.Interfaces;
 using ChatApp.DAL.App.Repositories;
 using ChatApp.DTO;
-using Microsoft.EntityFrameworkCore;
 
 namespace ChatApp.BLL;
 
@@ -92,7 +91,7 @@ public class UserService : IUserService
         var repo = _unitOfWork.GetRepository<IUserRepository>();
 
         user!.CallHubConnectionId = callHubConnectionId;
-        user!.InCall = false;
+        user.InCall = false;
         repo.Update(user);
         await _unitOfWork.SaveChangesAsync();
 
@@ -116,7 +115,7 @@ public class UserService : IUserService
         return new ServiceResult<AppUser>(user);
     }
 
-    public async Task<ServiceResult<CallParticipants>> SetInCall(CallUsernamesDto callUsernamesDto, bool newValue)
+    public async Task<ServiceResult<CallParticipants>> SetInCallAsync(CallUsernamesDto callUsernamesDto, bool newValue)
     {
         var repo = _unitOfWork.GetRepository<IUserRepository>();
         var callInitiator = await repo.GetUserByUsernameAsync(callUsernamesDto.callInitiatorUsername);
@@ -131,7 +130,7 @@ public class UserService : IUserService
         {
             if (callInitiator.InCall == newValue || callReceiver.InCall == newValue)
             {
-                return new ServiceResult<CallParticipants>(UserServiceErrors.USER_SET_IN_CALL_FAILED);
+                return new ServiceResult<CallParticipants>(UserServiceErrors.USER_IS_ALREADY_IN_CALL);
             }
         }
 
@@ -149,27 +148,5 @@ public class UserService : IUserService
             CallReceiver = callReceiver,
         };
         return new ServiceResult<CallParticipants>(callParticipants);
-    }
-
-    public async Task<ServiceResult<AppUser>> SetInCallByConnectionId(string contextConnectionId, bool newValue)
-    {
-        var repo = _unitOfWork.GetRepository<IUserRepository>();
-
-        var user = await repo.GetUserByConnectionIdAsync(contextConnectionId);
-        if (user == null)
-        {
-            return new ServiceResult<AppUser>(UserServiceErrors.USER_NOT_FOUND_BY_CONNECTIONID);
-        }
-
-        if (user.InCall == newValue)
-        {
-            return new ServiceResult<AppUser>(UserServiceErrors.USER_SET_IN_CALL_FAILED);
-        }
-        
-        user.InCall = newValue;
-        repo.Update(user);
-        await _unitOfWork.SaveChangesAsync();
-        
-        return new ServiceResult<AppUser>(user);
     }
 }

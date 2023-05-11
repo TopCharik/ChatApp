@@ -10,8 +10,8 @@ public class UserServiceErrors
     {
         new("Get User By ConnectionId failed", "user not found by ConnectionId"),
     };
-    public static List<KeyValuePair<string, string>> USER_SET_IN_CALL_FAILED = new()
+    public static List<KeyValuePair<string, string>> USER_IS_ALREADY_IN_CALL = new()
     {
-        new("Set In Call failed", "InCall has same value"),
+        new("Set In Call failed", "user is already in call"),
     };
 }

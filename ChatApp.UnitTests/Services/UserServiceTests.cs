@@ -261,7 +261,7 @@ public class UserServiceTests
         _mockUserRepository.Setup(repo => repo.GetUserByUsernameAsync(callUsernames.callReceiverUsername))
             .ReturnsAsync(callReceiver);
 
-        var result = await _userService.SetInCall(callUsernames, true);
+        var result = await _userService.SetInCallAsync(callUsernames, true);
         
         Assert.IsFalse(result.Succeeded);
         Assert.AreEqual(expectedError, result.Errors);
@@ -284,7 +284,7 @@ public class UserServiceTests
         _mockUserRepository.Setup(repo => repo.GetUserByUsernameAsync("username2"))
             .ReturnsAsync(user2);
 
-        var result = await _userService.SetInCall(callUsernames, true);
+        var result = await _userService.SetInCallAsync(callUsernames, true);
         
         Assert.IsTrue(result.Succeeded);
         _mockUserRepository.Verify(repo => repo.Update(user1), Times.Once);
@@ -304,96 +304,15 @@ public class UserServiceTests
             callInitiatorUsername = callInitiator.UserName,
             callReceiverUsername = callReceiver.UserName,
         };
-        var expectedError = UserServiceErrors.USER_SET_IN_CALL_FAILED;
+        var expectedError = UserServiceErrors.USER_IS_ALREADY_IN_CALL;
         _mockUserRepository.Setup(repo => repo.GetUserByUsernameAsync(callInitiator.UserName))
             .ReturnsAsync(callInitiator);
         _mockUserRepository.Setup(repo => repo.GetUserByUsernameAsync(callReceiver.UserName))
             .ReturnsAsync(callReceiver);
 
-        var result = await _userService.SetInCall(callUsernames, updatedInCallValue);
+        var result = await _userService.SetInCallAsync(callUsernames, updatedInCallValue);
         
         Assert.IsFalse(result.Succeeded);
         Assert.AreEqual(expectedError, result.Errors);
-    }
-
-
-    [Test]
-    public async Task SetInCallByConnectionId_WithConnectionIdNotExist_ReturnsError()
-    {
-        var connectionId = "test-connectionId";
-        var expectedError = UserServiceErrors.USER_NOT_FOUND_BY_CONNECTIONID;
-        _mockUserRepository.Setup(repo => repo.GetUserByConnectionIdAsync(connectionId))
-            .ReturnsAsync(() => null);
-
-        var result = await _userService.SetInCallByConnectionId(connectionId, false);
-
-        Assert.IsFalse(result.Succeeded);
-        Assert.AreEqual(expectedError, result.Errors);
-        Assert.IsNull(result.Value);
-        _mockUserRepository.Verify(repo => repo.Update(It.IsAny<AppUser>()), Times.Never);
-        _mockUnitOfWork.Verify(uow => uow.SaveChangesAsync(), Times.Never);
-    }
-        
-    [TestCase(true, true)]
-    [TestCase(false, false)]
-    public async Task SetInCallByConnectionId_WithSameUserValueAndNewValue_ReturnsError(bool userInCall, bool newInCallValue)
-    {
-        var connectionId = "test-connectionId";
-        var user = new AppUser
-        {
-            CallHubConnectionId = connectionId,
-            InCall = userInCall,
-        };
-        var expectedError = UserServiceErrors.USER_SET_IN_CALL_FAILED;
-        _mockUserRepository.Setup(repo => repo.GetUserByConnectionIdAsync(connectionId))
-            .ReturnsAsync(user);
-
-        var result = await _userService.SetInCallByConnectionId(connectionId, newInCallValue);
-
-        Assert.IsFalse(result.Succeeded);
-        Assert.AreEqual(expectedError, result.Errors);
-        Assert.IsNull(result.Value);
-        _mockUserRepository.Verify(repo => repo.Update(It.IsAny<AppUser>()), Times.Never);
-        _mockUnitOfWork.Verify(uow => uow.SaveChangesAsync(), Times.Never);
-    }       
-    
-    [Test]
-    public async Task SetInCallByConnectionId_WithUserValueFalseAndNewValueTrue_UpdatesUser()
-    {
-        var connectionId = "test-connectionId";
-        var user = new AppUser
-        {
-            CallHubConnectionId = connectionId,
-            InCall = false,
-        };
-        var expectedError = UserServiceErrors.USER_SET_IN_CALL_FAILED;
-        _mockUserRepository.Setup(repo => repo.GetUserByConnectionIdAsync(connectionId))
-            .ReturnsAsync(user);
-
-        var result = await _userService.SetInCallByConnectionId(connectionId, true);
-
-        Assert.IsTrue(result.Succeeded);
-        _mockUserRepository.Verify(repo => repo.Update(user), Times.Once);
-        _mockUnitOfWork.Verify(uow => uow.SaveChangesAsync(), Times.Once);
-    }   
-    
-    [Test]
-    public async Task SetInCallByConnectionId_WithUserValueTrueAndNewValueFalse_UpdatesUser()
-    {
-        var connectionId = "test-connectionId";
-        var user = new AppUser
-        {
-            CallHubConnectionId = connectionId,
-            InCall = true,
-        };
-        var expectedError = UserServiceErrors.USER_SET_IN_CALL_FAILED;
-        _mockUserRepository.Setup(repo => repo.GetUserByConnectionIdAsync(connectionId))
-            .ReturnsAsync(user);
-
-        var result = await _userService.SetInCallByConnectionId(connectionId, false);
-
-        Assert.IsTrue(result.Succeeded);
-        _mockUserRepository.Verify(repo => repo.Update(user), Times.Once);
-        _mockUnitOfWork.Verify(uow => uow.SaveChangesAsync(), Times.Once);
     }
 }

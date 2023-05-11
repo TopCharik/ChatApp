@@ -40,7 +40,7 @@ public class MessagesDataHelper
     {
         
         var newUser = UsersDataHelper.GenerateRandomUserIdentity(); 
-        var user = await UsersDataHelper.InsertNewUserToDbAsync(userManager, newUser);
+        var user = await UsersDataHelper.RegisterNewUserAsync(userManager, newUser);
         
         
         var newParticipation = ParticipationsDataHelper.BasicParticipation;

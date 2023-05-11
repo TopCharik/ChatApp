@@ -317,7 +317,7 @@ public class UsersController : ControllerBase
     [Route("call/")]
     public async Task<ActionResult> CallUser(CallUsernamesDto callUsernamesDto)
     {
-        var callParticipants = await _userService.SetInCall(callUsernamesDto, true);
+        var callParticipants = await _userService.SetInCallAsync(callUsernamesDto, true);
         if (!callParticipants.Succeeded)
         {
             return BadRequest(new ApiError(400, callParticipants.Errors));

@@ -9,5 +9,5 @@ public class AvatarDataHelper
         .RuleFor(x => x.ImagePayload, faker => faker.Image.PlaceImgUrl())
         .RuleFor(x => x.DateSet, _ => DateTime.Now);
 
-    public static Avatar GenerateRandomAvatar = _chatInfoFaker.Generate();
+    public static Avatar GenerateRandomAvatar() => _chatInfoFaker.Generate();
 }

@@ -19,7 +19,7 @@ public class ChatServiceTests : BaseServiceTest
                       ?? throw new InvalidOperationException("IUnitOfWork is not registered in BaseServiceTestFixture");
         _chatService = new ChatService(unitOfWork);
     }
-    
+
     [Test]
     public async Task JoinChat_WithChatNotExist_ReturnsError()
     {
@@ -27,7 +27,7 @@ public class ChatServiceTests : BaseServiceTest
         await DbHelpers.ClearDb(_dbContext);
 
         var newUser = UsersDataHelper.GenerateRandomUserIdentity();
-        var user = await UsersDataHelper.InsertNewUserToDbAsync(_userManager, newUser);
+        var user = await UsersDataHelper.RegisterNewUserAsync(_userManager, newUser);
 
         var chat = ConversationsDataHelper.GenerateRandomChat();
         chat.Id = Random.Shared.Next(1000, 100000);
@@ -52,7 +52,7 @@ public class ChatServiceTests : BaseServiceTest
         await DbHelpers.ClearDb(_dbContext);
 
         var newUser = UsersDataHelper.GenerateRandomUserIdentity();
-        var user = await UsersDataHelper.InsertNewUserToDbAsync(_userManager, newUser);
+        var user = await UsersDataHelper.RegisterNewUserAsync(_userManager, newUser);
 
         var newChat = ConversationsDataHelper.GenerateRandomChat();
         var chat = await ConversationsDataHelper.InsertNewChatToDbAsync(_dbContext, newChat);
@@ -82,7 +82,7 @@ public class ChatServiceTests : BaseServiceTest
         await DbHelpers.ClearDb(_dbContext);
 
         var newUser = UsersDataHelper.GenerateRandomUserIdentity();
-        var user = await UsersDataHelper.InsertNewUserToDbAsync(_userManager, newUser);
+        var user = await UsersDataHelper.RegisterNewUserAsync(_userManager, newUser);
 
         var newChat = ConversationsDataHelper.GenerateRandomChat();
         newChat.ChatInfo.IsPrivate = true;
@@ -108,7 +108,7 @@ public class ChatServiceTests : BaseServiceTest
         await DbHelpers.ClearDb(_dbContext);
 
         var newUser = UsersDataHelper.GenerateRandomUserIdentity();
-        var user = await UsersDataHelper.InsertNewUserToDbAsync(_userManager, newUser);
+        var user = await UsersDataHelper.RegisterNewUserAsync(_userManager, newUser);
 
         var newChat = ConversationsDataHelper.GenerateRandomChat();
         var chat = await ConversationsDataHelper.InsertNewChatToDbAsync(_dbContext, newChat);
@@ -135,7 +135,7 @@ public class ChatServiceTests : BaseServiceTest
         await DbHelpers.ClearDb(_dbContext);
 
         var newUser = UsersDataHelper.GenerateRandomUserIdentity();
-        var user = await UsersDataHelper.InsertNewUserToDbAsync(_userManager, newUser);
+        var user = await UsersDataHelper.RegisterNewUserAsync(_userManager, newUser);
 
         var newChat = ConversationsDataHelper.GenerateRandomChat();
         var chat = await ConversationsDataHelper.InsertNewChatToDbAsync(_dbContext, newChat);
@@ -169,7 +169,7 @@ public class ChatServiceTests : BaseServiceTest
         await DbHelpers.ClearDb(_dbContext);
 
         var newUser = UsersDataHelper.GenerateRandomUserIdentity();
-        var user = await UsersDataHelper.InsertNewUserToDbAsync(_userManager, newUser);
+        var user = await UsersDataHelper.RegisterNewUserAsync(_userManager, newUser);
 
         var chat = ConversationsDataHelper.GenerateRandomChat();
 
@@ -191,7 +191,7 @@ public class ChatServiceTests : BaseServiceTest
         await DbHelpers.ClearDb(_dbContext);
 
         var newUser = UsersDataHelper.GenerateRandomUserIdentity();
-        var user = await UsersDataHelper.InsertNewUserToDbAsync(_userManager, newUser);
+        var user = await UsersDataHelper.RegisterNewUserAsync(_userManager, newUser);
 
         var newChat = ConversationsDataHelper.GenerateRandomChat();
         var chat = await ConversationsDataHelper.InsertNewChatToDbAsync(_dbContext, newChat);
@@ -213,7 +213,7 @@ public class ChatServiceTests : BaseServiceTest
         await DbHelpers.ClearDb(_dbContext);
 
         var newUser = UsersDataHelper.GenerateRandomUserIdentity();
-        var user = await UsersDataHelper.InsertNewUserToDbAsync(_userManager, newUser);
+        var user = await UsersDataHelper.RegisterNewUserAsync(_userManager, newUser);
 
         var newChat = ConversationsDataHelper.GenerateRandomChat();
         var chat = await ConversationsDataHelper.InsertNewChatToDbAsync(_dbContext, newChat);
@@ -242,7 +242,7 @@ public class ChatServiceTests : BaseServiceTest
         await DbHelpers.ClearDb(_dbContext);
 
         var newUser = UsersDataHelper.GenerateRandomUserIdentity();
-        var user = await UsersDataHelper.InsertNewUserToDbAsync(_userManager, newUser);
+        var user = await UsersDataHelper.RegisterNewUserAsync(_userManager, newUser);
 
         var newChat = ConversationsDataHelper.GenerateRandomChat();
         var chat = await ConversationsDataHelper.InsertNewChatToDbAsync(_dbContext, newChat);
@@ -314,14 +314,14 @@ public class ChatServiceTests : BaseServiceTest
         await DbHelpers.ClearDb(_dbContext);
 
         var newUser = UsersDataHelper.GenerateRandomUserIdentity();
-        var user = await UsersDataHelper.InsertNewUserToDbAsync(_userManager, newUser);
+        var user = await UsersDataHelper.RegisterNewUserAsync(_userManager, newUser);
 
         var chat = ConversationsDataHelper.GenerateRandomChat();
 
         var expectedError = ChatServiceErrors.CHAT_WITH_THIS_LINK_DOESNT_EXIST;
 
         //Act
-        var newAvatar = AvatarDataHelper.GenerateRandomAvatar;
+        var newAvatar = AvatarDataHelper.GenerateRandomAvatar();
         var result = await _chatService.AddAvatar(newAvatar, chat.ChatInfo.ChatLink, user.Id);
         
         //Assert
@@ -336,7 +336,7 @@ public class ChatServiceTests : BaseServiceTest
         await DbHelpers.ClearDb(_dbContext);
 
         var newUser = UsersDataHelper.GenerateRandomUserIdentity();
-        var user = await UsersDataHelper.InsertNewUserToDbAsync(_userManager, newUser);
+        var user = await UsersDataHelper.RegisterNewUserAsync(_userManager, newUser);
 
         var newChat = ConversationsDataHelper.GenerateRandomChat();
         var chat = await ConversationsDataHelper.InsertNewChatToDbAsync(_dbContext, newChat);
@@ -344,7 +344,7 @@ public class ChatServiceTests : BaseServiceTest
         var expectedError = ChatServiceErrors.USER_CANT_ADD_AVATAR_TO_THIS_CHAT;
 
         //Act
-        var newAvatar = AvatarDataHelper.GenerateRandomAvatar;
+        var newAvatar = AvatarDataHelper.GenerateRandomAvatar();
         var result = await _chatService.AddAvatar(newAvatar, chat.ChatInfo.ChatLink, user.Id);
         
         //Assert
@@ -363,7 +363,7 @@ public class ChatServiceTests : BaseServiceTest
         await DbHelpers.ClearDb(_dbContext);
 
         var newUser = UsersDataHelper.GenerateRandomUserIdentity();
-        var user = await UsersDataHelper.InsertNewUserToDbAsync(_userManager, newUser);
+        var user = await UsersDataHelper.RegisterNewUserAsync(_userManager, newUser);
 
         var newChat = ConversationsDataHelper.GenerateRandomChat();
         var chat = await ConversationsDataHelper.InsertNewChatToDbAsync(_dbContext, newChat);
@@ -377,14 +377,14 @@ public class ChatServiceTests : BaseServiceTest
         var expectedError = ChatServiceErrors.USER_CANT_ADD_AVATAR_TO_THIS_CHAT;
 
         //Act
-        var newAvatar = AvatarDataHelper.GenerateRandomAvatar;
+        var newAvatar = AvatarDataHelper.GenerateRandomAvatar();
         var result = await _chatService.AddAvatar(newAvatar, chat.ChatInfo.ChatLink, user.Id);
 
         //Assert
         Assert.IsFalse(result.Succeeded);
         Assert.AreEqual(expectedError, result.Errors);
     }
-    
+
     [Test]
     public async Task AddAvatar_WhenCanAddAvatar_AddsAvatar()
     {
@@ -392,7 +392,7 @@ public class ChatServiceTests : BaseServiceTest
         await DbHelpers.ClearDb(_dbContext);
 
         var newUser = UsersDataHelper.GenerateRandomUserIdentity();
-        var user = await UsersDataHelper.InsertNewUserToDbAsync(_userManager, newUser);
+        var user = await UsersDataHelper.RegisterNewUserAsync(_userManager, newUser);
 
         var newChat = ConversationsDataHelper.GenerateRandomChat();
         var chat = await ConversationsDataHelper.InsertNewChatToDbAsync(_dbContext, newChat);
@@ -404,7 +404,7 @@ public class ChatServiceTests : BaseServiceTest
         await ParticipationsDataHelper.InsertNewParticipationToDb(_dbContext, newParticipation);
                 
         //Act
-        var newAvatar = AvatarDataHelper.GenerateRandomAvatar;
+        var newAvatar = AvatarDataHelper.GenerateRandomAvatar();
         var result = await _chatService.AddAvatar(newAvatar, chat.ChatInfo.ChatLink, user.Id);
         
         //Assert
@@ -414,4 +414,6 @@ public class ChatServiceTests : BaseServiceTest
         Assert.IsTrue(result.Succeeded);
         Assert.IsTrue(chatAvatars.Any(x => x.ImagePayload == newAvatar.ImagePayload));
     }
+    
+    
 }

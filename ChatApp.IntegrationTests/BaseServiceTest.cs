@@ -7,9 +7,11 @@ using ChatApp.DAL.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using NUnit.Framework;
 
 namespace ChatApp.IntegrationTests;
 
+[TestFixture]
 public abstract class BaseServiceTest
 {
     private const string TESTDB_CONNECTION_STRING = "Data Source=localhost,1433;Database=IntegrationTestChatAppDB;User Id=SA;Password=i23456789!;TrustServerCertificate=true";
@@ -18,6 +20,12 @@ public abstract class BaseServiceTest
     protected DbContext _dbContext;
     protected UserManager<ExtendedIdentityUser> _userManager;
 
+        
+    [TearDown]
+    public void ClearChangeTracker()
+    {
+        _dbContext.ChangeTracker.Clear();
+    }
 
     protected BaseServiceTest()
     {

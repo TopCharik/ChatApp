@@ -13,6 +13,6 @@ public interface IUserService
     Task<ServiceResult<List<string>>> GetUserIdsByUsernames(IEnumerable<string> usernames);
     Task<ServiceResult> SetCallHubConnectionId(string username, string? callHubConnectionId);
     Task<ServiceResult<AppUser>> RemoveCallHubConnectionId(string connectionId);
-    Task<ServiceResult<CallParticipants>> SetInCall(CallUsernamesDto callUsernamesDto, bool newValue);
+    Task<ServiceResult<CallParticipants>> SetInCallAsync(CallUsernamesDto callUsernamesDto, bool newValue);
     Task<ServiceResult> AddAvatar(Avatar avatar);
 }

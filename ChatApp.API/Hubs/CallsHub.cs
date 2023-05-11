@@ -40,7 +40,7 @@ public class CallsHub : Hub
 
     public async Task HangUp(CallUsernamesDto callUsernamesDto)
     {
-        var result = await _userService.SetInCall(callUsernamesDto, false);
+        var result = await _userService.SetInCallAsync(callUsernamesDto, false);
         if (result.Succeeded)
         {
             var connectionIds = new List<string>
