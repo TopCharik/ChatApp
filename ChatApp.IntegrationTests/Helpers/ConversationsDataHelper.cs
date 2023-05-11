@@ -1,8 +1,6 @@
 using Bogus;
 using ChatApp.Core.Entities;
 using ChatApp.Core.Entities.ChatInfoAggregate;
-using ChatApp.DAL.Identity;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace ChatApp.IntegrationTests.Helpers;
@@ -17,7 +15,7 @@ public class ConversationsDataHelper
         .RuleFor(x => x.ChatInfo, _ => _chatInfoFaker.Generate())
         .Generate();
 
-    public static async Task<Conversation> InsertNewChatToDb(DbContext dbContext, Conversation newChat)
+    public static async Task<Conversation> InsertNewChatToDbAsync(DbContext dbContext, Conversation newChat)
     {
         dbContext.Add(newChat);
         await dbContext.SaveChangesAsync();

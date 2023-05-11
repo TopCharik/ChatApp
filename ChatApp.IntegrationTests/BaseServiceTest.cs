@@ -10,7 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace ChatApp.IntegrationTests;
 
-public abstract class BaseServiceTestFixture
+public abstract class BaseServiceTest
 {
     private const string TESTDB_CONNECTION_STRING = "Data Source=localhost,1433;Database=IntegrationTestChatAppDB;User Id=SA;Password=i23456789!;TrustServerCertificate=true";
     
@@ -19,7 +19,7 @@ public abstract class BaseServiceTestFixture
     protected UserManager<ExtendedIdentityUser> _userManager;
 
 
-    protected BaseServiceTestFixture()
+    protected BaseServiceTest()
     {
         var serviceCollection = new ServiceCollection()
             .AddDbContext<AppDbContext>(opt => opt.UseSqlServer(TESTDB_CONNECTION_STRING))
@@ -29,10 +29,10 @@ public abstract class BaseServiceTestFixture
             .AddScoped<IParticipationRepository, ParticipationRepository>()
             .AddScoped<IMessageRepository, MessageRepository>()
             .AddScoped<IAvatarRepository, AvatarRepository>()
-            .AddScoped<IUnitOfWork, UnitOfWork>()
-            .AddScoped<IMessageService, MessageService>();
+            .AddScoped<IUnitOfWork, UnitOfWork>();
         serviceCollection.AddIdentityCore<ExtendedIdentityUser>()
             .AddEntityFrameworkStores<IdentityDbContext>();
+        
         _serviceProvider = serviceCollection.BuildServiceProvider();
         
         _dbContext = _serviceProvider.GetService<AppDbContext>() 

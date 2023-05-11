@@ -24,10 +24,10 @@ public class UsersDataHelper
         .RuleFor(x => x.PhoneNumber, x => x.Person.Phone)
         .RuleFor(x => x.Birthday, _ => DateTime.Today.AddDays(Random.Shared.Next(-120, -10)));
 
-    public static AppUser GenerateRandomUser => _userFaker.Generate();
-    public static ExtendedIdentityUser GenerateRandomUserIdentity => _userIdentityFaker.Generate();
+    public static AppUser GenerateRandomUser() => _userFaker.Generate();
+    public static ExtendedIdentityUser GenerateRandomUserIdentity() => _userIdentityFaker.Generate();
 
-    public static async Task<AppUser> InsertNewUserToDb(UserManager<ExtendedIdentityUser> userManager, ExtendedIdentityUser newUserIdentity)
+    public static async Task<AppUser> InsertNewUserToDbAsync(UserManager<ExtendedIdentityUser> userManager, ExtendedIdentityUser newUserIdentity)
     {
         var result = await userManager.CreateAsync(newUserIdentity);
         if (!result.Succeeded)

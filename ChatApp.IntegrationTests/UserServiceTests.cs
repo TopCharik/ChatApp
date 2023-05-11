@@ -1,17 +1,19 @@
 using ChatApp.BLL;
+using ChatApp.DAL.App.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 namespace ChatApp.IntegrationTests;
 
-public class UserServiceTests : BaseServiceTestFixture
+public class UserServiceTests : BaseServiceTest
 {
     private IUserService _userService;
     
     public UserServiceTests()
     {
-        _userService = _serviceProvider.GetService<IUserService>() 
-                       ?? throw new InvalidOperationException("IMessageService is not registered in BaseServiceTestFixture");
+        var unitOfWork = _serviceProvider.GetService<IUnitOfWork>() 
+                         ?? throw new InvalidOperationException("IUnitOfWork is not registered in BaseServiceTestFixture");
+        _userService = new UserService(unitOfWork);
     }
     
     

@@ -1,6 +1,7 @@
 using ChatApp.BLL;
 using ChatApp.BLL.Helpers.ServiceErrors;
 using ChatApp.Core.Entities.MessageArggregate;
+using ChatApp.DAL.App.Interfaces;
 using ChatApp.IntegrationTests.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,14 +10,15 @@ using NUnit.Framework;
 namespace ChatApp.IntegrationTests;
 
 [TestFixture]
-public class MessagesServiceTests : BaseServiceTestFixture
+public class MessagesServiceTests : BaseServiceTest
 {
     private readonly IMessageService _messageService;
     
     public MessagesServiceTests()
     {
-        _messageService = _serviceProvider.GetService<IMessageService>() 
-                          ?? throw new InvalidOperationException("IMessageService is not registered in BaseServiceTestFixture");
+        var unitOfWork = _serviceProvider.GetService<IUnitOfWork>() 
+                         ?? throw new InvalidOperationException("IUnitOfWork is not registered in BaseServiceTestFixture");
+        _messageService = new MessageService(unitOfWork);
     }
 
     [Test]
@@ -25,15 +27,16 @@ public class MessagesServiceTests : BaseServiceTestFixture
         //Arrange
         await DbHelpers.ClearDb(_dbContext);
         
-        var newUser = UsersDataHelper.GenerateRandomUserIdentity; 
-        var user = await UsersDataHelper.InsertNewUserToDb(_userManager, newUser);
+        var newUser = UsersDataHelper.GenerateRandomUserIdentity(); 
+        var user = await UsersDataHelper.InsertNewUserToDbAsync(_userManager, newUser);
+
+        var newConversation = ConversationsDataHelper.GenerateRandomChat();
         
-        var conversationId = new Random().Next(100, 100000);
         var parameters = new MessageParameters();
         var expectedError = MessageServiceErrors.CHAT_NOT_FOUND;
 
         //Act
-        var result = await _messageService.GetMessages(conversationId, user.Id, parameters);
+        var result = await _messageService.GetMessages(newConversation.Id, user.Id, parameters);
         
         //Assert
         Assert.IsFalse(result.Succeeded);
@@ -46,12 +49,12 @@ public class MessagesServiceTests : BaseServiceTestFixture
         //Arrange
         await DbHelpers.ClearDb(_dbContext);
         
-        var newUser = UsersDataHelper.GenerateRandomUserIdentity; 
-        var user = await UsersDataHelper.InsertNewUserToDb(_userManager, newUser);
+        var newUser = UsersDataHelper.GenerateRandomUserIdentity(); 
+        var user = await UsersDataHelper.InsertNewUserToDbAsync(_userManager, newUser);
         
         var newChat = ConversationsDataHelper.GenerateRandomChat();
         newChat.ChatInfo.IsPrivate = true;
-        var chat = await ConversationsDataHelper.InsertNewChatToDb(_dbContext, newChat);
+        var chat = await ConversationsDataHelper.InsertNewChatToDbAsync(_dbContext, newChat);
         
         var parameters = new MessageParameters();
         var expectedError = MessageServiceErrors.USER_CANT_READ_MESSAGES_FROM_THIS_CHAT;
@@ -70,12 +73,12 @@ public class MessagesServiceTests : BaseServiceTestFixture
         //Arrange
         await DbHelpers.ClearDb(_dbContext);
 
-        var newUser = UsersDataHelper.GenerateRandomUserIdentity; 
-        var user = await UsersDataHelper.InsertNewUserToDb(_userManager, newUser);
+        var newUser = UsersDataHelper.GenerateRandomUserIdentity(); 
+        var user = await UsersDataHelper.InsertNewUserToDbAsync(_userManager, newUser);
         
         var newChat = ConversationsDataHelper.GenerateRandomChat();
         newChat.ChatInfo.IsPrivate = true;
-        var chat = await ConversationsDataHelper.InsertNewChatToDb(_dbContext, newChat);
+        var chat = await ConversationsDataHelper.InsertNewChatToDbAsync(_dbContext, newChat);
         
         var newParticipation = ParticipationsDataHelper.BasicParticipation;
         newParticipation.AspNetUserId = user.Id;
@@ -100,18 +103,18 @@ public class MessagesServiceTests : BaseServiceTestFixture
         //Arrange
         await DbHelpers.ClearDb(_dbContext);
 
-        var newUser = UsersDataHelper.GenerateRandomUserIdentity; 
-        var user = await UsersDataHelper.InsertNewUserToDb(_userManager, newUser);
+        var newUser = UsersDataHelper.GenerateRandomUserIdentity(); 
+        var user = await UsersDataHelper.InsertNewUserToDbAsync(_userManager, newUser);
         
         var newChat = ConversationsDataHelper.GenerateRandomChat();
         newChat.ChatInfo.IsPrivate = true;
-        var chat = await ConversationsDataHelper.InsertNewChatToDb(_dbContext, newChat);
+        var chat = await ConversationsDataHelper.InsertNewChatToDbAsync(_dbContext, newChat);
         
         var newParticipation = ParticipationsDataHelper.BasicParticipation;
         newParticipation.AspNetUserId = user.Id;
         newParticipation.ConversationId = chat.Id;
         newParticipation.HasLeft = false;
-        var participation = await ParticipationsDataHelper.InsertNewParticipationToDb(_dbContext, newParticipation);
+        await ParticipationsDataHelper.InsertNewParticipationToDb(_dbContext, newParticipation);
 
         var messages = await MessagesDataHelper.InserMessagesFromNewRandomUser(_userManager, _dbContext, chat.Id);
         
@@ -131,12 +134,12 @@ public class MessagesServiceTests : BaseServiceTestFixture
         //Arrange
         await DbHelpers.ClearDb(_dbContext);
 
-        var newUser = UsersDataHelper.GenerateRandomUserIdentity; 
-        var user = await UsersDataHelper.InsertNewUserToDb(_userManager, newUser);
+        var newUser = UsersDataHelper.GenerateRandomUserIdentity(); 
+        var user = await UsersDataHelper.InsertNewUserToDbAsync(_userManager, newUser);
         
         var newChat = ConversationsDataHelper.GenerateRandomChat();
         newChat.ChatInfo.IsPrivate = false;
-        var chat = await ConversationsDataHelper.InsertNewChatToDb(_dbContext, newChat);
+        var chat = await ConversationsDataHelper.InsertNewChatToDbAsync(_dbContext, newChat);
 
         var messages = await MessagesDataHelper.InserMessagesFromNewRandomUser(_userManager, _dbContext, chat.Id);
         
@@ -157,12 +160,12 @@ public class MessagesServiceTests : BaseServiceTestFixture
         //Arrange
         await DbHelpers.ClearDb(_dbContext);
 
-        var newUser = UsersDataHelper.GenerateRandomUserIdentity; 
-        var user = await UsersDataHelper.InsertNewUserToDb(_userManager, newUser);
+        var newUser = UsersDataHelper.GenerateRandomUserIdentity(); 
+        var user = await UsersDataHelper.InsertNewUserToDbAsync(_userManager, newUser);
         
         var newChat = ConversationsDataHelper.GenerateRandomChat();
         newChat.ChatInfo.IsPrivate = false;
-        var chat = await ConversationsDataHelper.InsertNewChatToDb(_dbContext, newChat);
+        var chat = await ConversationsDataHelper.InsertNewChatToDbAsync(_dbContext, newChat);
         
         var newParticipation = ParticipationsDataHelper.BasicParticipation;
         newParticipation.AspNetUserId = user.Id;
@@ -212,7 +215,7 @@ public class MessagesServiceTests : BaseServiceTestFixture
         var userId = Guid.NewGuid().ToString();
 
         var newChat = ConversationsDataHelper.GenerateRandomChat();
-        var chat = await ConversationsDataHelper.InsertNewChatToDb(_dbContext, newChat);
+        var chat = await ConversationsDataHelper.InsertNewChatToDbAsync(_dbContext, newChat);
         var participationId = new Random().Next(100, 100000);
         var expectedError = MessageServiceErrors.USER_IS_NOT_A_MEMBER_OF_THIS_CONVERSATION;
         
@@ -232,8 +235,8 @@ public class MessagesServiceTests : BaseServiceTestFixture
         //Arrange
         await DbHelpers.ClearDb(_dbContext);
         
-        var newUser = UsersDataHelper.GenerateRandomUserIdentity; 
-        var user = await UsersDataHelper.InsertNewUserToDb(_userManager, newUser);
+        var newUser = UsersDataHelper.GenerateRandomUserIdentity(); 
+        var user = await UsersDataHelper.InsertNewUserToDbAsync(_userManager, newUser);
         
         var conversationId = new Random().Next(100, 100000);
         var participationId = new Random().Next(100, 100000);
@@ -255,11 +258,11 @@ public class MessagesServiceTests : BaseServiceTestFixture
         //Arrange
         await DbHelpers.ClearDb(_dbContext);
         
-        var newUser = UsersDataHelper.GenerateRandomUserIdentity; 
-        var user = await UsersDataHelper.InsertNewUserToDb(_userManager, newUser);
+        var newUser = UsersDataHelper.GenerateRandomUserIdentity(); 
+        var user = await UsersDataHelper.InsertNewUserToDbAsync(_userManager, newUser);
         
         var newChat = ConversationsDataHelper.GenerateRandomChat();
-        var chat = await ConversationsDataHelper.InsertNewChatToDb(_dbContext, newChat);
+        var chat = await ConversationsDataHelper.InsertNewChatToDbAsync(_dbContext, newChat);
 
         var mutedUntil = DateTime.Today.AddYears(1);
         
@@ -287,11 +290,11 @@ public class MessagesServiceTests : BaseServiceTestFixture
         //Arrange
         await DbHelpers.ClearDb(_dbContext);
         
-        var newUser = UsersDataHelper.GenerateRandomUserIdentity; 
-        var user = await UsersDataHelper.InsertNewUserToDb(_userManager, newUser);
+        var newUser = UsersDataHelper.GenerateRandomUserIdentity(); 
+        var user = await UsersDataHelper.InsertNewUserToDbAsync(_userManager, newUser);
         
         var newChat = ConversationsDataHelper.GenerateRandomChat();
-        var chat = await ConversationsDataHelper.InsertNewChatToDb(_dbContext, newChat);
+        var chat = await ConversationsDataHelper.InsertNewChatToDbAsync(_dbContext, newChat);
         
         var newParticipation = ParticipationsDataHelper.BasicParticipation;
         newParticipation.AspNetUserId = user.Id;
@@ -317,11 +320,11 @@ public class MessagesServiceTests : BaseServiceTestFixture
         //Arrange
         await DbHelpers.ClearDb(_dbContext);
         
-        var newUser = UsersDataHelper.GenerateRandomUserIdentity; 
-        var user = await UsersDataHelper.InsertNewUserToDb(_userManager, newUser);
+        var newUser = UsersDataHelper.GenerateRandomUserIdentity(); 
+        var user = await UsersDataHelper.InsertNewUserToDbAsync(_userManager, newUser);
         
         var newChat = ConversationsDataHelper.GenerateRandomChat();
-        var chat = await ConversationsDataHelper.InsertNewChatToDb(_dbContext, newChat);
+        var chat = await ConversationsDataHelper.InsertNewChatToDbAsync(_dbContext, newChat);
         
         var newParticipation = ParticipationsDataHelper.BasicParticipation;
         newParticipation.AspNetUserId = user.Id;
@@ -347,11 +350,11 @@ public class MessagesServiceTests : BaseServiceTestFixture
         //Arrange
         await DbHelpers.ClearDb(_dbContext);
         
-        var newUser = UsersDataHelper.GenerateRandomUserIdentity; 
-        var user = await UsersDataHelper.InsertNewUserToDb(_userManager, newUser);
+        var newUser = UsersDataHelper.GenerateRandomUserIdentity(); 
+        var user = await UsersDataHelper.InsertNewUserToDbAsync(_userManager, newUser);
         
         var newChat = ConversationsDataHelper.GenerateRandomChat();
-        var chat = await ConversationsDataHelper.InsertNewChatToDb(_dbContext, newChat);
+        var chat = await ConversationsDataHelper.InsertNewChatToDbAsync(_dbContext, newChat);
         
         var newParticipation = ParticipationsDataHelper.BasicParticipation;
         newParticipation.AspNetUserId = user.Id;

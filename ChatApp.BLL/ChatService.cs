@@ -5,7 +5,6 @@ using ChatApp.Core.Entities.ChatInfoAggregate;
 using ChatApp.DAL.App.Helpers;
 using ChatApp.DAL.App.Interfaces;
 using ChatApp.DAL.App.Repositories;
-using Microsoft.EntityFrameworkCore;
 
 namespace ChatApp.BLL;
 

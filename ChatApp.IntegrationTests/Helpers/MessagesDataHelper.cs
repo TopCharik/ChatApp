@@ -39,8 +39,8 @@ public class MessagesDataHelper
         UserManager<ExtendedIdentityUser> userManager, DbContext dbContext, int conversationId)
     {
         
-        var newUser = UsersDataHelper.GenerateRandomUserIdentity; 
-        var user = await UsersDataHelper.InsertNewUserToDb(userManager, newUser);
+        var newUser = UsersDataHelper.GenerateRandomUserIdentity(); 
+        var user = await UsersDataHelper.InsertNewUserToDbAsync(userManager, newUser);
         
         
         var newParticipation = ParticipationsDataHelper.BasicParticipation;
