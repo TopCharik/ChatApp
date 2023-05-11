@@ -11,19 +11,19 @@ public class UsersDataHelper
 {
     private static Faker<AppUser> _userFaker = new Faker<AppUser>()
         .RuleFor(x => x.Id, _ => Guid.NewGuid().ToString())
-        .RuleFor(x => x.UserName, x => x.Person.UserName)
-        .RuleFor(x => x.FirstName, x => x.Person.FirstName)
-        .RuleFor(x => x.LastName, x => x.Person.LastName)
-        .RuleFor(x => x.Email, x => x.Person.Email)
-        .RuleFor(x => x.PhoneNumber, x => x.Person.Phone)
+        .RuleFor(x => x.UserName, x => x.Random.AlphaNumeric(100))
+        .RuleFor(x => x.FirstName, x => x.Random.AlphaNumeric(100))
+        .RuleFor(x => x.LastName, x => x.Random.AlphaNumeric(100))
+        .RuleFor(x => x.Email, x => x.Random.AlphaNumeric(100))
+        .RuleFor(x => x.PhoneNumber, x => x.Random.AlphaNumeric(100))
         .RuleFor(x => x.Birthday, _ => DateTime.Today.AddDays(Random.Shared.Next(-120, -10)));
     
     private static Faker<ExtendedIdentityUser> _userIdentityFaker = new Faker<ExtendedIdentityUser>()
-        .RuleFor(x => x.UserName, x => x.Person.UserName)
-        .RuleFor(x => x.FirstName, x => x.Person.FirstName)
-        .RuleFor(x => x.LastName, x => x.Person.LastName)
-        .RuleFor(x => x.Email, x => x.Person.Email)
-        .RuleFor(x => x.PhoneNumber, x => x.Person.Phone)
+        .RuleFor(x => x.UserName, x => x.Random.AlphaNumeric(100))
+        .RuleFor(x => x.FirstName, x => x.Random.AlphaNumeric(100))
+        .RuleFor(x => x.LastName, x => x.Random.AlphaNumeric(100))
+        .RuleFor(x => x.Email, x => x.Random.AlphaNumeric(100))
+        .RuleFor(x => x.PhoneNumber, x => x.Random.AlphaNumeric(100))
         .RuleFor(x => x.Birthday, _ => DateTime.Today.AddDays(Random.Shared.Next(-120, -10)));
 
     public static AppUser GenerateRandomUser() => _userFaker.Generate();

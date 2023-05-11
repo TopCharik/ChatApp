@@ -80,7 +80,7 @@ public class UserRepository : BaseRepository<AppUser>, IUserRepository
                 isAsc
                     ? users.OrderBy(u => u.Email)
                     : users.OrderByDescending(u => u.Email),
-            "phone" =>
+            "phonenumber" =>
                 isAsc
                     ? users.OrderBy(u => u.PhoneNumber)
                     : users.OrderByDescending(u => u.PhoneNumber),
