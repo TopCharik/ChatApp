@@ -8,8 +8,8 @@ namespace ChatApp.IntegrationTests.Helpers;
 public class ConversationsDataHelper
 {
     private static Faker<ChatInfo> _chatInfoFaker = new Faker<ChatInfo>()
-        .RuleFor(x => x.Title, x => x.Lorem.Word())
-        .RuleFor(x => x.ChatLink, x => x.Lorem.Word());
+        .RuleFor(x => x.Title, x => x.Random.AlphaNumeric(100))
+        .RuleFor(x => x.ChatLink, x => x.Random.AlphaNumeric(100));
 
     public static Conversation GenerateRandomChat() => new Faker<Conversation>()
         .RuleFor(x => x.ChatInfo, _ => _chatInfoFaker.Generate())
@@ -20,7 +20,13 @@ public class ConversationsDataHelper
         dbContext.Add(newChat);
         await dbContext.SaveChangesAsync();
 
-        return dbContext.Set<Conversation>().Include(x => x.ChatInfo)
-            .First(x => x.ChatInfo.ChatLink == newChat.ChatInfo.ChatLink && x.ChatInfo.Title == x.ChatInfo.Title);
+        return await dbContext.Set<Conversation>().Include(x => x.ChatInfo)
+            .FirstAsync(x => x.ChatInfo.ChatLink == newChat.ChatInfo.ChatLink && x.ChatInfo.Title == newChat.ChatInfo.Title);
+    }
+    
+    public static async Task<ChatInfoView> GetChatInfoViewByChat(DbContext dbContext, Conversation conversation)
+    {
+        return await dbContext.Set<ChatInfoView>()
+            .FirstAsync(x => x.ChatInfoId == conversation.ChatInfoId);
     }
 }

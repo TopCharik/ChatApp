@@ -1,6 +1,9 @@
 using ChatApp.BLL;
 using ChatApp.BLL.Helpers.ServiceErrors;
 using ChatApp.Core.Entities;
+using ChatApp.Core.Entities.ChatInfoAggregate;
+using ChatApp.Core.Helpers;
+using ChatApp.DAL.App.Helpers;
 using ChatApp.DAL.App.Interfaces;
 using ChatApp.IntegrationTests.Helpers;
 using Microsoft.EntityFrameworkCore;
@@ -415,5 +418,59 @@ public class ChatServiceTests : BaseServiceTest
         Assert.IsTrue(chatAvatars.Any(x => x.ImagePayload == newAvatar.ImagePayload));
     }
     
-    
+    [Test]
+    public async Task GetChatsAsync_SortsChatsByPropertyAndDirection_ReturnsSortedPagedList()
+    {
+        // Arrange
+        await DbHelpers.ClearDb(_dbContext);
+
+        var chats = new List<ChatInfoView>();
+        for (var i = 0; i < Random.Shared.Next(5, 100); i++)
+        {
+            var newChat = ConversationsDataHelper.GenerateRandomChat();
+            var chat = await ConversationsDataHelper.InsertNewChatToDbAsync(_dbContext, newChat);
+            var chatInfoView = await ConversationsDataHelper.GetChatInfoViewByChat(_dbContext, chat);
+            chats.Add(chatInfoView);
+        }
+
+        var parameters = new ChatInfoParameters
+        {
+            Page = 0,
+            PageSize = 10,
+        };
+
+        // Act
+        var sortProperties = new[] {"Title", "ChatLink"};
+        var sortDirections = new[] {SortDirection.Ascending, SortDirection.Descending};
+
+        foreach (var property in sortProperties)
+        {
+            foreach (var direction in sortDirections)
+            {
+                parameters.SortField = property;
+                parameters.SortDirection = direction;
+
+                var expectedOrder = direction == SortDirection.Ascending
+                    ? chats.OrderBy(u => u.GetType().GetProperty(property)?.GetValue(u).ToString()).ToList()
+                    : chats.OrderByDescending(u => u.GetType().GetProperty(property)?.GetValue(u).ToString()).ToList();
+
+                var expectedResult = PagedList<ChatInfoView>
+                    .ToPagedList(expectedOrder, parameters.Page, parameters.PageSize, chats.Count);
+
+                var result = await _chatService.GetChatsAsync(parameters);
+
+                // Assert
+                Assert.IsTrue(result.Succeeded);
+                Assert.AreEqual(chats.Count, result.Value.TotalCount);
+                Assert.AreEqual(parameters.PageSize, result.Value.PageSize);
+                Assert.AreEqual(expectedResult.Count, result.Value.Count);
+
+
+                for (var i = 0; i < expectedResult.Count; i++)
+                {
+                    Assert.AreEqual(expectedResult[i].ChatInfoId, result.Value[i].ChatInfoId);
+                }
+            }
+        }
+    }
 }
