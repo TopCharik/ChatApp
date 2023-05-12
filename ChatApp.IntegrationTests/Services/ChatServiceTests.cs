@@ -485,8 +485,7 @@ public class ChatServiceTests : BaseServiceTest
                     ? chats.OrderBy(u => u.GetType().GetProperty(property)?.GetValue(u).ToString()).ToList()
                     : chats.OrderByDescending(u => u.GetType().GetProperty(property)?.GetValue(u).ToString()).ToList();
 
-                var expectedResult = PagedList<ChatInfoView>
-                    .ToPagedList(expectedOrder, parameters.Page, parameters.PageSize, chats.Count);
+                var expectedResult = new PagedList<ChatInfoView>(expectedOrder, chats.Count, parameters.Page, parameters.PageSize);
 
                 var result = await _chatService.GetChatsAsync(parameters);
 

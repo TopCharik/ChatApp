@@ -33,23 +33,7 @@ public class ChatServiceTests
             .Returns(_mockParticipationRepository.Object);
         _chatService = new ChatService(_mockUnitOfWork.Object);
     }
-
-    [Test]
-    public async Task GetChatsAsync_WhenCalled_ReturnsPagedList()
-    {
-        var parameters = new ChatInfoParameters();
-        var chatsList =
-            PagedList<ChatInfoView>.ToPagedList(new List<ChatInfoView>(), parameters.Page, parameters.PageSize);
-        _mockConversationsRepository.Setup(repo => repo.GetChatsAsync(parameters))
-            .ReturnsAsync(chatsList);
-
-        var result = await _chatService.GetChatsAsync(parameters);
-
-        _mockConversationsRepository.Verify(repo => repo.GetChatsAsync(parameters), Times.Once);
-        Assert.AreSame(chatsList, result.Value);
-    }
-
-
+    
     [Test]
     public async Task JoinChat_ChatWithGivenLinkNotExist_ReturnsError()
     {

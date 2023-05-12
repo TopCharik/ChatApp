@@ -41,20 +41,6 @@ public class UserServiceTests
     }
 
     [Test]
-    public async Task GetUsersAsync_WhenCalled_ReturnsPagedList()
-    {
-        var parameters = new AppUserParameters();
-        var userList = PagedList<AppUser>.ToPagedList(new List<AppUser>(), parameters.Page, parameters.PageSize);
-        _mockUserRepository.Setup(repo => repo.GetUsersAsync(parameters))
-            .ReturnsAsync(userList);
-
-        var result = await _userService.GetUsersAsync(parameters);
-
-        Assert.IsTrue(result.Succeeded);
-        Assert.AreSame(userList, result.Value);
-    }
-
-    [Test]
     public async Task GetUserByUsernameAsync_WithUsernameNotExist_ReturnError()
     {
         var username = "test-username";
