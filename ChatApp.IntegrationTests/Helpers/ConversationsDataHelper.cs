@@ -29,4 +29,11 @@ public class ConversationsDataHelper
         return await dbContext.Set<ChatInfoView>()
             .FirstAsync(x => x.ChatInfoId == conversation.ChatInfoId);
     }
+
+    public static async Task<int> GetChatsCount(DbContext dbContext)
+    {
+        return await dbContext.Set<Conversation>()
+            .Where(x => x.ChatInfoId != null)
+            .CountAsync();
+    }
 }

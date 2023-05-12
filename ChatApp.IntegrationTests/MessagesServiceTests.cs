@@ -98,7 +98,7 @@ public class MessagesServiceTests : BaseServiceTest
     }
     
     [Test]
-    public async Task GetMessages_FromPrivateChatWhenUserWasAParticipantButLeft_ReturnsMessages()
+    public async Task GetMessages_FromPrivateChatWhenUserIsAParticipant_ReturnsMessages()
     {
         //Arrange
         await DbHelpers.ClearDb(_dbContext);
@@ -116,7 +116,7 @@ public class MessagesServiceTests : BaseServiceTest
         newParticipation.HasLeft = false;
         await ParticipationsDataHelper.InsertNewParticipationToDb(_dbContext, newParticipation);
 
-        var messages = await MessagesDataHelper.InserMessagesFromNewRandomUser(_userManager, _dbContext, chat.Id);
+        var messages = await MessagesDataHelper.InsertRandomMessagesFromNewRandomUser(_userManager, _dbContext, chat.Id);
         
         var parameters = new MessageParameters();
 
@@ -141,7 +141,7 @@ public class MessagesServiceTests : BaseServiceTest
         newChat.ChatInfo.IsPrivate = false;
         var chat = await ConversationsDataHelper.InsertNewChatToDbAsync(_dbContext, newChat);
 
-        var messages = await MessagesDataHelper.InserMessagesFromNewRandomUser(_userManager, _dbContext, chat.Id);
+        var messages = await MessagesDataHelper.InsertRandomMessagesFromNewRandomUser(_userManager, _dbContext, chat.Id);
         
         var parameters = new MessageParameters();
 
@@ -173,7 +173,7 @@ public class MessagesServiceTests : BaseServiceTest
         newParticipation.HasLeft = hasLeft;
         var participation = await ParticipationsDataHelper.InsertNewParticipationToDb(_dbContext, newParticipation);
 
-        var messages = await MessagesDataHelper.InserMessagesFromNewRandomUser(_userManager, _dbContext, chat.Id);
+        var messages = await MessagesDataHelper.InsertRandomMessagesFromNewRandomUser(_userManager, _dbContext, chat.Id);
         
         var parameters = new MessageParameters();
 
@@ -194,16 +194,19 @@ public class MessagesServiceTests : BaseServiceTest
         var userId = Guid.NewGuid().ToString();
         var conversationId = new Random().Next(100, 100000);
         var participationId = new Random().Next(100, 100000);
-        var expectedError = MessageServiceErrors.USER_IS_NOT_A_MEMBER_OF_THIS_CONVERSATION;
         
-        var message = MessagesDataHelper.GenerateRandomMessage(participationId);
+        var expectedError = MessageServiceErrors.USER_IS_NOT_A_MEMBER_OF_THIS_CONVERSATION;
+        var expectedMessagesCount = await MessagesDataHelper.GetAllMessagesCountAsync(_dbContext);
         
         //Act
+        var message = MessagesDataHelper.GenerateRandomMessage(participationId);
         var result = await _messageService.SendMessage(message, userId, conversationId);
         
         //Assert
+        var actualMessagesCount = await MessagesDataHelper.GetAllMessagesCountAsync(_dbContext);
         Assert.IsFalse(result.Succeeded);
         Assert.AreEqual(expectedError, result.Errors);
+        Assert.AreEqual(expectedMessagesCount, actualMessagesCount);
     }
         
     [Test]
@@ -217,16 +220,19 @@ public class MessagesServiceTests : BaseServiceTest
         var newChat = ConversationsDataHelper.GenerateRandomChat();
         var chat = await ConversationsDataHelper.InsertNewChatToDbAsync(_dbContext, newChat);
         var participationId = new Random().Next(100, 100000);
+        
         var expectedError = MessageServiceErrors.USER_IS_NOT_A_MEMBER_OF_THIS_CONVERSATION;
-        
-        var message = MessagesDataHelper.GenerateRandomMessage(participationId);
-        
+        var expectedMessagesCount = await MessagesDataHelper.GetAllMessagesCountAsync(_dbContext);
+
         //Act
+        var message = MessagesDataHelper.GenerateRandomMessage(participationId);
         var result = await _messageService.SendMessage(message, userId, chat.Id);
         
         //Assert
+        var actualMessagesCount = await MessagesDataHelper.GetAllMessagesCountAsync(_dbContext);
         Assert.IsFalse(result.Succeeded);
         Assert.AreEqual(expectedError, result.Errors);
+        Assert.AreEqual(expectedMessagesCount, actualMessagesCount);
     }
     
     [Test]
@@ -241,15 +247,17 @@ public class MessagesServiceTests : BaseServiceTest
         var conversationId = new Random().Next(100, 100000);
         var participationId = new Random().Next(100, 100000);
         var expectedError = MessageServiceErrors.USER_IS_NOT_A_MEMBER_OF_THIS_CONVERSATION;
-        
-        var message = MessagesDataHelper.GenerateRandomMessage(participationId);
+        var expectedMessagesCount = await MessagesDataHelper.GetAllMessagesCountAsync(_dbContext);
         
         //Act
+        var message = MessagesDataHelper.GenerateRandomMessage(participationId);
         var result = await _messageService.SendMessage(message, user.Id, conversationId);
         
         //Assert
+        var actualMessagesCount = await MessagesDataHelper.GetAllMessagesCountAsync(_dbContext);
         Assert.IsFalse(result.Succeeded);
         Assert.AreEqual(expectedError, result.Errors);
+        Assert.AreEqual(expectedMessagesCount, actualMessagesCount);
     }
         
     [Test]
@@ -273,15 +281,17 @@ public class MessagesServiceTests : BaseServiceTest
         var participation = await ParticipationsDataHelper.InsertNewParticipationToDb(_dbContext, newParticipation);
         
         var expectedError = MessageServiceErrors.USER_IS_MUTED_UNTIL(mutedUntil);
-        
-        var message = MessagesDataHelper.GenerateRandomMessage(participation.Id);
-        
+        var expectedMessagesCount = await MessagesDataHelper.GetAllMessagesCountAsync(_dbContext);
+
         //Act
+        var message = MessagesDataHelper.GenerateRandomMessage(participation.Id);
         var result = await _messageService.SendMessage(message, user.Id, chat.Id);
         
         //Assert
+        var actualMessagesCount = await MessagesDataHelper.GetAllMessagesCountAsync(_dbContext);
         Assert.IsFalse(result.Succeeded);
         Assert.AreEqual(expectedError, result.Errors);
+        Assert.AreEqual(expectedMessagesCount, actualMessagesCount);
     }
             
     [Test]
@@ -302,16 +312,18 @@ public class MessagesServiceTests : BaseServiceTest
         newParticipation.CanWriteMessages = false;
         var participation = await ParticipationsDataHelper.InsertNewParticipationToDb(_dbContext, newParticipation);
         
-        var expectedError = MessageServiceErrors.USER_CANT_WRITE_MESSAGES_IN_THIS_CHAT;
-        
-        var message = MessagesDataHelper.GenerateRandomMessage(participation.Id);
-        
+        var expectedError = MessageServiceErrors.USER_CANT_WRITE_MESSAGES_IN_THIS_CHAT;        
+        var expectedMessagesCount = await MessagesDataHelper.GetAllMessagesCountAsync(_dbContext);
+
         //Act
+        var message = MessagesDataHelper.GenerateRandomMessage(participation.Id);
         var result = await _messageService.SendMessage(message, user.Id, chat.Id);
         
         //Assert
+        var actualMessagesCount = await MessagesDataHelper.GetAllMessagesCountAsync(_dbContext);
         Assert.IsFalse(result.Succeeded);
         Assert.AreEqual(expectedError, result.Errors);
+        Assert.AreEqual(expectedMessagesCount, actualMessagesCount);
     }
                 
     [Test]
@@ -332,16 +344,18 @@ public class MessagesServiceTests : BaseServiceTest
         newParticipation.HasLeft = true;
         var participation = await ParticipationsDataHelper.InsertNewParticipationToDb(_dbContext, newParticipation);
         
-        var expectedError = MessageServiceErrors.USER_IS_NOT_A_MEMBER_OF_THIS_CONVERSATION;
-        
-        var message = MessagesDataHelper.GenerateRandomMessage(participation.Id);
-        
+        var expectedError = MessageServiceErrors.USER_IS_NOT_A_MEMBER_OF_THIS_CONVERSATION;        
+        var expectedMessagesCount = await MessagesDataHelper.GetAllMessagesCountAsync(_dbContext);
+
         //Act
+        var message = MessagesDataHelper.GenerateRandomMessage(participation.Id);
         var result = await _messageService.SendMessage(message, user.Id, chat.Id);
         
         //Assert
+        var actualMessagesCount = await MessagesDataHelper.GetAllMessagesCountAsync(_dbContext);
         Assert.IsFalse(result.Succeeded);
         Assert.AreEqual(expectedError, result.Errors);
+        Assert.AreEqual(expectedMessagesCount, actualMessagesCount);
     }
                     
     [Test]

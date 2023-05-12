@@ -35,7 +35,7 @@ public class MessagesDataHelper
         
     }
 
-    public static async Task<List<Message>> InserMessagesFromNewRandomUser(
+    public static async Task<List<Message>> InsertRandomMessagesFromNewRandomUser(
         UserManager<ExtendedIdentityUser> userManager, DbContext dbContext, int conversationId)
     {
         
@@ -57,5 +57,10 @@ public class MessagesDataHelper
             .Include(x => x.Messages)
             .SelectMany(x => x.Messages)
             .ToListAsync();
+    }
+
+    public static async Task<int> GetAllMessagesCountAsync(DbContext dbContext)
+    {
+        return await dbContext.Set<Message>().CountAsync();
     }
 }

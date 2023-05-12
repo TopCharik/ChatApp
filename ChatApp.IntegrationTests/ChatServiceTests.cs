@@ -44,8 +44,12 @@ public class ChatServiceTests : BaseServiceTest
         var result = await _chatService.JoinChat(chat.ChatInfo.ChatLink, participation);
 
         //Assert
+        var actualParticipationCount = await  _dbContext.Set<Participation>()
+            .Where(x => x.AspNetUserId == user.Id)
+            .CountAsync();
         Assert.IsFalse(result.Succeeded);
         Assert.AreEqual(expectedError, result.Errors);
+        Assert.AreEqual(0, actualParticipationCount);
     }
 
     [Test]
@@ -66,6 +70,8 @@ public class ChatServiceTests : BaseServiceTest
         await ParticipationsDataHelper.InsertNewParticipationToDb(_dbContext, newParticipation);
 
         var expectedError = ChatServiceErrors.USER_IS_ALLREADY_MEMBER_OF_THIS_CHAT;
+        var expectedParticipationCount =
+            await ParticipationsDataHelper.GetUserParticipationCountAsync(_dbContext, user.Id);
 
         //Act
         var participation = ParticipationsDataHelper.BasicParticipation;
@@ -74,8 +80,11 @@ public class ChatServiceTests : BaseServiceTest
         var result = await _chatService.JoinChat(chat.ChatInfo.ChatLink, participation);
 
         //Assert
+        var actualParticipationCount = 
+            await ParticipationsDataHelper.GetUserParticipationCountAsync(_dbContext, user.Id);
         Assert.IsFalse(result.Succeeded);
         Assert.AreEqual(expectedError, result.Errors);
+        Assert.AreEqual(expectedParticipationCount, actualParticipationCount);
     }
     
     [Test]
@@ -100,8 +109,12 @@ public class ChatServiceTests : BaseServiceTest
         var result = await _chatService.JoinChat(chat.ChatInfo.ChatLink, participation);
 
         //Assert
+        var actualParticipationCount = await  _dbContext.Set<Participation>()
+            .Where(x => x.AspNetUserId == user.Id)
+            .CountAsync();
         Assert.IsFalse(result.Succeeded);
         Assert.AreEqual(expectedError, result.Errors);
+        Assert.AreEqual(0, actualParticipationCount);
     }
     
     [Test]
@@ -166,7 +179,7 @@ public class ChatServiceTests : BaseServiceTest
     }
     
     [Test]
-    public async Task LeaveChat_WhenChatLinkNotExist_SetsParticipationInChatFalse()
+    public async Task LeaveChat_WhenChatLinkNotExist_ReturnsError()
     {
         //Arrange
         await DbHelpers.ClearDb(_dbContext);
@@ -182,13 +195,16 @@ public class ChatServiceTests : BaseServiceTest
         var result = await _chatService.LeaveChat(chat.ChatInfo.ChatLink, user.Id);
 
         //Assert
-            
+        var actualParticipationCount = await  _dbContext.Set<Participation>()
+            .Where(x => x.AspNetUserId == user.Id)
+            .CountAsync();
         Assert.IsFalse(result.Succeeded);
         Assert.AreEqual(expectedError, result.Errors);
+        Assert.AreEqual(0, actualParticipationCount);
     }
     
     [Test]
-    public async Task LeaveChat_WhenUserWasNotAMember_SetsParticipationInChatFalse()
+    public async Task LeaveChat_WhenUserWasNotAMember_ReturnsError()
     {
         //Arrange
         await DbHelpers.ClearDb(_dbContext);
@@ -205,8 +221,12 @@ public class ChatServiceTests : BaseServiceTest
         var result = await _chatService.LeaveChat(chat.ChatInfo.ChatLink, user.Id);
 
         //Assert
+        var actualParticipationCount = await  _dbContext.Set<Participation>()
+            .Where(x => x.AspNetUserId == user.Id)
+            .CountAsync();
         Assert.IsFalse(result.Succeeded);
         Assert.AreEqual(expectedError, result.Errors);
+        Assert.AreEqual(0, actualParticipationCount);
     }
 
     [Test]
@@ -234,8 +254,11 @@ public class ChatServiceTests : BaseServiceTest
         var result = await _chatService.LeaveChat(chat.ChatInfo.ChatLink, user.Id);
 
         //Assert
+        var actualParticipation = await _dbContext.Set<Participation>()
+            .FirstAsync(x => x.AspNetUserId == user.Id);
         Assert.IsFalse(result.Succeeded);
         Assert.AreEqual(expectedError, result.Errors);
+        Assert.AreEqual(true, actualParticipation.HasLeft);
     }
     
     [Test]
@@ -280,6 +303,7 @@ public class ChatServiceTests : BaseServiceTest
         var chat = await ConversationsDataHelper.InsertNewChatToDbAsync(_dbContext, newChat);
 
         var expectedError = ChatServiceErrors.CHAT_WITH_THIS_LINK_ALLREADY_EXIST;
+        var expectedChatsCount = await ConversationsDataHelper.GetChatsCount(_dbContext);
                 
         //Act
         var creationChat = ConversationsDataHelper.GenerateRandomChat();
@@ -287,8 +311,10 @@ public class ChatServiceTests : BaseServiceTest
         var result = await _chatService.CreateNewChat(creationChat);
         
         //Assert
+        var actualChatsCount = await ConversationsDataHelper.GetChatsCount(_dbContext);
         Assert.IsFalse(result.Succeeded);
         Assert.AreEqual(expectedError, result.Errors);
+        Assert.AreEqual(expectedChatsCount, actualChatsCount);
     }
     
     [Test]
@@ -322,18 +348,21 @@ public class ChatServiceTests : BaseServiceTest
         var chat = ConversationsDataHelper.GenerateRandomChat();
 
         var expectedError = ChatServiceErrors.CHAT_WITH_THIS_LINK_DOESNT_EXIST;
+        var expectedAvatarCount = await AvatarDataHelper.GetAvatarCountAsync(_dbContext);
 
         //Act
         var newAvatar = AvatarDataHelper.GenerateRandomAvatar();
         var result = await _chatService.AddAvatar(newAvatar, chat.ChatInfo.ChatLink, user.Id);
         
         //Assert
+        var actualAvatarCount = await AvatarDataHelper.GetAvatarCountAsync(_dbContext);
         Assert.IsFalse(result.Succeeded);
         Assert.AreEqual(expectedError, result.Errors);
+        Assert.AreEqual(expectedAvatarCount, actualAvatarCount);
     }
     
     [Test]
-    public async Task AddAvatar_WhenUserNotAMember_AddsAvatar()
+    public async Task AddAvatar_WhenUserNotAMember_ReturnsError()
     {
         //Arrange
         await DbHelpers.ClearDb(_dbContext);
@@ -345,22 +374,21 @@ public class ChatServiceTests : BaseServiceTest
         var chat = await ConversationsDataHelper.InsertNewChatToDbAsync(_dbContext, newChat);
 
         var expectedError = ChatServiceErrors.USER_CANT_ADD_AVATAR_TO_THIS_CHAT;
+        var expectedAvatarCount = await AvatarDataHelper.GetAvatarCountAsync(_dbContext);
 
         //Act
         var newAvatar = AvatarDataHelper.GenerateRandomAvatar();
         var result = await _chatService.AddAvatar(newAvatar, chat.ChatInfo.ChatLink, user.Id);
-        
+
         //Assert
-        var chatAvatars = await _dbContext.Set<Avatar>()
-            .Where(x => x.ChatInfoId == chat.ChatInfo.Id).ToListAsync();
-            
-        //Assert
+        var actualAvatarCount = await AvatarDataHelper.GetAvatarCountAsync(_dbContext);
         Assert.IsFalse(result.Succeeded);
         Assert.AreEqual(expectedError, result.Errors);
+        Assert.AreEqual(expectedAvatarCount, actualAvatarCount);
     }
     
     [Test]
-    public async Task AddAvatar_WhenUserIsAMemberButCantChangeAvatar_AddsAvatar()
+    public async Task AddAvatar_WhenUserIsAMemberButCantChangeAvatar_ReturnsError()
     {
         //Arrange
         await DbHelpers.ClearDb(_dbContext);
@@ -378,14 +406,17 @@ public class ChatServiceTests : BaseServiceTest
         await ParticipationsDataHelper.InsertNewParticipationToDb(_dbContext, newParticipation);
 
         var expectedError = ChatServiceErrors.USER_CANT_ADD_AVATAR_TO_THIS_CHAT;
+        var expectedAvatarCount =await  AvatarDataHelper.GetAvatarCountAsync(_dbContext);
 
         //Act
         var newAvatar = AvatarDataHelper.GenerateRandomAvatar();
         var result = await _chatService.AddAvatar(newAvatar, chat.ChatInfo.ChatLink, user.Id);
 
         //Assert
+        var actualAvatarCount = await  AvatarDataHelper.GetAvatarCountAsync(_dbContext);
         Assert.IsFalse(result.Succeeded);
         Assert.AreEqual(expectedError, result.Errors);
+        Assert.AreEqual(expectedAvatarCount, actualAvatarCount);
     }
 
     [Test]

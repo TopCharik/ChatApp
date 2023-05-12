@@ -47,7 +47,7 @@ public class UserServiceTests : BaseServiceTest
     }
 
     [Test]
-    public async Task GetUserByUsernameAsync_WhenUsernameExist_ReturnsError()
+    public async Task GetUserByUsernameAsync_WhenUsernameExist_ReturnsUser()
     {
         //Arrange
         await DbHelpers.ClearDb(_dbContext);
@@ -65,7 +65,7 @@ public class UserServiceTests : BaseServiceTest
 
 
     [Test]
-    public async Task GetUserIdsByUsernames_WhenAllUsernamesExist_ReturnsError()
+    public async Task GetUserIdsByUsernames_WhenNotAllUsernamesExist_ReturnsError()
     {
         //Arrange
         await DbHelpers.ClearDb(_dbContext);
@@ -80,7 +80,7 @@ public class UserServiceTests : BaseServiceTest
 
         var usernames = users.Select(x => x.UserName).ToList();
 
-        usernames.Add(UsersDataHelper.GenerateRandomUserIdentity().Id);
+        usernames.Add(Guid.NewGuid().ToString());
 
         var expectedError = UserServiceErrors.USER_NOT_FOUND_BY_USERNAME;
 
@@ -157,7 +157,7 @@ public class UserServiceTests : BaseServiceTest
     }
 
     [Test]
-    public async Task AddAvatar_WhenCalled_AddsAvatar()
+    public async Task AddAvatar_WhenValidCalled_AddsAvatar()
     {
         //Arrange
         await DbHelpers.ClearDb(_dbContext);
@@ -181,7 +181,8 @@ public class UserServiceTests : BaseServiceTest
 
         Assert.IsTrue(result.Succeeded);
         Assert.NotNull(addedAvatar);
-        Assert.AreEqual(user.UserName, avatar.User.UserName);
+        Assert.AreEqual(avatar.ImagePayload, addedAvatar.ImagePayload);
+        Assert.AreEqual(avatar.DateSet, addedAvatar.DateSet);
     }
 
     [TestCase("11BA4049684F46ADA8D496E2D2E00F26")]
@@ -201,7 +202,6 @@ public class UserServiceTests : BaseServiceTest
         //Assert
         Assert.IsFalse(result.Succeeded);
         Assert.AreEqual(expectedError, result.Errors);
-        _dbContext.ChangeTracker.Clear();
     }
 
     [TestCase("11BA4049684F46ADA8D496E2D2E00F26")]
@@ -225,7 +225,7 @@ public class UserServiceTests : BaseServiceTest
     }
 
     [Test]
-    public async Task RemoveCallHubConnectionId_WithNotExistingConnectionId_RemovesCallHubConnectionId()
+    public async Task RemoveCallHubConnectionId_WithNotExistingConnectionId_ReturnsError()
     {
         //Arrange
         await DbHelpers.ClearDb(_dbContext);
@@ -243,7 +243,6 @@ public class UserServiceTests : BaseServiceTest
     }
 
     [Test]
-    [NonParallelizable]
     public async Task RemoveCallHubConnectionId_WithExistingConnectionId_RemovesCallHubConnectionId()
     {
         //Arrange
@@ -268,7 +267,6 @@ public class UserServiceTests : BaseServiceTest
     [TestCase(false, true)]
     [TestCase(true, false)]
     [TestCase(true, true)]
-    [NonParallelizable]
     public async Task SetInCall_WhenCallReceiverNotExist_ReturnsError(bool callInitiatorInCallValue,
         bool newInCallValue)
     {

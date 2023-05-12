@@ -1,5 +1,6 @@
 using Bogus;
 using ChatApp.Core.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace ChatApp.IntegrationTests.Helpers;
 
@@ -10,4 +11,9 @@ public class AvatarDataHelper
         .RuleFor(x => x.DateSet, _ => DateTime.Now);
 
     public static Avatar GenerateRandomAvatar() => _chatInfoFaker.Generate();
+
+    public static async Task<int> GetAvatarCountAsync(DbContext dbContext)
+    {
+        return await dbContext.Set<Avatar>().CountAsync();
+    }
 }

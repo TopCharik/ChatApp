@@ -42,4 +42,11 @@ public class ParticipationsDataHelper
             .First(x => x.AspNetUserId == participation.AspNetUserId &&
                         x.ConversationId == participation.ConversationId);
     }
+
+    public static async Task<int> GetUserParticipationCountAsync(DbContext dbContext, string userId)
+    {
+        return await dbContext.Set<Participation>()
+            .Where(x => x.AspNetUserId == userId)
+            .CountAsync();
+    }
 }
