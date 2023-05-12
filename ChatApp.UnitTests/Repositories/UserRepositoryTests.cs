@@ -285,8 +285,8 @@ public class UserRepositoryTests
     [TestCase("laSTnAmE", SortDirection.Descending, ExpectedResult = "A2B6FFA7-9320-466C-AC41-077F9463F570")]
     [TestCase("eMAil", SortDirection.Ascending, ExpectedResult = "2CFDB80C-BBB3-4633-B47F-5F081CD7496C")]
     [TestCase("EmaIL", SortDirection.Descending, ExpectedResult = "F8A3D859-28AB-40BE-BE19-9935A47F0EAE")]
-    [TestCase("PHonE", SortDirection.Ascending, ExpectedResult = "382A1E62-1A84-4722-8E53-F55ECBCBA3C3")]
-    [TestCase("pHONe", SortDirection.Descending, ExpectedResult = "38603CBC-C704-41C0-AA3E-D8B0E8A32F38")]
+    [TestCase("PHonE", SortDirection.Ascending, ExpectedResult = "5DE50785-60C3-4B5C-8EE8-6FFDBACEB671")]
+    [TestCase("pHONe", SortDirection.Descending, ExpectedResult = "99078870-7BAB-44F6-97D8-340EC0EC2FFC")]
     public async Task<string> GetChatsAsync_SortByField_ReturnsSortedPagedList(string sortField, SortDirection sortDirection)
     {
         var parameters = new AppUserParameters
@@ -399,7 +399,7 @@ public class UserRepositoryTests
 
     private async Task VerifyUserListAsync(List<AppUser> expectedUsers, AppUserParameters parameters)
     {
-        var expectedResult = PagedList<AppUser>.ToPagedList(expectedUsers, parameters.Page, parameters.PageSize);
+        var expectedResult = new PagedList<AppUser>(expectedUsers, expectedUsers.Count, parameters.Page, parameters.PageSize);
 
         var result = await _repository.GetUsersAsync(parameters);
 

@@ -535,7 +535,7 @@ public class ConversationRepositoryTest
         List<ChatInfoView> expectedChatInfoViews)
     {
         var expectedResult =
-            PagedList<ChatInfoView>.ToPagedList(expectedChatInfoViews, parameters.Page, parameters.PageSize);
+            new PagedList<ChatInfoView>(expectedChatInfoViews, expectedChatInfoViews.Count, parameters.Page, parameters.PageSize);
 
         var result = await _repository.GetChatsAsync(parameters);
 

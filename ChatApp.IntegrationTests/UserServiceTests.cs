@@ -450,8 +450,7 @@ public class UserServiceTests : BaseServiceTest
                     ? users.OrderBy(u => u.GetType().GetProperty(property)?.GetValue(u).ToString()).ToList()
                     : users.OrderByDescending(u => u.GetType().GetProperty(property)?.GetValue(u).ToString()).ToList();
 
-                var expectedResult = PagedList<AppUser>
-                    .ToPagedList(expectedOrder, parameters.Page, parameters.PageSize, users.Count);
+                var expectedResult = new PagedList<AppUser>(expectedOrder, users.Count, parameters.Page, parameters.PageSize);
 
                 var result = await _userService.GetUsersAsync(parameters);
 
